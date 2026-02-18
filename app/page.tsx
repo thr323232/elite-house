@@ -182,21 +182,20 @@ function BrandWatermark({
   );
 }
 
-/** Monogram watermark (no extra files needed) */
+/** Monogram watermark */
 function MonogramWatermark() {
   return (
     <div
-      className="pointer-events-none absolute -top-10 right-[-10px] sm:right-[-40px] opacity-[0.05] sm:opacity-[0.07] blur-[0.2px]"
+      className="pointer-events-none absolute -top-10 right-0 opacity-[0.05] sm:opacity-[0.07] blur-[0.2px]"
       aria-hidden="true"
     >
-      <div className="text-[140px] sm:text-[220px] font-semibold tracking-[-0.08em] text-white/10">
+      <div className="text-[120px] sm:text-[220px] font-semibold tracking-[-0.08em] text-white/10">
         EH
       </div>
     </div>
   );
 }
 
-/** Luxury engraved divider */
 function LuxeDivider() {
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6" aria-hidden="true">
@@ -208,7 +207,6 @@ function LuxeDivider() {
   );
 }
 
-/** Micro logo pattern (used once for pricing) */
 function MicroLogoPattern() {
   return (
     <div
@@ -231,7 +229,11 @@ function MicroLogoPattern() {
   );
 }
 
-/** Premium EPG (mobile: scroll, desktop: marquee) */
+/**
+ * Redesigned EPG:
+ * - Mobile = compact preview, horizontal swipe inside, fixed max height
+ * - Desktop = premium marquee
+ */
 function EpgMock() {
   const timeline = [
     "18:00",
@@ -249,232 +251,229 @@ function EpgMock() {
   ];
 
   const rows = [
-    {
-      ch: "101",
-      abbr: "MOV",
-      name: "Cinema",
-      blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"],
-    },
-    {
-      ch: "102",
-      abbr: "SPT",
-      name: "Sports",
-      blocks: ["LIVE Match", "Highlights", "Studio", "Championships"],
-    },
-    {
-      ch: "103",
-      abbr: "ENT",
-      name: "Entertainment",
-      blocks: ["Trending", "Reality", "Late Night", "Top Picks"],
-    },
-    {
-      ch: "104",
-      abbr: "DOC",
-      name: "Documentary",
-      blocks: ["Nature", "History", "True Stories", "Discovery"],
-    },
-    {
-      ch: "105",
-      abbr: "KID",
-      name: "Kids",
-      blocks: ["Family Time", "Cartoons", "Education", "Classics"],
-    },
+    { ch: "101", abbr: "MOV", name: "Cinema", blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"] },
+    { ch: "102", abbr: "SPT", name: "Sports", blocks: ["LIVE Match", "Highlights", "Studio", "Championships"] },
+    { ch: "103", abbr: "ENT", name: "Entertainment", blocks: ["Trending", "Reality", "Late Night", "Top Picks"] },
+    { ch: "104", abbr: "DOC", name: "Documentary", blocks: ["Nature", "History", "True Stories", "Discovery"] },
+    { ch: "105", abbr: "KID", name: "Kids", blocks: ["Family Time", "Cartoons", "Education", "Classics"] },
   ];
 
-  const nowLeft = "52.5%";
-  const slotW = 118;
+  const slotWDesktop = 118;
+  const slotWMobile = 92;
 
-  const programWidth = timeline.length * slotW;
-  const desktopTrackWidth = programWidth * 2;
+  const programWidthDesktop = timeline.length * slotWDesktop;
+  const desktopTrackWidth = programWidthDesktop * 2;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50">
-      <div className="pointer-events-none absolute inset-0 opacity-70">
-        <div className="absolute inset-0 bg-[radial-gradient(80%_55%_at_50%_0%,rgba(212,175,55,0.14),rgba(0,0,0,0)_60%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04),rgba(255,255,255,0.00),rgba(255,255,255,0.04))]" />
+    <div className="relative rounded-2xl border border-white/10 bg-black/55 overflow-hidden">
+      {/* Premium subtle lighting */}
+      <div className="pointer-events-none absolute inset-0 opacity-75">
+        <div className="absolute inset-0 bg-[radial-gradient(85%_60%_at_50%_0%,rgba(212,175,55,0.16),rgba(0,0,0,0)_60%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05),rgba(255,255,255,0.00),rgba(255,255,255,0.05))]" />
       </div>
 
-      <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/80 opacity-80 motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
-          style={{ left: nowLeft }}
-        />
-        <div
-          className="absolute top-0 bottom-0 w-[56px] bg-[#D4AF37]/10 blur-xl motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
-          style={{ left: `calc(${nowLeft} - 28px)` }}
-        />
-      </div>
-
-      <div className="border-b border-white/10 bg-white/[0.03] px-3 py-2.5 sm:px-4 sm:py-3">
-        {/* ✅ min-w-0 prevents flex overflow on mobile */}
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="w-[140px] text-[10px] uppercase tracking-[0.26em] text-white/45 sm:w-[180px]">
-            Programme guide
+      {/* MOBILE COMPACT WRAP */}
+      <div className="sm:hidden relative">
+        <div className="px-3 pt-3 pb-2 border-b border-white/10 bg-white/[0.03]">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] uppercase tracking-[0.26em] text-white/45">
+              Programme Guide Preview
+            </div>
+            <div className="rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-1 text-[10px] font-semibold text-[#F6E27A]">
+              Swipe →
+            </div>
           </div>
 
+          {/* timeline swipe */}
           <div
-            className="sm:hidden relative flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
-            style={{
-              WebkitOverflowScrolling: "touch",
-              scrollbarWidth: "none",
-            }}
+            className="mt-2 overflow-x-auto overscroll-x-contain touch-pan-x"
+            style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
           >
-            <div className="absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black/55 to-transparent pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-black/55 to-transparent pointer-events-none" />
-            <div className="flex whitespace-nowrap min-w-max pr-6">
+            <div className="flex min-w-max whitespace-nowrap pr-6">
               {timeline.map((t) => (
                 <div
                   key={t}
                   className="shrink-0 text-[10px] text-white/45"
-                  style={{ width: slotW }}
+                  style={{ width: slotWMobile }}
                 >
                   {t}
                 </div>
               ))}
             </div>
           </div>
+        </div>
 
-          <div className="hidden sm:block relative flex-1 overflow-hidden">
-            <div className="relative whitespace-nowrap">
-              <div
-                className="flex motion-reduce:animate-none animate-[marquee_34s_linear_infinite]"
-                style={{ width: desktopTrackWidth }}
-              >
-                {[0, 1].map((dup) => (
-                  <div key={dup} className="flex" style={{ width: programWidth }}>
-                    {timeline.map((t) => (
-                      <div
-                        key={`${dup}-${t}`}
-                        className="shrink-0 text-[10px] text-white/45"
-                        style={{ width: slotW }}
-                      >
-                        {t}
+        {/* rows compact (fixed height so it never “takes over”) */}
+        <div className="px-3 py-3 max-h-[280px] overflow-y-auto">
+          <div className="grid gap-3">
+            {rows.slice(0, 4).map((row, idx) => (
+              <div key={row.ch} className="flex min-w-0 gap-2">
+                <div className="w-[104px] shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
+                      {row.abbr}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-semibold text-white/90 leading-tight">
+                        {row.name}
                       </div>
-                    ))}
+                      <div className="text-[10px] text-white/45">CH {row.ch}</div>
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                <div
+                  className="flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
+                  style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
+                >
+                  <div className="flex min-w-max gap-2 pr-6">
+                    {row.blocks.map((b, i) => {
+                      const isLive = b.toUpperCase().includes("LIVE");
+                      const isNow = idx === 1 && i === 0;
+                      const w = 3 * slotWMobile;
+
+                      return (
+                        <div
+                          key={`${row.ch}-${i}`}
+                          className={
+                            "shrink-0 rounded-2xl border border-white/10 " +
+                            "bg-gradient-to-b from-white/[0.06] to-white/[0.03] px-3 py-2 " +
+                            (isNow ? "ring-1 ring-[#D4AF37]/25" : "")
+                          }
+                          style={{ width: w }}
+                        >
+                          <div className="flex items-start gap-2">
+                            <div className="text-[11px] font-semibold text-white/90 leading-tight">
+                              {b}
+                            </div>
+                            {isLive ? (
+                              <span className="mt-0.5 shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/12 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
+                                LIVE
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+
+          <div className="mt-3 text-[10px] text-white/45 flex items-center justify-between">
+            <span>Accurate listings</span>
+            <span>Smooth browsing</span>
           </div>
         </div>
       </div>
 
-      <div className="px-3 py-3 sm:px-4">
-        <div className="grid gap-3">
-          {rows.map((row, idx) => (
-            // ✅ min-w-0 prevents children from forcing width wider than screen
-            <div key={row.ch} className="flex min-w-0 items-stretch gap-2">
-              <div className="flex w-[140px] items-center gap-3 sm:w-[180px]">
-                <div className="relative grid h-10 w-10 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
-                  <span className="relative z-10">{row.abbr}</span>
-                  <span className="pointer-events-none absolute inset-0 rounded-2xl [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
-                </div>
-                <div className="min-w-0 pr-1">
-                  <div className="text-[11px] font-semibold leading-tight text-white/90">
-                    {row.name}
-                  </div>
-                  <div className="text-[10px] text-white/45">CH {row.ch}</div>
-                </div>
-              </div>
+      {/* DESKTOP (marquee premium) */}
+      <div className="hidden sm:block relative">
+        <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="w-[180px] text-[10px] uppercase tracking-[0.26em] text-white/45">
+              Programme guide
+            </div>
 
-              <div
-                className="sm:hidden relative flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
-                style={{
-                  WebkitOverflowScrolling: "touch",
-                  scrollbarWidth: "none",
-                }}
-              >
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/55 to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/55 to-transparent" />
-
-                <div className="flex gap-2 min-w-max pr-8">
-                  {row.blocks.map((b, i) => {
-                    const isLive = b.toUpperCase().includes("LIVE");
-                    const isNow = idx === 1 && i === 0;
-                    const w = 3 * slotW;
-
-                    return (
-                      <div
-                        key={`${row.ch}-${i}`}
-                        className={
-                          "relative shrink-0 overflow-hidden rounded-2xl border border-white/10 " +
-                          "bg-gradient-to-b from-white/[0.06] to-white/[0.03] px-3 py-2 " +
-                          (isNow ? "ring-1 ring-[#D4AF37]/25" : "")
-                        }
-                        style={{ width: w }}
-                        title={b}
-                      >
-                        <div className="flex items-start gap-2">
-                          <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
-                            {b}
-                          </div>
-                          {isLive ? (
-                            <span className="mt-0.5 shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/12 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
-                              LIVE
-                            </span>
-                          ) : null}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="hidden sm:block relative flex-1 overflow-hidden">
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/55 to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/55 to-transparent" />
-
+            <div className="relative flex-1 overflow-hidden">
+              <div className="relative whitespace-nowrap">
                 <div
-                  className="flex motion-reduce:animate-none animate-[marquee_38s_linear_infinite]"
+                  className="flex motion-reduce:animate-none animate-[marquee_34s_linear_infinite]"
                   style={{ width: desktopTrackWidth }}
                 >
                   {[0, 1].map((dup) => (
-                    <div
-                      key={dup}
-                      className="flex gap-2 pr-2"
-                      style={{ width: programWidth }}
-                    >
-                      {row.blocks.map((b, i) => {
-                        const isLive = b.toUpperCase().includes("LIVE");
-                        const isNow = idx === 1 && i === 0;
-                        const w = 3 * slotW;
-
-                        return (
-                          <div
-                            key={`${dup}-${row.ch}-${i}`}
-                            className={
-                              "relative shrink-0 overflow-hidden rounded-2xl border border-white/10 " +
-                              "bg-gradient-to-b from-white/[0.06] to-white/[0.03] px-3 py-2 " +
-                              (isNow ? "ring-1 ring-[#D4AF37]/25" : "")
-                            }
-                            style={{ width: w }}
-                            title={b}
-                          >
-                            <div className="flex items-start gap-2">
-                              <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
-                                {b}
-                              </div>
-                              {isLive ? (
-                                <span className="mt-0.5 shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/12 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
-                                  LIVE
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        );
-                      })}
-                      <div className="shrink-0" style={{ width: slotW }} />
+                    <div key={dup} className="flex" style={{ width: programWidthDesktop }}>
+                      {timeline.map((t) => (
+                        <div
+                          key={`${dup}-${t}`}
+                          className="shrink-0 text-[10px] text-white/45"
+                          style={{ width: slotWDesktop }}
+                        >
+                          {t}
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-[10px] text-white/45">
-          <span>Accurate listings</span>
-          <span>Fast navigation</span>
+        <div className="px-4 py-3">
+          <div className="grid gap-3">
+            {rows.map((row, idx) => (
+              <div key={row.ch} className="flex min-w-0 items-stretch gap-2">
+                <div className="flex w-[180px] items-center gap-3">
+                  <div className="relative grid h-10 w-10 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
+                    <span className="relative z-10">{row.abbr}</span>
+                    <span className="pointer-events-none absolute inset-0 rounded-2xl [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
+                  </div>
+                  <div className="min-w-0 pr-1">
+                    <div className="text-[11px] font-semibold leading-tight text-white/90">
+                      {row.name}
+                    </div>
+                    <div className="text-[10px] text-white/45">CH {row.ch}</div>
+                  </div>
+                </div>
+
+                <div className="relative flex-1 overflow-hidden">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/55 to-transparent" />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/55 to-transparent" />
+
+                  <div
+                    className="flex motion-reduce:animate-none animate-[marquee_38s_linear_infinite]"
+                    style={{ width: desktopTrackWidth }}
+                  >
+                    {[0, 1].map((dup) => (
+                      <div
+                        key={dup}
+                        className="flex gap-2 pr-2"
+                        style={{ width: programWidthDesktop }}
+                      >
+                        {row.blocks.map((b, i) => {
+                          const isLive = b.toUpperCase().includes("LIVE");
+                          const isNow = idx === 1 && i === 0;
+                          const w = 3 * slotWDesktop;
+
+                          return (
+                            <div
+                              key={`${dup}-${row.ch}-${i}`}
+                              className={
+                                "relative shrink-0 overflow-hidden rounded-2xl border border-white/10 " +
+                                "bg-gradient-to-b from-white/[0.06] to-white/[0.03] px-3 py-2 " +
+                                (isNow ? "ring-1 ring-[#D4AF37]/25" : "")
+                              }
+                              style={{ width: w }}
+                              title={b}
+                            >
+                              <div className="flex items-start gap-2">
+                                <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
+                                  {b}
+                                </div>
+                                {isLive ? (
+                                  <span className="mt-0.5 shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/12 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
+                                    LIVE
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div className="shrink-0" style={{ width: slotWDesktop }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 flex items-center justify-between text-[10px] text-white/45">
+            <span>Accurate listings</span>
+            <span>Fast navigation</span>
+          </div>
         </div>
       </div>
 
@@ -540,14 +539,9 @@ export default function EliteHouseLandingPage() {
   ];
 
   return (
-    // ✅ global fix: prevent any horizontal overflow on mobile
     <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-black via-[#07070A] to-black text-white">
       <style>{`
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes nowGlow {
-          0%, 100% { opacity: 0.55; filter: drop-shadow(0 0 0 rgba(212,175,55,0)); }
-          50% { opacity: 0.95; filter: drop-shadow(0 0 14px rgba(212,175,55,0.28)); }
-        }
       `}</style>
 
       <div className="pointer-events-none fixed inset-0 opacity-40">
@@ -557,12 +551,60 @@ export default function EliteHouseLandingPage() {
       </div>
 
       <main className="relative z-10">
-        {/* ✅ hero clipped to avoid any absolute/blur content widening the page */}
+        {/* HERO */}
         <section className="mx-auto max-w-6xl px-4 pt-9 pb-12 sm:px-6 sm:pt-14 sm:pb-16 overflow-hidden">
-          <div className="relative grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="relative grid items-start gap-6 lg:grid-cols-2 lg:gap-10">
             <MonogramWatermark />
 
-            <div className="order-1 lg:order-2 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
+            {/* Copy FIRST on mobile (fixes “covers headline” feel) */}
+            <div className="order-1 lg:order-1">
+              <div className="mb-4 flex justify-center lg:justify-start">
+                <Image
+                  src="/logo.png"
+                  alt="Elite House Logo"
+                  width={620}
+                  height={220}
+                  priority
+                  className="h-24 w-auto object-contain sm:h-28 md:h-32 drop-shadow-[0_22px_55px_rgba(212,175,55,0.38)]"
+                />
+              </div>
+
+              <h1 className="text-[34px] leading-[1.05] sm:text-5xl font-semibold tracking-tight text-center lg:text-left relative z-10">
+                Elite Access.
+                <span className="mt-2 block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                  Superior EPG. Smooth Streaming.
+                </span>
+              </h1>
+
+              <p className="mt-4 max-w-xl text-white/65 text-[15px] sm:text-lg leading-relaxed text-center lg:text-left mx-auto lg:mx-0">
+                A premium experience built around accurate programme listings and seamless playback.
+                Clean, consistent, effortless across your devices.
+              </p>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+                <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+
+                <a
+                  href="#pricing"
+                  className="inline-flex w-full sm:w-auto items-center justify-center rounded-2xl border border-white/15 px-6 py-3.5 sm:px-7 sm:py-3 text-sm font-semibold text-white/80 hover:bg-white/5 transition"
+                >
+                  View membership <span aria-hidden="true">→</span>
+                </a>
+              </div>
+
+              <div className="mt-5 flex justify-center lg:justify-start">
+                <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/70 backdrop-blur">
+                  <span className="font-semibold text-white/85">1,200+ Members</span>
+                  <span className="h-4 w-px bg-white/15" />
+                  <StarRow />
+                  <span className="h-4 w-px bg-white/15" />
+                  <span>Activated in minutes</span>
+                </div>
+              </div>
+            </div>
+
+            {/* EPG card SECOND on mobile */}
+            <div className="order-2 lg:order-2 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-white/90">
@@ -589,57 +631,6 @@ export default function EliteHouseLandingPage() {
                 <p className="mt-3 text-xs text-white/45">
                   Priority replies • Setup handled personally
                 </p>
-              </div>
-            </div>
-
-            <div className="order-2 lg:order-1">
-              <div className="mb-5 flex justify-center lg:justify-start">
-                <Image
-                  src="/logo.png"
-                  alt="Elite House Logo"
-                  width={560}
-                  height={200}
-                  priority
-                  className="h-24 w-auto object-contain sm:h-28 md:h-32 drop-shadow-[0_22px_55px_rgba(212,175,55,0.38)]"
-                />
-              </div>
-
-              <h1 className="text-[34px] leading-[1.05] sm:text-5xl font-semibold tracking-tight text-center lg:text-left">
-                Elite Access.
-                <span className="mt-2 block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                  Superior EPG. Smooth Streaming.
-                </span>
-              </h1>
-
-              <p className="mt-4 max-w-xl text-white/65 text-[15px] sm:text-lg leading-relaxed text-center lg:text-left mx-auto lg:mx-0">
-                A premium experience built around accurate programme listings
-                and seamless playback. Clean, consistent, effortless across your
-                devices.
-              </p>
-
-              <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-                <CTAButton href={waLink(trialMessage)}>
-                  Start Trial on WhatsApp
-                </CTAButton>
-
-                <a
-                  href="#pricing"
-                  className="inline-flex w-full sm:w-auto items-center justify-center rounded-2xl border border-white/15 px-6 py-3.5 sm:px-7 sm:py-3 text-sm font-semibold text-white/80 hover:bg-white/5 transition"
-                >
-                  View membership <span aria-hidden="true">→</span>
-                </a>
-              </div>
-
-              <div className="mt-5 flex justify-center lg:justify-start">
-                <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/70 backdrop-blur">
-                  <span className="font-semibold text-white/85">
-                    1,200+ Members
-                  </span>
-                  <span className="h-4 w-px bg-white/15" />
-                  <StarRow />
-                  <span className="h-4 w-px bg-white/15" />
-                  <span>Activated in minutes</span>
-                </div>
               </div>
             </div>
           </div>
@@ -680,12 +671,8 @@ export default function EliteHouseLandingPage() {
                   key={f.title}
                   className="rounded-3xl border border-white/10 bg-white/[0.05] p-6 sm:p-7 backdrop-blur hover:bg-white/[0.07] transition"
                 >
-                  <h3 className="text-lg sm:text-xl font-semibold mb-2.5">
-                    {f.title}
-                  </h3>
-                  <p className="text-sm text-white/65 leading-relaxed">
-                    {f.desc}
-                  </p>
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2.5">{f.title}</h3>
+                  <p className="text-sm text-white/65 leading-relaxed">{f.desc}</p>
                 </div>
               ))}
             </div>
@@ -853,10 +840,7 @@ export default function EliteHouseLandingPage() {
         <LuxeDivider />
 
         {/* FAQ */}
-        <section
-          id="faq"
-          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 relative"
-        >
+        <section id="faq" className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 relative">
           <BrandWatermark
             opacityClass="opacity-[0.014] sm:opacity-[0.026]"
             sizeClass="w-[360px] sm:w-[560px] md:w-[640px]"
@@ -877,27 +861,13 @@ export default function EliteHouseLandingPage() {
                   q: "How does the free trial work?",
                   a: "Tap the WhatsApp button and we’ll activate your trial. Setup is handled step by step.",
                 },
-                {
-                  q: "Is it instant?",
-                  a: "Most trials are activated within minutes. Replies are fast because support is direct.",
-                },
-                {
-                  q: "What’s included?",
-                  a: "Full access to live channels, the on-demand library, and ongoing support.",
-                },
-                {
-                  q: "Can I upgrade later?",
-                  a: "Yes. Upgrades and renewals are handled with a quick message.",
-                },
+                { q: "Is it instant?", a: "Most trials are activated within minutes. Replies are fast because support is direct." },
+                { q: "What’s included?", a: "Full access to live channels, the on-demand library, and ongoing support." },
+                { q: "Can I upgrade later?", a: "Yes. Upgrades and renewals are handled with a quick message." },
               ].map((item) => (
-                <div
-                  key={item.q}
-                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-7 backdrop-blur"
-                >
+                <div key={item.q} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-7 backdrop-blur">
                   <h3 className="text-base font-semibold text-white">{item.q}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">
-                    {item.a}
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-white/70">{item.a}</p>
                 </div>
               ))}
             </div>
@@ -926,6 +896,7 @@ export default function EliteHouseLandingPage() {
           </div>
         </footer>
 
+        {/* Mobile sticky CTA */}
         <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
           <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-2 shadow-2xl shadow-black/50">
             <CTAButton className="w-full" href={waLink(trialMessage)}>
