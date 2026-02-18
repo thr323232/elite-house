@@ -329,7 +329,7 @@ function FloatingParticles() {
 function WhatsAppIcon({ className = "" }: { className?: string }) {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
+      <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.10-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
     </svg>
   );
 }
@@ -345,8 +345,7 @@ function EpgMock() {
 
   const marqueeTimeline = mounted ? "animate-[marquee_34s_linear_infinite]" : "";
   const marqueeRows = mounted ? "animate-[marquee_38s_linear_infinite]" : "";
-
-  const blockW = 2.6 * slotW; // Option A
+  const blockW = 2.6 * slotW;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 min-h-[420px]">
@@ -427,7 +426,6 @@ function EpgMock() {
                               />
                             ) : null}
 
-                            {/* 2-line clamp so shorter blocks still show more text cleanly */}
                             <div className="relative flex items-start gap-2">
                               <div
                                 className={"flex-1 text-[12.5px] font-semibold leading-snug " + (isNow ? "text-white" : "text-white/90")}
@@ -526,17 +524,19 @@ export default function EliteHouseLandingPage() {
       </div>
 
       <main className="relative z-10">
+        {/* HERO */}
         <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-10">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              <div className="mb-7 inline-flex items-center">
+              {/* BIGGER LOGO */}
+              <div className="mb-8 inline-flex items-center">
                 <Image
                   src="/logo.png"
                   alt="Elite House"
-                  width={360}
-                  height={120}
+                  width={520}
+                  height={180}
                   priority
-                  className="h-20 w-auto object-contain drop-shadow-[0_22px_70px_rgba(212,175,55,0.52)]"
+                  className="h-28 sm:h-32 w-auto object-contain drop-shadow-[0_26px_90px_rgba(212,175,55,0.60)]"
                 />
               </div>
 
@@ -573,6 +573,7 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
+            {/* RIGHT PANEL */}
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/70 backdrop-blur-xl">
               <div className="pointer-events-none absolute inset-0 opacity-80">
                 <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
@@ -591,6 +592,7 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
+        {/* FEATURES */}
         <section id="features" className={SECTION}>
           <Reveal>
             <SectionTitle
@@ -621,6 +623,7 @@ export default function EliteHouseLandingPage() {
           </Reveal>
         </section>
 
+        {/* PRICING */}
         <section id="pricing" className={SECTION}>
           <Reveal>
             <SectionTitle
@@ -671,6 +674,7 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
+        {/* FAQ */}
         <section id="faq" className={SECTION}>
           <SectionTitle title="Questions, answered" subtitle="If you need anything else, message us on WhatsApp and we will assist promptly." />
 
@@ -690,6 +694,7 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
+        {/* FOOTER */}
         <footer className="mx-auto max-w-6xl px-4 pb-14 sm:px-6 sm:pb-20">
           <Card className="bg-white/[0.03] p-6">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
