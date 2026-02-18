@@ -249,29 +249,51 @@ function EpgMock() {
   ];
 
   const rows = [
-    { ch: "101", abbr: "MOV", name: "Cinema", blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"] },
-    { ch: "102", abbr: "SPT", name: "Sports", blocks: ["LIVE Match", "Highlights", "Studio", "Championships"] },
-    { ch: "103", abbr: "ENT", name: "Entertainment", blocks: ["Trending", "Reality", "Late Night", "Top Picks"] },
-    { ch: "104", abbr: "DOC", name: "Documentary", blocks: ["Nature", "History", "True Stories", "Discovery"] },
-    { ch: "105", abbr: "KID", name: "Kids", blocks: ["Family Time", "Cartoons", "Education", "Classics"] },
+    {
+      ch: "101",
+      abbr: "MOV",
+      name: "Cinema",
+      blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"],
+    },
+    {
+      ch: "102",
+      abbr: "SPT",
+      name: "Sports",
+      blocks: ["LIVE Match", "Highlights", "Studio", "Championships"],
+    },
+    {
+      ch: "103",
+      abbr: "ENT",
+      name: "Entertainment",
+      blocks: ["Trending", "Reality", "Late Night", "Top Picks"],
+    },
+    {
+      ch: "104",
+      abbr: "DOC",
+      name: "Documentary",
+      blocks: ["Nature", "History", "True Stories", "Discovery"],
+    },
+    {
+      ch: "105",
+      abbr: "KID",
+      name: "Kids",
+      blocks: ["Family Time", "Cartoons", "Education", "Classics"],
+    },
   ];
 
   const nowLeft = "52.5%";
   const slotW = 118;
 
-  // Mobile is finite width; Desktop uses duplicate marquee (wide).
   const programWidth = timeline.length * slotW;
   const desktopTrackWidth = programWidth * 2;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50">
-      {/* Clipping layer prevents “infinite layout width” feel on mobile */}
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <div className="absolute inset-0 bg-[radial-gradient(80%_55%_at_50%_0%,rgba(212,175,55,0.14),rgba(0,0,0,0)_60%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04),rgba(255,255,255,0.00),rgba(255,255,255,0.04))]" />
       </div>
 
-      {/* “Now” line only really matters visually on desktop; leave it, but clipped */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/80 opacity-80 motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
@@ -283,14 +305,13 @@ function EpgMock() {
         />
       </div>
 
-      {/* Header row */}
       <div className="border-b border-white/10 bg-white/[0.03] px-3 py-2.5 sm:px-4 sm:py-3">
-        <div className="flex items-center gap-2">
+        {/* ✅ min-w-0 prevents flex overflow on mobile */}
+        <div className="flex min-w-0 items-center gap-2">
           <div className="w-[140px] text-[10px] uppercase tracking-[0.26em] text-white/45 sm:w-[180px]">
             Programme guide
           </div>
 
-          {/* MOBILE: horizontal scroll (finite) */}
           <div
             className="sm:hidden relative flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
             style={{
@@ -313,7 +334,6 @@ function EpgMock() {
             </div>
           </div>
 
-          {/* DESKTOP: marquee */}
           <div className="hidden sm:block relative flex-1 overflow-hidden">
             <div className="relative whitespace-nowrap">
               <div
@@ -339,11 +359,11 @@ function EpgMock() {
         </div>
       </div>
 
-      {/* Rows */}
       <div className="px-3 py-3 sm:px-4">
         <div className="grid gap-3">
           {rows.map((row, idx) => (
-            <div key={row.ch} className="flex items-stretch gap-2">
+            // ✅ min-w-0 prevents children from forcing width wider than screen
+            <div key={row.ch} className="flex min-w-0 items-stretch gap-2">
               <div className="flex w-[140px] items-center gap-3 sm:w-[180px]">
                 <div className="relative grid h-10 w-10 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
                   <span className="relative z-10">{row.abbr}</span>
@@ -357,7 +377,6 @@ function EpgMock() {
                 </div>
               </div>
 
-              {/* MOBILE: horizontal scroll; finite width, no “infinite right” */}
               <div
                 className="sm:hidden relative flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
                 style={{
@@ -401,7 +420,6 @@ function EpgMock() {
                 </div>
               </div>
 
-              {/* DESKTOP: marquee */}
               <div className="hidden sm:block relative flex-1 overflow-hidden">
                 <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/55 to-transparent" />
                 <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/55 to-transparent" />
@@ -496,15 +514,34 @@ export default function EliteHouseLandingPage() {
   }, [billing]);
 
   const testimonials = [
-    { quote: "Setup was genuinely fast. Everything looks clean and works smoothly across devices.", name: "Jordan", meta: "UK" },
-    { quote: "The interface feels premium — no clutter, just easy browsing and solid playback.", name: "Aisha", meta: "London" },
-    { quote: "Support replies quickly and actually solves things. Best experience I’ve had.", name: "Marcus", meta: "Manchester" },
-    { quote: "Reliable streams, great library, and it just feels… polished.", name: "Sophie", meta: "Birmingham" },
+    {
+      quote:
+        "Setup was genuinely fast. Everything looks clean and works smoothly across devices.",
+      name: "Jordan",
+      meta: "UK",
+    },
+    {
+      quote:
+        "The interface feels premium — no clutter, just easy browsing and solid playback.",
+      name: "Aisha",
+      meta: "London",
+    },
+    {
+      quote:
+        "Support replies quickly and actually solves things. Best experience I’ve had.",
+      name: "Marcus",
+      meta: "Manchester",
+    },
+    {
+      quote: "Reliable streams, great library, and it just feels… polished.",
+      name: "Sophie",
+      meta: "Birmingham",
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-black text-white">
-      {/* Keyframes */}
+    // ✅ global fix: prevent any horizontal overflow on mobile
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-black via-[#07070A] to-black text-white">
       <style>{`
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes nowGlow {
@@ -513,7 +550,6 @@ export default function EliteHouseLandingPage() {
         }
       `}</style>
 
-      {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 opacity-40">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(212,175,55,0.26),transparent_58%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.16),transparent_62%)]" />
@@ -521,12 +557,11 @@ export default function EliteHouseLandingPage() {
       </div>
 
       <main className="relative z-10">
-        {/* HERO */}
-        <section className="mx-auto max-w-6xl px-4 pt-9 pb-12 sm:px-6 sm:pt-14 sm:pb-16">
+        {/* ✅ hero clipped to avoid any absolute/blur content widening the page */}
+        <section className="mx-auto max-w-6xl px-4 pt-9 pb-12 sm:px-6 sm:pt-14 sm:pb-16 overflow-hidden">
           <div className="relative grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
             <MonogramWatermark />
 
-            {/* EPG card FIRST on mobile */}
             <div className="order-1 lg:order-2 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -557,7 +592,6 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* Brand + copy */}
             <div className="order-2 lg:order-1">
               <div className="mb-5 flex justify-center lg:justify-start">
                 <Image
@@ -578,12 +612,15 @@ export default function EliteHouseLandingPage() {
               </h1>
 
               <p className="mt-4 max-w-xl text-white/65 text-[15px] sm:text-lg leading-relaxed text-center lg:text-left mx-auto lg:mx-0">
-                A premium experience built around accurate programme listings and seamless playback.
-                Clean, consistent, effortless across your devices.
+                A premium experience built around accurate programme listings
+                and seamless playback. Clean, consistent, effortless across your
+                devices.
               </p>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-                <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+                <CTAButton href={waLink(trialMessage)}>
+                  Start Trial on WhatsApp
+                </CTAButton>
 
                 <a
                   href="#pricing"
@@ -595,7 +632,9 @@ export default function EliteHouseLandingPage() {
 
               <div className="mt-5 flex justify-center lg:justify-start">
                 <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/70 backdrop-blur">
-                  <span className="font-semibold text-white/85">1,200+ Members</span>
+                  <span className="font-semibold text-white/85">
+                    1,200+ Members
+                  </span>
                   <span className="h-4 w-px bg-white/15" />
                   <StarRow />
                   <span className="h-4 w-px bg-white/15" />
@@ -608,7 +647,7 @@ export default function EliteHouseLandingPage() {
 
         <LuxeDivider />
 
-        {/* FEATURES (logo watermark) */}
+        {/* FEATURES */}
         <section
           id="features"
           className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 relative"
@@ -641,8 +680,12 @@ export default function EliteHouseLandingPage() {
                   key={f.title}
                   className="rounded-3xl border border-white/10 bg-white/[0.05] p-6 sm:p-7 backdrop-blur hover:bg-white/[0.07] transition"
                 >
-                  <h3 className="text-lg sm:text-xl font-semibold mb-2.5">{f.title}</h3>
-                  <p className="text-sm text-white/65 leading-relaxed">{f.desc}</p>
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2.5">
+                    {f.title}
+                  </h3>
+                  <p className="text-sm text-white/65 leading-relaxed">
+                    {f.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -651,7 +694,7 @@ export default function EliteHouseLandingPage() {
 
         <LuxeDivider />
 
-        {/* TESTIMONIALS (watermark) */}
+        {/* TESTIMONIALS */}
         <section
           id="testimonials"
           className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 relative"
@@ -670,7 +713,6 @@ export default function EliteHouseLandingPage() {
               subtitle="Short feedback from members who value reliability and a clean experience."
             />
 
-            {/* Mobile: horizontal snap */}
             <div className="md:hidden -mx-4 px-4 overflow-x-auto">
               <div className="flex gap-4 snap-x snap-mandatory pb-2">
                 {testimonials.map((t) => (
@@ -693,7 +735,6 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* Desktop/tablet grid */}
             <div className="hidden md:grid gap-4 md:grid-cols-2">
               {testimonials.map((t) => (
                 <div
@@ -722,7 +763,7 @@ export default function EliteHouseLandingPage() {
 
         <LuxeDivider />
 
-        {/* PRICING (micro pattern + watermark) */}
+        {/* PRICING */}
         <section
           id="pricing"
           className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 relative overflow-hidden"
@@ -811,7 +852,7 @@ export default function EliteHouseLandingPage() {
 
         <LuxeDivider />
 
-        {/* FAQ (watermark bottom) */}
+        {/* FAQ */}
         <section
           id="faq"
           className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 relative"
@@ -885,7 +926,6 @@ export default function EliteHouseLandingPage() {
           </div>
         </footer>
 
-        {/* Mobile sticky CTA */}
         <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
           <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-2 shadow-2xl shadow-black/50">
             <CTAButton className="w-full" href={waLink(trialMessage)}>
