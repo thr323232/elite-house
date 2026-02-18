@@ -154,7 +154,84 @@ function StarRow() {
   );
 }
 
-/** Premium Scrolling EPG */
+/** Subtle brand watermark helper */
+function BrandWatermark({
+  opacityClass = "opacity-[0.02] sm:opacity-[0.035]",
+  sizeClass = "w-[420px] sm:w-[680px] md:w-[760px]",
+  positionClass = "inset-0 items-center justify-center",
+  blurClass = "",
+}: {
+  opacityClass?: string;
+  sizeClass?: string;
+  positionClass?: string;
+  blurClass?: string;
+}) {
+  return (
+    <div
+      className={`pointer-events-none absolute ${positionClass} flex ${opacityClass} ${blurClass}`}
+      aria-hidden="true"
+    >
+      <Image
+        src="/logo.png"
+        alt=""
+        width={900}
+        height={320}
+        className={`${sizeClass} object-contain`}
+      />
+    </div>
+  );
+}
+
+/** Monogram watermark (no extra files needed) */
+function MonogramWatermark() {
+  return (
+    <div
+      className="pointer-events-none absolute -top-10 right-[-10px] sm:right-[-40px] opacity-[0.05] sm:opacity-[0.07] blur-[0.2px]"
+      aria-hidden="true"
+    >
+      <div className="text-[140px] sm:text-[220px] font-semibold tracking-[-0.08em] text-white/10">
+        EH
+      </div>
+    </div>
+  );
+}
+
+/** Luxury engraved divider */
+function LuxeDivider() {
+  return (
+    <div className="mx-auto max-w-6xl px-4 sm:px-6" aria-hidden="true">
+      <div className="relative my-10 sm:my-14">
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-[#D4AF37]/35 to-transparent" />
+        <div className="absolute left-1/2 top-1/2 h-6 w-56 -translate-x-1/2 -translate-y-1/2 bg-[#D4AF37]/10 blur-2xl" />
+      </div>
+    </div>
+  );
+}
+
+/** Micro logo pattern (used once for pricing) */
+function MicroLogoPattern() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 opacity-[0.035] sm:opacity-[0.05]"
+      aria-hidden="true"
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `radial-gradient(rgba(212,175,55,0.12) 1px, transparent 1px)`,
+          backgroundSize: "26px 26px",
+          maskImage:
+            "radial-gradient(75% 55% at 50% 35%, black 30%, transparent 70%)",
+          WebkitMaskImage:
+            "radial-gradient(75% 55% at 50% 35%, black 30%, transparent 70%)",
+        }}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_0%,rgba(212,175,55,0.10),transparent_60%)]" />
+    </div>
+  );
+}
+
+/** Premium EPG (mobile: scroll, desktop: marquee) */
 function EpgMock() {
   const timeline = [
     "18:00",
@@ -180,16 +257,21 @@ function EpgMock() {
   ];
 
   const nowLeft = "52.5%";
-  const slotW = 118; // slightly tighter for mobile
+  const slotW = 118;
+
+  // Mobile is finite width; Desktop uses duplicate marquee (wide).
   const programWidth = timeline.length * slotW;
+  const desktopTrackWidth = programWidth * 2;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+      {/* Clipping layer prevents “infinite layout width” feel on mobile */}
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <div className="absolute inset-0 bg-[radial-gradient(80%_55%_at_50%_0%,rgba(212,175,55,0.14),rgba(0,0,0,0)_60%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04),rgba(255,255,255,0.00),rgba(255,255,255,0.04))]" />
       </div>
 
+      {/* “Now” line only really matters visually on desktop; leave it, but clipped */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/80 opacity-80 motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
@@ -201,16 +283,42 @@ function EpgMock() {
         />
       </div>
 
+      {/* Header row */}
       <div className="border-b border-white/10 bg-white/[0.03] px-3 py-2.5 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
           <div className="w-[140px] text-[10px] uppercase tracking-[0.26em] text-white/45 sm:w-[180px]">
             Programme guide
           </div>
-          <div className="relative flex-1 overflow-hidden">
+
+          {/* MOBILE: horizontal scroll (finite) */}
+          <div
+            className="sm:hidden relative flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+            }}
+          >
+            <div className="absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black/55 to-transparent pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-black/55 to-transparent pointer-events-none" />
+            <div className="flex whitespace-nowrap min-w-max pr-6">
+              {timeline.map((t) => (
+                <div
+                  key={t}
+                  className="shrink-0 text-[10px] text-white/45"
+                  style={{ width: slotW }}
+                >
+                  {t}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* DESKTOP: marquee */}
+          <div className="hidden sm:block relative flex-1 overflow-hidden">
             <div className="relative whitespace-nowrap">
               <div
                 className="flex motion-reduce:animate-none animate-[marquee_34s_linear_infinite]"
-                style={{ width: programWidth * 2 }}
+                style={{ width: desktopTrackWidth }}
               >
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex" style={{ width: programWidth }}>
@@ -231,6 +339,7 @@ function EpgMock() {
         </div>
       </div>
 
+      {/* Rows */}
       <div className="px-3 py-3 sm:px-4">
         <div className="grid gap-3">
           {rows.map((row, idx) => (
@@ -248,13 +357,58 @@ function EpgMock() {
                 </div>
               </div>
 
-              <div className="relative flex-1 overflow-hidden">
+              {/* MOBILE: horizontal scroll; finite width, no “infinite right” */}
+              <div
+                className="sm:hidden relative flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
+                style={{
+                  WebkitOverflowScrolling: "touch",
+                  scrollbarWidth: "none",
+                }}
+              >
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/55 to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/55 to-transparent" />
+
+                <div className="flex gap-2 min-w-max pr-8">
+                  {row.blocks.map((b, i) => {
+                    const isLive = b.toUpperCase().includes("LIVE");
+                    const isNow = idx === 1 && i === 0;
+                    const w = 3 * slotW;
+
+                    return (
+                      <div
+                        key={`${row.ch}-${i}`}
+                        className={
+                          "relative shrink-0 overflow-hidden rounded-2xl border border-white/10 " +
+                          "bg-gradient-to-b from-white/[0.06] to-white/[0.03] px-3 py-2 " +
+                          (isNow ? "ring-1 ring-[#D4AF37]/25" : "")
+                        }
+                        style={{ width: w }}
+                        title={b}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
+                            {b}
+                          </div>
+                          {isLive ? (
+                            <span className="mt-0.5 shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/12 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
+                              LIVE
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* DESKTOP: marquee */}
+              <div className="hidden sm:block relative flex-1 overflow-hidden">
                 <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/55 to-transparent" />
                 <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/55 to-transparent" />
 
                 <div
                   className="flex motion-reduce:animate-none animate-[marquee_38s_linear_infinite]"
-                  style={{ width: programWidth * 2 }}
+                  style={{ width: desktopTrackWidth }}
                 >
                   {[0, 1].map((dup) => (
                     <div
@@ -367,30 +521,21 @@ export default function EliteHouseLandingPage() {
       </div>
 
       <main className="relative z-10">
-        {/* HERO (mobile: show EPG first using order) */}
+        {/* HERO */}
         <section className="mx-auto max-w-6xl px-4 pt-9 pb-12 sm:px-6 sm:pt-14 sm:pb-16">
-          <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
-            {/* Right card (EPG) becomes first on mobile */}
+          <div className="relative grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
+            <MonogramWatermark />
+
+            {/* EPG card FIRST on mobile */}
             <div className="order-1 lg:order-2 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
               <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 rounded-2xl border border-white/10 bg-black/30 p-2">
-                    <Image
-                      src="/logo.png"
-                      alt="Elite House"
-                      width={160}
-                      height={60}
-                      className="h-7 w-auto object-contain opacity-90"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white/90">
-                      Superior programme guide
-                    </p>
-                    <p className="mt-2 text-sm text-white/65 leading-relaxed">
-                      Accurate listings, smooth browsing, premium presentation.
-                    </p>
-                  </div>
+                <div>
+                  <p className="text-sm font-semibold text-white/90">
+                    Superior programme guide
+                  </p>
+                  <p className="mt-2 text-sm text-white/65 leading-relaxed">
+                    Accurate listings, smooth browsing, premium presentation.
+                  </p>
                 </div>
 
                 <div className="shrink-0 rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-3 py-2 text-xs font-semibold text-[#F6E27A]">
@@ -412,7 +557,7 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* Left (brand + copy) second on mobile */}
+            {/* Brand + copy */}
             <div className="order-2 lg:order-1">
               <div className="mb-5 flex justify-center lg:justify-start">
                 <Image
@@ -461,20 +606,14 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* FEATURES */}
+        <LuxeDivider />
+
+        {/* FEATURES (logo watermark) */}
         <section
           id="features"
           className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 relative"
         >
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.02] sm:opacity-[0.035]">
-            <Image
-              src="/logo.png"
-              alt=""
-              width={900}
-              height={320}
-              className="w-[420px] sm:w-[680px] md:w-[760px] object-contain"
-            />
-          </div>
+          <BrandWatermark />
 
           <div className="relative">
             <SectionTitle
@@ -510,24 +649,56 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* TESTIMONIALS (mobile carousel) */}
+        <LuxeDivider />
+
+        {/* TESTIMONIALS (watermark) */}
         <section
           id="testimonials"
-          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14"
+          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 relative"
         >
-          <SectionTitle
-            kicker="Trusted"
-            title="What members say."
-            subtitle="Short feedback from members who value reliability and a clean experience."
+          <BrandWatermark
+            opacityClass="opacity-[0.018] sm:opacity-[0.03]"
+            sizeClass="w-[380px] sm:w-[620px] md:w-[700px]"
+            positionClass="inset-0 items-start justify-center"
+            blurClass="blur-[0.2px]"
           />
 
-          {/* Mobile: horizontal snap */}
-          <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-            <div className="flex gap-4 snap-x snap-mandatory pb-2">
+          <div className="relative">
+            <SectionTitle
+              kicker="Trusted"
+              title="What members say."
+              subtitle="Short feedback from members who value reliability and a clean experience."
+            />
+
+            {/* Mobile: horizontal snap */}
+            <div className="md:hidden -mx-4 px-4 overflow-x-auto">
+              <div className="flex gap-4 snap-x snap-mandatory pb-2">
+                {testimonials.map((t) => (
+                  <div
+                    key={t.name}
+                    className="snap-start min-w-[85%] rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur"
+                  >
+                    <div className="flex items-center justify-between">
+                      <StarRow />
+                      <span className="text-xs text-white/45">{t.meta}</span>
+                    </div>
+                    <p className="mt-4 text-sm leading-relaxed text-white/70">
+                      “{t.quote}”
+                    </p>
+                    <div className="mt-4 text-sm font-semibold text-white/85">
+                      {t.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop/tablet grid */}
+            <div className="hidden md:grid gap-4 md:grid-cols-2">
               {testimonials.map((t) => (
                 <div
                   key={t.name}
-                  className="snap-start min-w-[85%] rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur"
+                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
                 >
                   <div className="flex items-center justify-between">
                     <StarRow />
@@ -542,155 +713,157 @@ export default function EliteHouseLandingPage() {
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Desktop/tablet grid */}
-          <div className="hidden md:grid gap-4 md:grid-cols-2">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
-              >
-                <div className="flex items-center justify-between">
-                  <StarRow />
-                  <span className="text-xs text-white/45">{t.meta}</span>
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-white/70">
-                  “{t.quote}”
-                </p>
-                <div className="mt-4 text-sm font-semibold text-white/85">
-                  {t.name}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-7 flex justify-center">
-            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+            <div className="mt-7 flex justify-center">
+              <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+            </div>
           </div>
         </section>
 
-        {/* PRICING */}
+        <LuxeDivider />
+
+        {/* PRICING (micro pattern + watermark) */}
         <section
           id="pricing"
-          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16"
+          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 relative overflow-hidden"
         >
-          <SectionTitle
-            kicker="Membership"
-            title="Choose your billing."
-            subtitle="Simple pricing. Everything included. Confirmed privately via WhatsApp."
+          <MicroLogoPattern />
+          <BrandWatermark
+            opacityClass="opacity-[0.014] sm:opacity-[0.022]"
+            sizeClass="w-[360px] sm:w-[520px] md:w-[600px]"
+            positionClass="right-0 top-0 items-start justify-end"
+            blurClass="blur-[0.2px]"
           />
 
-          <div className="flex justify-center">
-            <PricingToggle value={billing} onChange={setBilling} />
-          </div>
+          <div className="relative">
+            <SectionTitle
+              kicker="Membership"
+              title="Choose your billing."
+              subtitle="Simple pricing. Everything included. Confirmed privately via WhatsApp."
+            />
 
-          <div className="mt-7 sm:mt-8 flex justify-center">
-            <div className="relative w-full max-w-2xl overflow-hidden rounded-[28px] sm:rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-8 sm:p-10 text-center shadow-xl backdrop-blur">
-              <div className="pointer-events-none absolute inset-0 opacity-60">
-                <div className="absolute -left-24 -top-24 h-56 w-56 rounded-full bg-[#D4AF37]/12 blur-3xl" />
-                <div className="absolute -right-24 -bottom-24 h-56 w-56 rounded-full bg-[#B8860B]/10 blur-3xl" />
-              </div>
+            <div className="flex justify-center">
+              <PricingToggle value={billing} onChange={setBilling} />
+            </div>
 
-              <div className="relative">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
-                  Elite Access Membership
+            <div className="mt-7 sm:mt-8 flex justify-center">
+              <div className="relative w-full max-w-2xl overflow-hidden rounded-[28px] sm:rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-8 sm:p-10 text-center shadow-xl backdrop-blur">
+                <div className="pointer-events-none absolute inset-0 opacity-60">
+                  <div className="absolute -left-24 -top-24 h-56 w-56 rounded-full bg-[#D4AF37]/12 blur-3xl" />
+                  <div className="absolute -right-24 -bottom-24 h-56 w-56 rounded-full bg-[#B8860B]/10 blur-3xl" />
                 </div>
 
-                <div className="mt-5 text-xs tracking-widest uppercase text-white/50">
-                  {pricing.label}
-                </div>
-
-                <div className="mt-4 text-5xl sm:text-6xl font-semibold tracking-tight">
-                  <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                    {pricing.price}
-                  </span>
-                </div>
-
-                <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
-
-                {pricing.subnote ? (
-                  <div className="mt-2 text-xs text-white/45">{pricing.subnote}</div>
-                ) : null}
-
-                {pricing.savings ? (
-                  <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
-                    {pricing.savings}
+                <div className="relative">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
+                    Elite Access Membership
                   </div>
-                ) : null}
 
-                <div className="mt-7">
-                  <CTAButton className="w-full" href={waLink(trialMessage)}>
-                    Start Trial on WhatsApp
-                  </CTAButton>
-                  <div className="mt-3 text-[11px] text-white/55">
-                    Private access • Confirmed individually
+                  <div className="mt-5 text-xs tracking-widest uppercase text-white/50">
+                    {pricing.label}
+                  </div>
+
+                  <div className="mt-4 text-5xl sm:text-6xl font-semibold tracking-tight">
+                    <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                      {pricing.price}
+                    </span>
+                  </div>
+
+                  <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
+
+                  {pricing.subnote ? (
+                    <div className="mt-2 text-xs text-white/45">{pricing.subnote}</div>
+                  ) : null}
+
+                  {pricing.savings ? (
+                    <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
+                      {pricing.savings}
+                    </div>
+                  ) : null}
+
+                  <div className="mt-7">
+                    <CTAButton className="w-full" href={waLink(trialMessage)}>
+                      Start Trial on WhatsApp
+                    </CTAButton>
+                    <div className="mt-3 text-[11px] text-white/55">
+                      Private access • Confirmed individually
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-5 sm:mt-6 flex justify-center">
-            <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 backdrop-blur sm:grid-cols-3">
-              {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
-                (t, i) => (
-                  <div key={t} className="flex items-center gap-3">
-                    <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
-                      {i + 1}
+            <div className="mt-5 sm:mt-6 flex justify-center">
+              <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 backdrop-blur sm:grid-cols-3">
+                {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
+                  (t, i) => (
+                    <div key={t} className="flex items-center gap-3">
+                      <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
+                        {i + 1}
+                      </div>
+                      <div className="text-sm font-semibold text-white/85">{t}</div>
                     </div>
-                    <div className="text-sm font-semibold text-white/85">{t}</div>
-                  </div>
-                )
-              )}
+                  )
+                )}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* FAQ */}
+        <LuxeDivider />
+
+        {/* FAQ (watermark bottom) */}
         <section
           id="faq"
-          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14"
+          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 relative"
         >
-          <SectionTitle
-            kicker="Support"
-            title="Private access, handled properly."
-            subtitle="Everything is set up personally through WhatsApp. Fast, discreet, simple."
+          <BrandWatermark
+            opacityClass="opacity-[0.014] sm:opacity-[0.026]"
+            sizeClass="w-[360px] sm:w-[560px] md:w-[640px]"
+            positionClass="left-0 bottom-0 items-end justify-start"
+            blurClass="blur-[0.25px]"
           />
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            {[
-              {
-                q: "How does the free trial work?",
-                a: "Tap the WhatsApp button and we’ll activate your trial. Setup is handled step by step.",
-              },
-              {
-                q: "Is it instant?",
-                a: "Most trials are activated within minutes. Replies are fast because support is direct.",
-              },
-              {
-                q: "What’s included?",
-                a: "Full access to live channels, the on-demand library, and ongoing support.",
-              },
-              {
-                q: "Can I upgrade later?",
-                a: "Yes. Upgrades and renewals are handled with a quick message.",
-              },
-            ].map((item) => (
-              <div
-                key={item.q}
-                className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-7 backdrop-blur"
-              >
-                <h3 className="text-base font-semibold text-white">{item.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">
-                  {item.a}
-                </p>
-              </div>
-            ))}
-          </div>
+          <div className="relative">
+            <SectionTitle
+              kicker="Support"
+              title="Private access, handled properly."
+              subtitle="Everything is set up personally through WhatsApp. Fast, discreet, simple."
+            />
 
-          <div className="mt-7 sm:mt-8 flex justify-center">
-            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {[
+                {
+                  q: "How does the free trial work?",
+                  a: "Tap the WhatsApp button and we’ll activate your trial. Setup is handled step by step.",
+                },
+                {
+                  q: "Is it instant?",
+                  a: "Most trials are activated within minutes. Replies are fast because support is direct.",
+                },
+                {
+                  q: "What’s included?",
+                  a: "Full access to live channels, the on-demand library, and ongoing support.",
+                },
+                {
+                  q: "Can I upgrade later?",
+                  a: "Yes. Upgrades and renewals are handled with a quick message.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.q}
+                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-7 backdrop-blur"
+                >
+                  <h3 className="text-base font-semibold text-white">{item.q}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/70">
+                    {item.a}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-7 sm:mt-8 flex justify-center">
+              <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+            </div>
           </div>
         </section>
 
