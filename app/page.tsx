@@ -17,14 +17,20 @@ const __WA_ENV__ = readWaEnv();
 const __WA_FALLBACK__ = ["44", "7922", "309925"].join("");
 const getWhatsAppNumber = () => __WA_ENV__ || __WA_FALLBACK__;
 
-export const waLink = (message: string) =>
-  `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(message)}`;
+export function waLink(message: string) {
+  const text = encodeURIComponent(message);
+  const number = getWhatsAppNumber();
+  return `https://wa.me/${number}?text=${text}`;
+}
 
-/* ---------------- Static data (hoisted) ---------------- */
+/* ---------------- Static data ---------------- */
 
 type Billing = "monthly" | "sixmonth" | "annual";
 
-const PRICING: Record<Billing, { price: string; note: string; savings: string | null }> = {
+const PRICING: Record<
+  Billing,
+  { price: string; note: string; savings: string | null }
+> = {
   monthly: { price: "£14.99", note: "per month", savings: null },
   sixmonth: { price: "£60", note: "every 6 months", savings: "Save £29.94" },
   annual: { price: "£100", note: "per year", savings: "Save £79.88" },
@@ -71,31 +77,56 @@ const EPG_ROWS = [
     ch: "101",
     abbr: "VC",
     name: "Velour Cinema",
-    blocks: ["10,000+ Live Channels", "100,000+ Video On Demand", "4K Ultra HD Streaming", "Seamless channel playback"],
+    blocks: [
+      "10,000+ Live Channels",
+      "100,000+ Video On Demand",
+      "4K Ultra HD Streaming",
+      "Seamless channel playback",
+    ],
   },
   {
     ch: "102",
     abbr: "AS",
     name: "Apex Sports",
-    blocks: ["LIVE Championship", "All channels working perfectly", "Zero missing listings", "Reliable premium streaming"],
+    blocks: [
+      "LIVE Championship",
+      "All channels working perfectly",
+      "Zero missing listings",
+      "Reliable premium streaming",
+    ],
   },
   {
     ch: "103",
     abbr: "NV",
     name: "Nova Vista",
-    blocks: ["Instant access", "Precision programme guide data", "Smooth browsing experience", "Consistent presentation"],
+    blocks: [
+      "Instant access",
+      "Precision programme guide data",
+      "Smooth browsing experience",
+      "Consistent presentation",
+    ],
   },
   {
     ch: "104",
     abbr: "OR",
     name: "Orion Discovery",
-    blocks: ["Fast WhatsApp setup", "Clean channel lineup", "Stable playback", "Support when you need it"],
+    blocks: [
+      "Fast WhatsApp setup",
+      "Clean channel lineup",
+      "Stable playback",
+      "Support when you need it",
+    ],
   },
   {
     ch: "105",
     abbr: "LX",
     name: "Luxe Kids",
-    blocks: ["Family-ready experience", "Clear titles & logos", "No broken channels", "Premium reliability"],
+    blocks: [
+      "Family-ready experience",
+      "Clear titles & logos",
+      "No broken channels",
+      "Premium reliability",
+    ],
   },
 ];
 
@@ -139,7 +170,7 @@ const FEATURE_CARDS = [
   },
 ];
 
-/* ---------------- Small UI pieces ---------------- */
+/* ---------------- UI pieces ---------------- */
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -149,7 +180,15 @@ function Badge({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SectionTitle({ kicker, title, subtitle }: { kicker?: string; title: string; subtitle?: string }) {
+function SectionTitle({
+  kicker,
+  title,
+  subtitle,
+}: {
+  kicker?: string;
+  title: string;
+  subtitle?: string;
+}) {
   return (
     <div className="mx-auto mb-10 max-w-2xl text-center">
       {kicker ? (
@@ -157,28 +196,52 @@ function SectionTitle({ kicker, title, subtitle }: { kicker?: string; title: str
           <Badge>{kicker}</Badge>
         </div>
       ) : null}
-      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
-      {subtitle ? <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">{subtitle}</p> : null}
+      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        {title}
+      </h2>
+      {subtitle ? (
+        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">
+          {subtitle}
+        </p>
+      ) : null}
     </div>
   );
 }
 
-function Card({ className = "", children }: { className?: string; children: React.ReactNode }) {
-  return <div className={`rounded-3xl border border-white/10 backdrop-blur ${className}`}>{children}</div>;
+function Card({
+  className = "",
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`rounded-3xl border border-white/10 backdrop-blur ${className}`}>
+      {children}
+    </div>
+  );
 }
 
-function PricingToggle({ value, onChange }: { value: Billing; onChange: (v: Billing) => void }) {
+function PricingToggle({
+  value,
+  onChange,
+}: {
+  value: Billing;
+  onChange: (v: Billing) => void;
+}) {
   return (
     <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur">
       {BILLING_OPTIONS.map((o) => (
         <button
           key={o.id}
-          type="button"
           onClick={() => onChange(o.id)}
           className={
             "rounded-xl px-4 py-2 text-sm transition " +
-            (value === o.id ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm" : "text-white/70 hover:text-white")
+            (value === o.id
+              ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm"
+              : "text-white/70 hover:text-white")
           }
+          type="button"
         >
           <span className="inline-flex items-center gap-2">
             <span>{o.label}</span>
@@ -213,18 +276,26 @@ function ShimmerButton({
   const goldBase =
     "text-black shadow-lg shadow-[#D4AF37]/20 bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] hover:brightness-105";
 
-  const gold = attention ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]" : goldBase;
+  const gold = attention
+    ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]"
+    : goldBase;
 
-  const dark = "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
+  const dark =
+    "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" className={`${base} ${variant === "gold" ? gold : dark} ${className}`}>
-      {attention && variant === "gold" ? (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={`${base} ${variant === "gold" ? gold : dark} ${className}`}
+    >
+      {attention && variant === "gold" && (
         <span
           className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
           aria-hidden="true"
         />
-      ) : null}
+      )}
 
       <span
         className={
@@ -245,13 +316,23 @@ function ShimmerButton({
 
       <span className="relative z-10 inline-flex items-center gap-2">
         {children}
-        <span className="transition-transform duration-300 group-hover:animate-[arrowSlide_0.6s_ease-in-out]">→</span>
+        <span className="transition-transform duration-300 group-hover:animate-[arrowSlide_0.6s_ease-in-out]">
+          →
+        </span>
       </span>
     </a>
   );
 }
 
-function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -291,7 +372,15 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
 
 function FloatingParticles() {
   const particles = useMemo(
-    () => PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({ id: i, x, y, r, dur, delay: (i * 0.7) % 5 })),
+    () =>
+      PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({
+        id: i,
+        x,
+        y,
+        r,
+        dur,
+        delay: (i * 0.7) % 5,
+      })),
     []
   );
 
@@ -317,7 +406,15 @@ function FloatingParticles() {
 
 function WhatsAppIcon({ className = "" }: { className?: string }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
       <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
     </svg>
   );
@@ -329,29 +426,6 @@ function EpgMock() {
   const nowLeft = "52.5%";
   const slotW = 120;
   const programWidth = EPG_TIMELINE.length * slotW;
-
-  const TimeRow = () => (
-    <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
-      <div className="flex items-center gap-2">
-        <div className="w-[180px] text-[10px] text-white/55">Channel</div>
-        <div className="relative flex-1 overflow-hidden">
-          <div className="relative whitespace-nowrap">
-            <div className="flex animate-[marquee_22s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
-              {[0, 1].map((dup) => (
-                <div key={dup} className="flex" style={{ width: programWidth }}>
-                  {EPG_TIMELINE.map((t) => (
-                    <div key={`${dup}-${t}`} className="shrink-0 text-[10px] text-white/55" style={{ width: slotW }}>
-                      {t}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
@@ -366,7 +440,33 @@ function EpgMock() {
         />
       </div>
 
-      <TimeRow />
+      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="w-[180px] text-[10px] text-white/55">Channel</div>
+          <div className="relative flex-1 overflow-hidden">
+            <div className="relative whitespace-nowrap">
+              <div
+                className="flex animate-[marquee_22s_linear_infinite] motion-reduce:animate-none"
+                style={{ width: programWidth * 2 }}
+              >
+                {[0, 1].map((dup) => (
+                  <div key={dup} className="flex" style={{ width: programWidth }}>
+                    {EPG_TIMELINE.map((t) => (
+                      <div
+                        key={`${dup}-${t}`}
+                        className="shrink-0 text-[10px] text-white/55"
+                        style={{ width: slotW }}
+                      >
+                        {t}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="px-4 py-3">
         <div className="grid gap-3">
@@ -377,18 +477,24 @@ function EpgMock() {
                   {row.abbr}
                 </div>
                 <div className="min-w-0 pr-1">
-                  <div className="break-words text-[11px] font-semibold leading-tight text-white/90">{row.name}</div>
+                  <div className="break-words text-[11px] font-semibold leading-tight text-white/90">
+                    {row.name}
+                  </div>
                   <div className="text-[10px] text-white/50">{row.ch}</div>
                 </div>
               </div>
 
               <div className="relative flex-1 overflow-hidden">
-                <div className="flex animate-[marquee_24s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
+                <div
+                  className="flex animate-[marquee_24s_linear_infinite] motion-reduce:animate-none"
+                  style={{ width: programWidth * 2 }}
+                >
                   {[0, 1].map((dup) => (
                     <div key={dup} className="flex gap-2 pr-2" style={{ width: programWidth }}>
                       {row.blocks.map((b, i) => {
                         const isLive = b.toUpperCase().includes("LIVE");
                         const isNow = idx === 2 && i === 1;
+
                         return (
                           <div
                             key={`${dup}-${row.ch}-${i}`}
@@ -400,7 +506,9 @@ function EpgMock() {
                             title={b}
                           >
                             <div className="flex items-start gap-2">
-                              <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">{b}</div>
+                              <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
+                                {b}
+                              </div>
                               {isLive ? (
                                 <span className="mt-0.5 shrink-0 rounded-full bg-[#D4AF37]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
                                   LIVE
@@ -425,7 +533,7 @@ function EpgMock() {
   );
 }
 
-/* ---------------- Page ---------------- */
+/* ---------------- PAGE ---------------- */
 
 export default function EliteHouseLandingPage() {
   const [billing, setBilling] = useState<Billing>("sixmonth");
@@ -434,9 +542,12 @@ export default function EliteHouseLandingPage() {
   const trialMessage =
     "Hi Elite House. I'd like to start the 24-hour free trial. Please share the next steps.";
 
+  // Consistent luxury spacing across sections:
+  // mobile: py-14, desktop+: py-20
+  const SECTION = "mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
-      {/* Background / particles (unchanged visuals) */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 animate-[gradientMove_14s_ease-in-out_infinite] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_80%,rgba(170,90,255,0.12),transparent_65%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
@@ -449,10 +560,11 @@ export default function EliteHouseLandingPage() {
         <FloatingParticles />
       </div>
 
-      {/* Header removed */}
+      {/* HEADER REMOVED */}
+
       <main className="relative z-10">
-        {/* HERO (tightened bottom padding, no hero badges, no right trial box) */}
-        <section className="mx-auto max-w-6xl px-4 pb-6 pt-10 sm:px-6 sm:pb-8 sm:pt-14">
+        {/* HERO (slightly tighter than the rest, so it leads into sections) */}
+        <section className="mx-auto max-w-6xl px-4 pt-10 pb-10 sm:px-6 sm:pt-14 sm:pb-12">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
               <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
@@ -493,6 +605,7 @@ export default function EliteHouseLandingPage() {
                 <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#B8860B]/15 blur-3xl" />
                 <div className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5078FF]/10 blur-3xl" />
               </div>
+
               <div className="relative p-6">
                 <EpgMock />
               </div>
@@ -500,8 +613,8 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* FEATURES (tight top padding, no kicker badge above title) */}
-        <section id="features" className="mx-auto max-w-6xl px-4 pt-12 pb-24 sm:px-6 sm:pt-14">
+        {/* FEATURES */}
+        <section id="features" className={SECTION}>
           <Reveal>
             <SectionTitle
               title="Elite Access, Made Simple."
@@ -509,20 +622,24 @@ export default function EliteHouseLandingPage() {
             />
           </Reveal>
 
-          <div className="mt-16 grid gap-10 md:grid-cols-3">
+          <div className="mt-12 grid gap-8 md:grid-cols-3">
             {FEATURE_CARDS.map((c) => (
               <Reveal key={c.h} delay={c.d}>
                 <Card className="bg-white/[0.05] p-8 transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                  <h3 className="mb-4 text-2xl font-semibold">{c.h}</h3>
-                  <p className="mb-4 text-sm leading-relaxed text-white/70">{c.p}</p>
-                  <div className="text-sm font-medium text-[#F6E27A]">{c.f}</div>
+                  <h3 className="text-2xl font-semibold mb-4">{c.h}</h3>
+                  <p className="text-white/70 leading-relaxed text-sm mb-4">
+                    {c.p}
+                  </p>
+                  <div className="text-[#F6E27A] text-sm font-medium">
+                    {c.f}
+                  </div>
                 </Card>
               </Reveal>
             ))}
           </div>
 
-          <Reveal delay={400} className="mt-20 text-center">
-            <div className="mb-6 text-sm tracking-wide text-white/70">
+          <Reveal delay={400} className="mt-16 text-center">
+            <div className="text-white/70 mb-6 text-sm tracking-wide">
               Limited access is available. Start with a private 24-hour trial while spaces remain.
             </div>
             <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
@@ -532,7 +649,7 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* PRICING */}
-        <section id="pricing" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <section id="pricing" className={SECTION}>
           <Reveal>
             <SectionTitle
               kicker="Membership"
@@ -542,15 +659,21 @@ export default function EliteHouseLandingPage() {
           </Reveal>
 
           <Reveal delay={70} className="mt-10">
-            <Card className="bg-white/[0.035] p-6 sm:grid sm:grid-cols-3 sm:gap-3">
-              {["Message us on WhatsApp", "Trial activated", "Start watching"].map((t, i) => (
-                <div key={t} className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
-                    {i + 1}
-                  </div>
-                  <div className="text-sm font-semibold text-white/85">{t}</div>
-                </div>
-              ))}
+            <Card className="bg-white/[0.035] p-6">
+              <div className="grid gap-3 sm:grid-cols-3">
+                {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
+                  (t, i) => (
+                    <div key={t} className="flex items-center gap-3">
+                      <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
+                        {i + 1}
+                      </div>
+                      <div className="text-sm font-semibold text-white/85">
+                        {t}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
             </Card>
           </Reveal>
 
@@ -561,7 +684,7 @@ export default function EliteHouseLandingPage() {
           <div className="mt-14 flex justify-center">
             <Reveal delay={140}>
               <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
-                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
+                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                   <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/20 blur-3xl animate-[floaty_6s_ease-in-out_infinite]" />
                   <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/20 blur-3xl animate-[floaty_8s_ease-in-out_infinite]" />
                 </div>
@@ -571,9 +694,15 @@ export default function EliteHouseLandingPage() {
                     Elite Access Membership
                   </div>
 
-                  <div className="mt-6 text-xs uppercase tracking-widest text-white/50">Billing</div>
+                  <div className="mt-6 text-xs tracking-widest uppercase text-white/50">
+                    Billing
+                  </div>
                   <div className="mt-2 text-sm font-semibold text-white/85">
-                    {billing === "sixmonth" ? "6 Months" : billing === "annual" ? "1 Year" : "Monthly"}
+                    {billing === "sixmonth"
+                      ? "6 Months"
+                      : billing === "annual"
+                      ? "1 Year"
+                      : "Monthly"}
                   </div>
 
                   <div className="mt-6 text-6xl font-semibold tracking-tight">
@@ -590,10 +719,17 @@ export default function EliteHouseLandingPage() {
                   ) : null}
 
                   <div className="mt-8">
-                    <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
+                    <ShimmerButton
+                      href={waLink(trialMessage)}
+                      className="w-full"
+                      variant="gold"
+                      attention
+                    >
                       Start Trial on WhatsApp
                     </ShimmerButton>
-                    <div className="mt-3 text-[11px] text-white/55">Private access. Confirmed individually via WhatsApp.</div>
+                    <div className="mt-3 text-[11px] text-white/55">
+                      Private access. Confirmed individually via WhatsApp.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -602,36 +738,50 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+        <section id="faq" className={SECTION}>
           <SectionTitle
             kicker="FAQ"
             title="Questions, answered"
             subtitle="If you don&apos;t see what you need, message us on WhatsApp and we&apos;ll help quickly."
           />
 
-          <div className="grid gap-5 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {FAQ.map((item) => (
               <Card key={item.q} className="bg-white/[0.04] p-7">
-                <div className="text-base font-semibold text-white">{item.q}</div>
-                <div className="mt-2 text-sm leading-relaxed text-white/70">{item.a}</div>
+                <div className="text-base font-semibold text-white">
+                  {item.q}
+                </div>
+                <div className="mt-2 text-sm leading-relaxed text-white/70">
+                  {item.a}
+                </div>
               </Card>
             ))}
           </div>
 
           <div className="mt-10 flex justify-center">
-            <ShimmerButton href={waLink(trialMessage)} className="px-7 py-3" variant="gold" attention>
+            <ShimmerButton
+              href={waLink(trialMessage)}
+              className="px-7 py-3"
+              variant="gold"
+              attention
+            >
               Start Trial on WhatsApp
             </ShimmerButton>
           </div>
         </section>
 
         {/* FOOTER */}
-        <footer className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
+        <footer className="mx-auto max-w-6xl px-4 pb-14 sm:px-6 sm:pb-20">
           <Card className="bg-white/[0.03] p-6">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                <div className="text-sm font-semibold text-white/90">Elite House</div>
-                <div className="mt-1 text-xs text-white/60">Premium viewing. Seamless experience. Direct support via WhatsApp.</div>
+                <div className="text-sm font-semibold text-white/90">
+                  Elite House
+                </div>
+                <div className="mt-1 text-xs text-white/60">
+                  Premium viewing. Seamless experience. Direct support via
+                  WhatsApp.
+                </div>
               </div>
               <a
                 href={waLink(trialMessage)}
