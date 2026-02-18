@@ -1,43 +1,28 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
 
-/**
- * Next.js-safe env read (no import.meta).
- * Set NEXT_PUBLIC_WHATSAPP_NUMBER in Vercel env vars for production.
- */
+/** WhatsApp Link */
 const readWaEnv = (): string | null => {
   const env = typeof process !== "undefined" ? process.env : undefined;
-  const fromProcess =
-    env?.NEXT_PUBLIC_WHATSAPP_NUMBER ||
-    env?.REACT_APP_WHATSAPP_NUMBER ||
-    env?.VITE_WHATSAPP_NUMBER;
-
-  return fromProcess ? String(fromProcess) : null;
+  return env?.NEXT_PUBLIC_WHATSAPP_NUMBER
+    ? String(env.NEXT_PUBLIC_WHATSAPP_NUMBER)
+    : null;
 };
 
 const __WA_ENV__ = readWaEnv();
-
 // Fallback is lightly obfuscated to avoid plain-text exposure in source
 const __WA_FALLBACK__ = ["44", "7922", "309925"].join("");
-
 const getWhatsAppNumber = () => __WA_ENV__ || __WA_FALLBACK__;
 
 export function waLink(message: string) {
-  const text = encodeURIComponent(message);
-  const number = getWhatsAppNumber();
-  return `https://wa.me/${number}?text=${text}`;
+  return `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(
+    message
+  )}`;
 }
 
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
-      {children}
-    </span>
-  );
-}
-
+/** Small UI */
 function SectionTitle({
   kicker,
   title,
@@ -48,17 +33,17 @@ function SectionTitle({
   subtitle?: string;
 }) {
   return (
-    <div className="mx-auto mb-8 max-w-2xl text-center sm:mb-10">
+    <div className="mx-auto mb-8 max-w-2xl text-center">
       {kicker ? (
-        <div className="mb-3 flex justify-center">
-          <Badge>{kicker}</Badge>
-        </div>
+        <p className="mb-2 text-xs uppercase tracking-[0.3em] text-[#F6E27A]">
+          {kicker}
+        </p>
       ) : null}
       <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">
+        <p className="mt-3 text-sm leading-relaxed text-white/65 sm:text-base">
           {subtitle}
         </p>
       ) : null}
@@ -66,14 +51,61 @@ function SectionTitle({
   );
 }
 
+function WhatsAppIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
+    </svg>
+  );
+}
+
+function CTAButton({
+  href,
+  children,
+  className = "",
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={
+        "inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-3 text-sm font-semibold text-black " +
+        "bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] " +
+        "shadow-lg shadow-[#D4AF37]/20 hover:brightness-110 transition " +
+        className
+      }
+    >
+      <WhatsAppIcon />
+      {children}
+      <span aria-hidden="true">→</span>
+    </a>
+  );
+}
+
 function PricingToggle({
   value,
   onChange,
 }: {
-  value: string;
-  onChange: (v: string) => void;
+  value: "monthly" | "sixmonth" | "annual";
+  onChange: (v: "monthly" | "sixmonth" | "annual") => void;
 }) {
-  const options = [
+  const options: Array<{
+    id: "monthly" | "sixmonth" | "annual";
+    label: string;
+    badge?: string;
+  }> = [
     { id: "monthly", label: "Monthly" },
     { id: "sixmonth", label: "6 Months" },
     { id: "annual", label: "1 Year", badge: "Best Value" },
@@ -84,6 +116,7 @@ function PricingToggle({
       {options.map((o) => (
         <button
           key={o.id}
+          type="button"
           onClick={() => onChange(o.id)}
           aria-pressed={value === o.id}
           className={
@@ -92,7 +125,6 @@ function PricingToggle({
               ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm"
               : "text-white/70 hover:text-white")
           }
-          type="button"
         >
           <span className="inline-flex items-center gap-2">
             <span>{o.label}</span>
@@ -108,640 +140,299 @@ function PricingToggle({
   );
 }
 
-function ShimmerButton({
-  href,
-  children,
-  className = "",
-  variant = "gold",
-  attention = false,
-}: {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-  variant?: "gold" | "dark";
-  attention?: boolean;
-}) {
-  const base =
-    "group relative isolate overflow-hidden inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-bold transition";
-
-  const goldBase =
-    "text-black shadow-lg shadow-[#D4AF37]/20 bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] hover:brightness-105";
-
-  const gold = attention
-    ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]"
-    : goldBase;
-
-  const dark =
-    "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
-
+function StarRow() {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={`${base} ${variant === "gold" ? gold : dark} ${className}`}
-    >
-      {attention && variant === "gold" && (
-        <span
-          className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Occasional luxury glint */}
-      <span
-        className={
-          "pointer-events-none absolute -inset-y-12 -left-1/2 w-[200%] rotate-12 opacity-0 " +
-          "[background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent)] " +
-          "animate-[glint_7.5s_ease-in-out_infinite]"
-        }
-        aria-hidden="true"
-      />
-
-      {/* Hover shimmer */}
-      <span
-        className={
-          "pointer-events-none absolute -inset-y-10 -left-1/2 w-[200%] rotate-12 opacity-0 " +
-          "[background:linear-gradient(90deg,transparent,rgba(255,255,255,0.65),transparent)] " +
-          "transition-opacity duration-200 group-hover:opacity-45 group-hover:animate-[shimmer_2.2s_ease-in-out_infinite]"
-        }
-        aria-hidden="true"
-      />
-
-      <span className="relative z-10 inline-flex items-center gap-2">
-        {children}
-        <span className="transition-transform duration-300 group-hover:animate-[arrowSlide_0.6s_ease-in-out]">
-          →
-        </span>
-      </span>
-    </a>
-  );
-}
-
-function Reveal({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setVisible(true);
-            obs.disconnect();
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      style={{ transitionDelay: `${delay}ms` }}
-      className={
-        "transition-all duration-700 will-change-transform motion-reduce:transition-none " +
-        (visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3") +
-        " " +
-        className
-      }
-    >
-      {children}
-    </div>
-  );
-}
-
-function FloatingParticles() {
-  const particles = useMemo(() => {
-    const seeds: Array<[number, number, number, number]> = [
-      [8, 18, 1.2, 16],
-      [22, 62, 1.6, 20],
-      [35, 28, 1.1, 18],
-      [44, 78, 1.4, 26],
-      [58, 14, 1.0, 22],
-      [66, 52, 1.7, 30],
-      [74, 32, 1.2, 24],
-      [82, 70, 1.3, 28],
-      [90, 24, 1.1, 19],
-      [12, 84, 1.5, 32],
-      [28, 8, 1.0, 21],
-      [52, 88, 1.2, 34],
-    ];
-
-    return seeds.map((s, i) => {
-      const [x, y, r, dur] = s;
-      return { id: i, x, y, r, dur, delay: (i * 0.7) % 5 };
-    });
-  }, []);
-
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {particles.map((p) => (
-        <span
-          key={p.id}
-          className="absolute rounded-full bg-white/40 blur-[0.3px] motion-reduce:animate-none"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: `${p.r * 6}px`,
-            height: `${p.r * 6}px`,
-            animation: `floaty ${p.dur}s ease-in-out ${p.delay}s infinite`,
-            opacity: 0.18,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function WhatsAppIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
-    </svg>
-  );
-}
-
-function EpgMock() {
-  const timeline = [
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
-    "20:00",
-    "20:30",
-    "21:00",
-    "21:30",
-    "22:00",
-    "22:30",
-    "23:00",
-    "23:30",
-  ];
-
-  const rows = [
-    {
-      ch: "101",
-      abbr: "VC",
-      name: "Velour Cinema",
-      blocks: [
-        "10,000+ Live Channels",
-        "100,000+ Video On Demand",
-        "4K Ultra HD Streaming",
-        "Seamless channel playback",
-      ],
-    },
-    {
-      ch: "102",
-      abbr: "AS",
-      name: "Apex Sports",
-      blocks: [
-        "LIVE Championship",
-        "All channels working perfectly",
-        "Zero missing listings",
-        "Reliable premium streaming",
-      ],
-    },
-    {
-      ch: "103",
-      abbr: "NV",
-      name: "Nova Vista",
-      blocks: [
-        "Instant access",
-        "Precision programme guide data",
-        "Smooth browsing experience",
-        "Consistent presentation",
-      ],
-    },
-    {
-      ch: "104",
-      abbr: "OR",
-      name: "Orion Discovery",
-      blocks: [
-        "Fast WhatsApp setup",
-        "Clean channel lineup",
-        "Stable playback",
-        "Support when you need it",
-      ],
-    },
-    {
-      ch: "105",
-      abbr: "LX",
-      name: "Luxe Kids",
-      blocks: [
-        "Family-ready experience",
-        "Clear titles & logos",
-        "No broken channels",
-        "Premium reliability",
-      ],
-    },
-  ];
-
-  const nowLeft = "52.5%";
-  const slotW = 120;
-  const programWidth = timeline.length * slotW;
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
-      <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/75 opacity-80 animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
-          style={{ left: nowLeft }}
-        />
-        <div
-          className="absolute top-0 bottom-0 w-[54px] bg-[#D4AF37]/10 blur-xl animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
-          style={{ left: `calc(${nowLeft} - 27px)` }}
-        />
-      </div>
-
-      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="w-[180px] text-[10px] text-white/55">Channel</div>
-          <div className="relative flex-1 overflow-hidden">
-            <div className="relative whitespace-nowrap">
-              <div
-                className="flex motion-reduce:animate-none animate-[marquee_22s_linear_infinite]"
-                style={{ width: programWidth * 2 }}
-              >
-                {[0, 1].map((dup) => (
-                  <div
-                    key={dup}
-                    className="flex"
-                    style={{ width: programWidth }}
-                  >
-                    {timeline.map((t) => (
-                      <div
-                        key={`${dup}-${t}`}
-                        className="shrink-0 text-[10px] text-white/55"
-                        style={{ width: slotW }}
-                      >
-                        {t}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-4 py-3">
-        <div className="grid gap-3">
-          {rows.map((row, idx) => (
-            <div key={row.ch} className="flex items-stretch gap-2">
-              <div className="flex w-[180px] items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-[11px] font-extrabold text-[#F6E27A]">
-                  {row.abbr}
-                </div>
-                <div className="min-w-0 pr-1">
-                  <div className="break-words text-[11px] font-semibold leading-tight text-white/90">
-                    {row.name}
-                  </div>
-                  <div className="text-[10px] text-white/50">{row.ch}</div>
-                </div>
-              </div>
-
-              <div className="relative flex-1 overflow-hidden">
-                <div
-                  className="flex motion-reduce:animate-none animate-[marquee_24s_linear_infinite]"
-                  style={{ width: programWidth * 2 }}
-                >
-                  {[0, 1].map((dup) => (
-                    <div
-                      key={dup}
-                      className="flex gap-2 pr-2"
-                      style={{ width: programWidth }}
-                    >
-                      {row.blocks.map((b, i) => {
-                        const isLive = b.toUpperCase().includes("LIVE");
-                        const isNow = idx === 2 && i === 1;
-                        const w = 3 * slotW;
-
-                        return (
-                          <div
-                            key={`${dup}-${row.ch}-${i}`}
-                            className={
-                              "relative shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 " +
-                              (isNow ? "ring-1 ring-white/20" : "")
-                            }
-                            style={{ width: w }}
-                            title={b}
-                          >
-                            <div className="flex items-start gap-2">
-                              <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
-                                {b}
-                              </div>
-                              {isLive ? (
-                                <span className="mt-0.5 shrink-0 rounded-full bg-[#D4AF37]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
-                                  LIVE
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        );
-                      })}
-                      <div className="shrink-0" style={{ width: slotW }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="pointer-events-none h-10 bg-gradient-to-t from-black/60 to-transparent" />
+    <div className="inline-flex items-center gap-1 text-[#F6E27A]">
+      <span aria-hidden="true">★</span>
+      <span aria-hidden="true">★</span>
+      <span aria-hidden="true">★</span>
+      <span aria-hidden="true">★</span>
+      <span aria-hidden="true">★</span>
+      <span className="sr-only">5 out of 5 stars</span>
     </div>
   );
 }
 
 export default function EliteHouseLandingPage() {
-  const [billing, setBilling] = useState("sixmonth");
-
-  const pricing = useMemo(() => {
-    const base: Record<
-      string,
-      { price: string; note: string; savings: string | null }
-    > = {
-      monthly: { price: "£14.99", note: "per month", savings: null },
-      sixmonth: { price: "£60", note: "every 6 months", savings: "Save £29.94" },
-      annual: { price: "£100", note: "per year", savings: "Save £79.88" },
-    };
-    return base[billing];
-  }, [billing]);
-
   const trialMessage =
     "Hi Elite House. I'd like to start the 24-hour free trial. Please share the next steps.";
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
-      <style>{`
-        @keyframes gradientMove {
-          0%, 100% { transform: translate3d(0,0,0) scale(1); }
-          50% { transform: translate3d(-2%, -3%, 0) scale(1.05); }
-        }
-        @keyframes shimmer {
-          0% { transform: translateX(-35%) rotate(12deg); opacity: 0.12; }
-          55% { opacity: 0.55; }
-          100% { transform: translateX(35%) rotate(12deg); opacity: 0.15; }
-        }
-        @keyframes glint {
-          0%, 74% { opacity: 0; transform: translateX(-45%) rotate(12deg); }
-          78% { opacity: 0.22; }
-          84% { opacity: 0.65; }
-          90% { opacity: 0.18; }
-          100% { opacity: 0; transform: translateX(45%) rotate(12deg); }
-        }
-        @keyframes floaty {
-          0%, 100% { transform: translate3d(0,0,0); opacity: 0.12; }
-          50% { transform: translate3d(0,-16px,0); opacity: 0.22; }
-        }
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes nowGlow {
-          0%, 100% { opacity: 0.55; filter: drop-shadow(0 0 0 rgba(212,175,55,0)); }
-          50% { opacity: 0.95; filter: drop-shadow(0 0 14px rgba(212,175,55,0.28)); }
-        }
-        @keyframes borderBreath {
-          0%, 100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.18), 0 0 18px rgba(212,175,55,0.10); }
-          50% { box-shadow: 0 0 0 1px rgba(212,175,55,0.38), 0 0 32px rgba(212,175,55,0.22); }
-        }
-        @keyframes ctaPulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55,0.25); }
-          50% { transform: scale(1.02); box-shadow: 0 0 26px 6px rgba(212,175,55,0.18); }
-        }
-        @keyframes ringPulse {
-          0% { opacity: 0.45; transform: scale(0.92); }
-          70% { opacity: 0; transform: scale(1.18); }
-          100% { opacity: 0; transform: scale(1.18); }
-        }
-        @keyframes arrowSlide {
-          0% { transform: translateX(0); }
-          50% { transform: translateX(3px); }
-          100% { transform: translateX(0); }
-        }
-      `}</style>
+  const [billing, setBilling] = useState<"monthly" | "sixmonth" | "annual">(
+    "sixmonth"
+  );
 
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute inset-0 animate-[gradientMove_14s_ease-in-out_infinite] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_80%,rgba(170,90,255,0.12),transparent_65%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(212,175,55,0.18),rgba(0,0,0,0)_62%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_15%_40%,rgba(184,134,11,0.14),rgba(0,0,0,0)_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_85%_45%,rgba(246,226,122,0.10),rgba(0,0,0,0)_72%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_20%_80%,rgba(80,120,255,0.10),rgba(0,0,0,0)_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_85%_75%,rgba(170,90,255,0.08),rgba(0,0,0,0)_72%)]" />
-        <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
-        {/* calmer on mobile */}
-        <div className="hidden sm:block">
-          <FloatingParticles />
-        </div>
+  const pricing = useMemo(() => {
+    const base: Record<
+      "monthly" | "sixmonth" | "annual",
+      { price: string; note: string; savings?: string; subnote?: string }
+    > = {
+      monthly: { price: "£14.99", note: "per month", subnote: "Cancel anytime" },
+      sixmonth: {
+        price: "£60",
+        note: "every 6 months",
+        savings: "Save £29.94",
+      },
+      annual: {
+        price: "£100",
+        note: "per year",
+        savings: "Save £79.88",
+      },
+    };
+
+    const plan = base[billing];
+    return {
+      ...plan,
+      label:
+        billing === "sixmonth"
+          ? "6 Months"
+          : billing === "annual"
+          ? "1 Year"
+          : "Monthly",
+    };
+  }, [billing]);
+
+  const testimonials = [
+    {
+      quote:
+        "Setup was genuinely fast. Everything looks clean and works smoothly across devices.",
+      name: "Jordan",
+      meta: "UK",
+    },
+    {
+      quote:
+        "The interface feels premium — no clutter, just easy browsing and solid playback.",
+      name: "Aisha",
+      meta: "London",
+    },
+    {
+      quote:
+        "Support replies quickly and actually solves things. Best experience I’ve had.",
+      name: "Marcus",
+      meta: "Manchester",
+    },
+    {
+      quote: "Reliable streams, great library, and it just feels… polished.",
+      name: "Sophie",
+      meta: "Birmingham",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-black text-white">
+      {/* Background glow (calm) */}
+      <div className="pointer-events-none fixed inset-0 opacity-40">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(212,175,55,0.26),transparent_58%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.16),transparent_62%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_85%,rgba(170,90,255,0.10),transparent_62%)]" />
       </div>
 
       <main className="relative z-10">
         {/* HERO */}
-        <section className="mx-auto max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pb-12 sm:pt-10">
-          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
+        <section className="mx-auto max-w-6xl px-4 pt-10 pb-14 sm:px-6 sm:pt-14 sm:pb-16">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              {/* Logo moved into hero (header removed) */}
-              <div className="mb-6">
-                <Image
-                  src="/logo.png"
-                  alt="Elite House Logo"
-                  width={360}
-                  height={120}
-                  priority
-                  className="h-20 w-auto object-contain drop-shadow-[0_18px_40px_rgba(212,175,55,0.35)]"
-                />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Elite House Logo"
+                width={340}
+                height={120}
+                priority
+                className="h-20 w-auto object-contain drop-shadow-[0_18px_40px_rgba(212,175,55,0.35)] mb-6"
+              />
 
-              <div className="mb-4 flex flex-wrap gap-2">
-                <Badge>24-hour trial via WhatsApp</Badge>
-                <Badge>Global live access and an on demand library</Badge>
-              </div>
-
-              <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
+              <h1 className="text-4xl sm:text-5xl font-semibold leading-tight tracking-tight">
                 Elite Access.
-                <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent leading-tight pb-1">
+                <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
                   For Viewers Who Expect More.
                 </span>
               </h1>
 
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-                Elite House delivers a polished, dependable subscription—consistent, clean, and built to work across your favourite devices.
+              <p className="mt-4 max-w-xl text-white/65 text-base sm:text-lg leading-relaxed">
+                Premium live entertainment and a private on-demand library —
+                designed to feel seamless, discreet, and effortless across your
+                devices.
               </p>
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <ShimmerButton
-                  href={waLink(trialMessage)}
-                  variant="gold"
-                  attention
-                >
+              <div className="mt-7 flex flex-col sm:flex-row gap-4">
+                <CTAButton href={waLink(trialMessage)}>
                   Start Trial on WhatsApp
-                </ShimmerButton>
+                </CTAButton>
                 <a
                   href="#pricing"
-                  className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white/85 backdrop-blur transition hover:bg-white/[0.06]"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/15 px-7 py-3 text-sm font-semibold text-white/80 hover:bg-white/5 transition"
                 >
-                  View membership
+                  View membership <span aria-hidden="true">→</span>
                 </a>
               </div>
 
-              {/* Trust pill */}
-              <div className="mt-5 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
-                <span className="font-semibold text-white/90">1,200+ Members</span>
+              <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/70 backdrop-blur">
+                <span className="font-semibold text-white/85">1,200+ Members</span>
                 <span className="h-4 w-px bg-white/15" />
-                <span className="text-[#F6E27A] text-base leading-none">★★★★★</span>
+                <StarRow />
                 <span className="h-4 w-px bg-white/15" />
-                <span>Activated in Minutes</span>
+                <span>Activated in minutes</span>
               </div>
             </div>
 
-            {/* RIGHT PANEL */}
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/60 backdrop-blur">
-              <div className="absolute inset-0 opacity-80">
-                <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
-                <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#B8860B]/15 blur-3xl" />
-                <div className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5078FF]/10 blur-3xl" />
-              </div>
-
-              <div className="relative p-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="text-sm font-semibold text-white/90">
-                    Global live access with a private library
-                  </div>
+            {/* Right card */}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-white/85">
+                    Private 24-hour trial access
+                  </p>
+                  <p className="mt-2 text-sm text-white/65 leading-relaxed">
+                    Message us directly on WhatsApp and we’ll activate your trial
+                    quickly.
+                  </p>
                 </div>
-
-                <EpgMock />
-
-                <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <div className="text-xs font-semibold text-[#F6E27A]">
-                    24-hour trial
-                  </div>
-                  <div className="mt-1 text-sm text-white/80">
-                    Message us on WhatsApp and we&apos;ll set you up for a private 24-hour trial.
-                  </div>
-
-                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <a
-                      href={waLink(trialMessage)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-black/60 px-4 py-2 text-sm font-semibold text-[#F6E27A] ring-1 ring-[#D4AF37]/25 transition hover:bg-black/70"
-                    >
-                      <WhatsAppIcon className="shrink-0" />
-                      <span>Chat on WhatsApp →</span>
-                    </a>
-                    <div className="text-xs text-white/55">
-                      Replies usually within minutes
-                    </div>
-                  </div>
+                <div className="shrink-0 rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-3 py-2 text-xs font-semibold text-[#F6E27A]">
+                  VIP
                 </div>
               </div>
+
+              <div className="mt-5">
+                <CTAButton className="w-full" href={waLink(trialMessage)}>
+                  Request trial access
+                </CTAButton>
+              </div>
+
+              <p className="mt-3 text-xs text-white/45">
+                Priority replies • Setup handled personally
+              </p>
             </div>
           </div>
         </section>
 
         {/* FEATURES */}
-        <section
-          id="features"
-          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
-        >
-          <Reveal>
-            <SectionTitle
-              kicker="Elite Access"
-              title="Elite Access, Made Simple."
-              subtitle="Global live access. A vast on demand library. Seamless performance—delivered without compromise."
-            />
-          </Reveal>
+        <section id="features" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+          <SectionTitle
+            kicker="Elite Features"
+            title="Everything included."
+            subtitle="Live access, premium on-demand, and direct support — all in one private membership."
+          />
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <Reveal delay={100}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
-                <h3 className="text-2xl font-semibold mb-3">Members-Only Live Access</h3>
-                <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  Worldwide live television, organised clearly and presented cleanly.
-                </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  Live access—delivered reliably.
-                </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "Live Channels",
+                desc: "Worldwide live access, organised cleanly and delivered reliably.",
+              },
+              {
+                title: "On Demand Library",
+                desc: "Thousands of films and series ready instantly — smooth browsing, no clutter.",
+              },
+              {
+                title: "Direct WhatsApp Support",
+                desc: "Fast setup, upgrades, and personal help whenever needed.",
+              },
+            ].map((f) => (
+              <div
+                key={f.title}
+                className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur hover:bg-white/[0.07] transition"
+              >
+                <h3 className="text-xl font-semibold mb-3">{f.title}</h3>
+                <p className="text-sm text-white/65 leading-relaxed">{f.desc}</p>
               </div>
-            </Reveal>
-
-            <Reveal delay={200}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
-                <h3 className="text-2xl font-semibold mb-3">Private Film & Series Library</h3>
-                <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  Over 100,000 films and series available instantly. Browse smoothly. Press play confidently.
-                </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  A library for those who expect more.
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={300}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
-                <h3 className="text-2xl font-semibold mb-3">Direct Support</h3>
-                <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  WhatsApp assistance handled quickly and personally. Setup, upgrades, support—streamlined.
-                </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  Support reserved for active members.
-                </div>
-              </div>
-            </Reveal>
+            ))}
           </div>
-
-          <Reveal delay={400} className="mt-12 text-center">
-            <div className="text-white/70 mb-5 text-sm tracking-wide">
-              Limited access is available. Start with a private 24-hour trial while spaces remain.
-            </div>
-            <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
-              Start Trial on WhatsApp
-            </ShimmerButton>
-          </Reveal>
         </section>
 
-        {/* PRICING */}
-        <section
-          id="pricing"
-          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
-        >
-          <Reveal>
-            <SectionTitle
-              kicker="Membership"
-              title="One Plan. Full Access."
-              subtitle="Choose your billing. Everything is included. Request private trial access to begin."
-            />
-          </Reveal>
+        {/* TESTIMONIALS */}
+        <section id="testimonials" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
+          <SectionTitle
+            kicker="Trusted"
+            title="What members say."
+            subtitle="Short, real feedback from private members who value reliability and a clean experience."
+          />
 
-          <Reveal delay={70} className="mt-8">
-            <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur sm:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
+              >
+                <div className="flex items-center justify-between">
+                  <StarRow />
+                  <span className="text-xs text-white/45">{t.meta}</span>
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-white/70">
+                  “{t.quote}”
+                </p>
+                <div className="mt-4 text-sm font-semibold text-white/85">
+                  {t.name}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+          </div>
+        </section>
+
+        {/* PRICING (with toggle) */}
+        <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+          <SectionTitle
+            kicker="Membership"
+            title="Choose your billing."
+            subtitle="Simple pricing. Everything included. Confirmed privately via WhatsApp."
+          />
+
+          <div className="flex justify-center">
+            <PricingToggle value={billing} onChange={setBilling} />
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <div className="relative w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 text-center shadow-xl backdrop-blur">
+              {/* soft glow */}
+              <div className="pointer-events-none absolute inset-0 opacity-60">
+                <div className="absolute -left-24 -top-24 h-56 w-56 rounded-full bg-[#D4AF37]/12 blur-3xl" />
+                <div className="absolute -right-24 -bottom-24 h-56 w-56 rounded-full bg-[#B8860B]/10 blur-3xl" />
+              </div>
+
+              <div className="relative">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
+                  Elite Access Membership
+                </div>
+
+                <div className="mt-5 text-xs tracking-widest uppercase text-white/50">
+                  {pricing.label}
+                </div>
+
+                <div className="mt-4 text-6xl font-semibold tracking-tight">
+                  <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                    {pricing.price}
+                  </span>
+                </div>
+
+                <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
+
+                {pricing.subnote ? (
+                  <div className="mt-2 text-xs text-white/45">{pricing.subnote}</div>
+                ) : null}
+
+                {pricing.savings ? (
+                  <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
+                    {pricing.savings}
+                  </div>
+                ) : null}
+
+                <div className="mt-7">
+                  <CTAButton className="w-full" href={waLink(trialMessage)}>
+                    Start Trial on WhatsApp
+                  </CTAButton>
+                  <div className="mt-3 text-[11px] text-white/55">
+                    Private access • Confirmed individually
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* small reassurance row */}
+          <div className="mt-6 flex justify-center">
+            <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur sm:grid-cols-3">
               {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
                 (t, i) => (
                   <div key={t} className="flex items-center gap-3">
@@ -753,158 +444,71 @@ export default function EliteHouseLandingPage() {
                 )
               )}
             </div>
-          </Reveal>
-
-          <Reveal delay={80} className="mt-6 flex justify-center">
-            <PricingToggle value={billing} onChange={setBilling} />
-          </Reveal>
-
-          <div className="mt-10 flex justify-center">
-            <Reveal delay={140}>
-              <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.01] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
-                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/20 blur-3xl animate-[floaty_6s_ease-in-out_infinite]" />
-                  <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/20 blur-3xl animate-[floaty_8s_ease-in-out_infinite]" />
-                </div>
-
-                <div className="relative text-center">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
-                    Elite Access Membership
-                  </div>
-
-                  <div className="mt-5 text-xs tracking-widest uppercase text-white/50">
-                    Billing
-                  </div>
-                  <div className="mt-2 text-sm font-semibold text-white/85">
-                    {billing === "sixmonth"
-                      ? "6 Months"
-                      : billing === "annual"
-                      ? "1 Year"
-                      : "Monthly"}
-                  </div>
-
-                  <div className="mt-5 text-6xl font-semibold tracking-tight">
-                    <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                      {pricing.price}
-                    </span>
-                  </div>
-                  <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
-
-                  {pricing.savings ? (
-                    <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A] animate-pulse">
-                      {pricing.savings}
-                    </div>
-                  ) : null}
-
-                  <div className="mt-7">
-                    <ShimmerButton
-                      href={waLink(trialMessage)}
-                      className="w-full"
-                      variant="gold"
-                      attention
-                    >
-                      Start Trial on WhatsApp
-                    </ShimmerButton>
-                    <div className="mt-3 text-[11px] text-white/55">
-                      Private access. Confirmed individually via WhatsApp.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
           </div>
         </section>
 
-        {/* FAQ */}
-        <section
-          id="faq"
-          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14"
-        >
+        {/* FAQ / Assurance (UPDATED) */}
+        <section id="faq" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
           <SectionTitle
-            kicker="FAQ"
-            title="Questions, answered"
-            subtitle="If you don&apos;t see what you need, message us on WhatsApp and we&apos;ll help quickly."
+            kicker="Support"
+            title="Private access, handled properly."
+            subtitle="Everything is set up personally through WhatsApp — fast, discreet, and simple."
           />
 
           <div className="grid gap-4 lg:grid-cols-2">
             {[
               {
-                q: "How do I start the 24-hour trial?",
-                a: "Tap any WhatsApp button and send the pre-filled message. We&apos;ll reply with setup steps.",
+                q: "How does the free trial work?",
+                a: "Just tap the WhatsApp button and we’ll activate your private 24-hour trial. Setup is handled for you step-by-step.",
               },
               {
-                q: "Which devices does it work on?",
-                a: "Most popular streaming platforms are supported. If you&apos;re unsure, ask us on WhatsApp.",
+                q: "Is this instant or do I need to wait?",
+                a: "Most trials are activated within minutes. Replies are fast because support is handled directly, not through tickets.",
               },
               {
-                q: "Can I upgrade my plan later?",
-                a: "Yes. Message us anytime and we&apos;ll upgrade you seamlessly—quick, simple, and handled via WhatsApp.",
+                q: "What’s included with membership?",
+                a: "Full access — live channels, the complete on-demand library, and ongoing support. Everything is included in one plan.",
               },
               {
-                q: "How quickly will you reply?",
-                a: "Support is handled directly through WhatsApp, so responses are typically fast, personal, and effortless.",
+                q: "Can I upgrade or extend later?",
+                a: "Yes. Members can upgrade or renew anytime with a quick message. Everything is managed privately through WhatsApp.",
               },
             ].map((item) => (
               <div
                 key={item.q}
                 className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
               >
-                <div className="text-base font-semibold text-white">{item.q}</div>
-                <div className="mt-2 text-sm leading-relaxed text-white/70">
+                <h3 className="text-base font-semibold text-white">{item.q}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">
                   {item.a}
-                </div>
+                </p>
               </div>
             ))}
           </div>
 
           <div className="mt-8 flex justify-center">
-            <ShimmerButton
-              href={waLink(trialMessage)}
-              className="px-7 py-3"
-              variant="gold"
-              attention
-            >
-              Start Trial on WhatsApp
-            </ShimmerButton>
+            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
           </div>
         </section>
 
         {/* FOOTER */}
         <footer className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur">
-            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-              <div>
-                <div className="text-sm font-semibold text-white/90">Elite House</div>
-                <div className="mt-1 text-xs text-white/60">
-                  Premium viewing. Seamless experience. Direct support via WhatsApp.
-                </div>
-              </div>
-              <a
-                href={waLink(trialMessage)}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-5 py-2 text-sm font-semibold text-[#F6E27A] transition hover:bg-black/55"
-              >
-                <WhatsAppIcon />
-                Start Trial on WhatsApp
-              </a>
-            </div>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center backdrop-blur">
+            <p className="text-sm font-semibold text-white/90">Elite House</p>
+            <p className="mt-1 text-xs text-white/50">
+              Premium viewing • Private membership • WhatsApp support
+            </p>
           </div>
         </footer>
 
         {/* Mobile sticky CTA */}
         <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
           <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-2 shadow-2xl shadow-black/50">
-            <ShimmerButton
-              href={waLink(trialMessage)}
-              className="w-full"
-              variant="gold"
-              attention
-            >
+            <CTAButton className="w-full" href={waLink(trialMessage)}>
               Start Trial on WhatsApp
-            </ShimmerButton>
+            </CTAButton>
             <div className="mt-1 text-center text-[10px] text-white/55">
-              24-hour trial • Priority replies within minutes
+              Private trial • Priority replies within minutes
             </div>
           </div>
         </div>
