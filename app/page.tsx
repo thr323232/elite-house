@@ -48,7 +48,7 @@ function SectionTitle({
   subtitle?: string;
 }) {
   return (
-    <div className="mx-auto mb-10 max-w-2xl text-center">
+    <div className="mx-auto mb-8 max-w-2xl text-center sm:mb-10">
       {kicker ? (
         <div className="mb-3 flex justify-center">
           <Badge>{kicker}</Badge>
@@ -85,6 +85,7 @@ function PricingToggle({
         <button
           key={o.id}
           onClick={() => onChange(o.id)}
+          aria-pressed={value === o.id}
           className={
             "rounded-xl px-4 py-2 text-sm transition " +
             (value === o.id
@@ -104,49 +105,6 @@ function PricingToggle({
         </button>
       ))}
     </div>
-  );
-}
-
-function Check({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M20 6L9 17l-5-5"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function MiniIcon({ d }: { d: string }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d={d}
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 
@@ -424,11 +382,15 @@ function EpgMock() {
           <div className="relative flex-1 overflow-hidden">
             <div className="relative whitespace-nowrap">
               <div
-                className="flex animate-[marquee_22s_linear_infinite] motion-reduce:animate-none"
+                className="flex motion-reduce:animate-none animate-[marquee_22s_linear_infinite]"
                 style={{ width: programWidth * 2 }}
               >
                 {[0, 1].map((dup) => (
-                  <div key={dup} className="flex" style={{ width: programWidth }}>
+                  <div
+                    key={dup}
+                    className="flex"
+                    style={{ width: programWidth }}
+                  >
                     {timeline.map((t) => (
                       <div
                         key={`${dup}-${t}`}
@@ -464,11 +426,15 @@ function EpgMock() {
 
               <div className="relative flex-1 overflow-hidden">
                 <div
-                  className="flex animate-[marquee_24s_linear_infinite] motion-reduce:animate-none"
+                  className="flex motion-reduce:animate-none animate-[marquee_24s_linear_infinite]"
                   style={{ width: programWidth * 2 }}
                 >
                   {[0, 1].map((dup) => (
-                    <div key={dup} className="flex gap-2 pr-2" style={{ width: programWidth }}>
+                    <div
+                      key={dup}
+                      className="flex gap-2 pr-2"
+                      style={{ width: programWidth }}
+                    >
                       {row.blocks.map((b, i) => {
                         const isLive = b.toUpperCase().includes("LIVE");
                         const isNow = idx === 2 && i === 1;
@@ -516,7 +482,10 @@ export default function EliteHouseLandingPage() {
   const [billing, setBilling] = useState("sixmonth");
 
   const pricing = useMemo(() => {
-    const base: Record<string, { price: string; note: string; savings: string | null }> = {
+    const base: Record<
+      string,
+      { price: string; note: string; savings: string | null }
+    > = {
       monthly: { price: "£14.99", note: "per month", savings: null },
       sixmonth: { price: "£60", note: "every 6 months", savings: "Save £29.94" },
       annual: { price: "£100", note: "per year", savings: "Save £79.88" },
@@ -587,49 +556,29 @@ export default function EliteHouseLandingPage() {
         <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_20%_80%,rgba(80,120,255,0.10),rgba(0,0,0,0)_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_85%_75%,rgba(170,90,255,0.08),rgba(0,0,0,0)_72%)]" />
         <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
-        <FloatingParticles />
-      </div>
-
-      <header className="relative z-10 bg-black/80 backdrop-blur-md border-b border-[#D4AF37]/20">
-        <div className="mx-auto relative flex max-w-6xl items-center justify-center px-4 py-8 sm:px-6">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Elite House Logo"
-              width={420}
-              height={140}
-              priority
-              className="h-40 w-auto object-contain drop-shadow-[0_22px_60px_rgba(212,175,55,0.65)] transition-all duration-700 hover:scale-110"
-            />
-          </div>
-
-          <nav className="hidden sm:flex items-center gap-7 text-[13px] tracking-[0.18em] uppercase text-white/65 absolute left-6">
-            {[
-              { href: "#features", label: "Features" },
-              { href: "#pricing", label: "Pricing" },
-              { href: "#faq", label: "FAQ" },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="group relative py-2 text-white/65 transition-colors hover:text-white"
-              >
-                <span>{item.label}</span>
-                <span
-                  className="absolute left-0 right-0 -bottom-0.5 h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent transition-transform duration-500 group-hover:scale-x-100"
-                  aria-hidden="true"
-                />
-              </a>
-            ))}
-          </nav>
+        {/* calmer on mobile */}
+        <div className="hidden sm:block">
+          <FloatingParticles />
         </div>
-      </header>
+      </div>
 
       <main className="relative z-10">
         {/* HERO */}
-        <section className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
+        <section className="mx-auto max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pb-12 sm:pt-10">
+          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
             <div>
+              {/* Logo moved into hero (header removed) */}
+              <div className="mb-6">
+                <Image
+                  src="/logo.png"
+                  alt="Elite House Logo"
+                  width={360}
+                  height={120}
+                  priority
+                  className="h-20 w-auto object-contain drop-shadow-[0_18px_40px_rgba(212,175,55,0.35)]"
+                />
+              </div>
+
               <div className="mb-4 flex flex-wrap gap-2">
                 <Badge>24-hour trial via WhatsApp</Badge>
                 <Badge>Global live access and an on demand library</Badge>
@@ -646,8 +595,12 @@ export default function EliteHouseLandingPage() {
                 Elite House delivers a polished, dependable subscription—consistent, clean, and built to work across your favourite devices.
               </p>
 
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <ShimmerButton
+                  href={waLink(trialMessage)}
+                  variant="gold"
+                  attention
+                >
                   Start Trial on WhatsApp
                 </ShimmerButton>
                 <a
@@ -658,8 +611,8 @@ export default function EliteHouseLandingPage() {
                 </a>
               </div>
 
-              {/* Premium trust pill (bigger + cleaner) */}
-              <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
+              {/* Trust pill */}
+              <div className="mt-5 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
                 <span className="font-semibold text-white/90">1,200+ Members</span>
                 <span className="h-4 w-px bg-white/15" />
                 <span className="text-[#F6E27A] text-base leading-none">★★★★★</span>
@@ -685,8 +638,10 @@ export default function EliteHouseLandingPage() {
 
                 <EpgMock />
 
-                <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <div className="text-xs font-semibold text-[#F6E27A]">24-hour trial</div>
+                <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <div className="text-xs font-semibold text-[#F6E27A]">
+                    24-hour trial
+                  </div>
                   <div className="mt-1 text-sm text-white/80">
                     Message us on WhatsApp and we&apos;ll set you up for a private 24-hour trial.
                   </div>
@@ -701,7 +656,9 @@ export default function EliteHouseLandingPage() {
                       <WhatsAppIcon className="shrink-0" />
                       <span>Chat on WhatsApp →</span>
                     </a>
-                    <div className="text-xs text-white/55">Replies usually within minutes</div>
+                    <div className="text-xs text-white/55">
+                      Replies usually within minutes
+                    </div>
                   </div>
                 </div>
               </div>
@@ -710,7 +667,10 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* FEATURES */}
-        <section id="features" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <section
+          id="features"
+          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
+        >
           <Reveal>
             <SectionTitle
               kicker="Elite Access"
@@ -719,10 +679,10 @@ export default function EliteHouseLandingPage() {
             />
           </Reveal>
 
-          <div className="mt-16 grid gap-10 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
             <Reveal delay={100}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                <h3 className="text-2xl font-semibold mb-4">Members-Only Live Access</h3>
+              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
+                <h3 className="text-2xl font-semibold mb-3">Members-Only Live Access</h3>
                 <p className="text-white/70 leading-relaxed text-sm mb-4">
                   Worldwide live television, organised clearly and presented cleanly.
                 </p>
@@ -733,8 +693,8 @@ export default function EliteHouseLandingPage() {
             </Reveal>
 
             <Reveal delay={200}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                <h3 className="text-2xl font-semibold mb-4">Private Film & Series Library</h3>
+              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
+                <h3 className="text-2xl font-semibold mb-3">Private Film & Series Library</h3>
                 <p className="text-white/70 leading-relaxed text-sm mb-4">
                   Over 100,000 films and series available instantly. Browse smoothly. Press play confidently.
                 </p>
@@ -745,8 +705,8 @@ export default function EliteHouseLandingPage() {
             </Reveal>
 
             <Reveal delay={300}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                <h3 className="text-2xl font-semibold mb-4">Direct Support</h3>
+              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
+                <h3 className="text-2xl font-semibold mb-3">Direct Support</h3>
                 <p className="text-white/70 leading-relaxed text-sm mb-4">
                   WhatsApp assistance handled quickly and personally. Setup, upgrades, support—streamlined.
                 </p>
@@ -757,8 +717,8 @@ export default function EliteHouseLandingPage() {
             </Reveal>
           </div>
 
-          <Reveal delay={400} className="mt-20 text-center">
-            <div className="text-white/70 mb-6 text-sm tracking-wide">
+          <Reveal delay={400} className="mt-12 text-center">
+            <div className="text-white/70 mb-5 text-sm tracking-wide">
               Limited access is available. Start with a private 24-hour trial while spaces remain.
             </div>
             <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
@@ -768,7 +728,10 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* PRICING */}
-        <section id="pricing" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <section
+          id="pricing"
+          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
+        >
           <Reveal>
             <SectionTitle
               kicker="Membership"
@@ -777,26 +740,28 @@ export default function EliteHouseLandingPage() {
             />
           </Reveal>
 
-          <Reveal delay={70} className="mt-10">
+          <Reveal delay={70} className="mt-8">
             <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur sm:grid-cols-3">
-              {["Message us on WhatsApp", "Trial activated", "Start watching"].map((t, i) => (
-                <div key={t} className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
-                    {i + 1}
+              {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
+                (t, i) => (
+                  <div key={t} className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
+                      {i + 1}
+                    </div>
+                    <div className="text-sm font-semibold text-white/85">{t}</div>
                   </div>
-                  <div className="text-sm font-semibold text-white/85">{t}</div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </Reveal>
 
-          <Reveal delay={80} className="mt-8 flex justify-center">
+          <Reveal delay={80} className="mt-6 flex justify-center">
             <PricingToggle value={billing} onChange={setBilling} />
           </Reveal>
 
-          <div className="mt-14 flex justify-center">
+          <div className="mt-10 flex justify-center">
             <Reveal delay={140}>
-              <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
+              <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.01] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
                 <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                   <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/20 blur-3xl animate-[floaty_6s_ease-in-out_infinite]" />
                   <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/20 blur-3xl animate-[floaty_8s_ease-in-out_infinite]" />
@@ -807,12 +772,18 @@ export default function EliteHouseLandingPage() {
                     Elite Access Membership
                   </div>
 
-                  <div className="mt-6 text-xs tracking-widest uppercase text-white/50">Billing</div>
+                  <div className="mt-5 text-xs tracking-widest uppercase text-white/50">
+                    Billing
+                  </div>
                   <div className="mt-2 text-sm font-semibold text-white/85">
-                    {billing === "sixmonth" ? "6 Months" : billing === "annual" ? "1 Year" : "Monthly"}
+                    {billing === "sixmonth"
+                      ? "6 Months"
+                      : billing === "annual"
+                      ? "1 Year"
+                      : "Monthly"}
                   </div>
 
-                  <div className="mt-6 text-6xl font-semibold tracking-tight">
+                  <div className="mt-5 text-6xl font-semibold tracking-tight">
                     <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
                       {pricing.price}
                     </span>
@@ -825,8 +796,13 @@ export default function EliteHouseLandingPage() {
                     </div>
                   ) : null}
 
-                  <div className="mt-8">
-                    <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
+                  <div className="mt-7">
+                    <ShimmerButton
+                      href={waLink(trialMessage)}
+                      className="w-full"
+                      variant="gold"
+                      attention
+                    >
                       Start Trial on WhatsApp
                     </ShimmerButton>
                     <div className="mt-3 text-[11px] text-white/55">
@@ -840,14 +816,17 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+        <section
+          id="faq"
+          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14"
+        >
           <SectionTitle
             kicker="FAQ"
             title="Questions, answered"
             subtitle="If you don&apos;t see what you need, message us on WhatsApp and we&apos;ll help quickly."
           />
 
-          <div className="grid gap-5 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {[
               {
                 q: "How do I start the 24-hour trial?",
@@ -866,15 +845,25 @@ export default function EliteHouseLandingPage() {
                 a: "Support is handled directly through WhatsApp, so responses are typically fast, personal, and effortless.",
               },
             ].map((item) => (
-              <div key={item.q} className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur">
+              <div
+                key={item.q}
+                className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
+              >
                 <div className="text-base font-semibold text-white">{item.q}</div>
-                <div className="mt-2 text-sm leading-relaxed text-white/70">{item.a}</div>
+                <div className="mt-2 text-sm leading-relaxed text-white/70">
+                  {item.a}
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 flex justify-center">
-            <ShimmerButton href={waLink(trialMessage)} className="px-7 py-3" variant="gold" attention>
+          <div className="mt-8 flex justify-center">
+            <ShimmerButton
+              href={waLink(trialMessage)}
+              className="px-7 py-3"
+              variant="gold"
+              attention
+            >
               Start Trial on WhatsApp
             </ShimmerButton>
           </div>
@@ -906,7 +895,12 @@ export default function EliteHouseLandingPage() {
         {/* Mobile sticky CTA */}
         <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
           <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-2 shadow-2xl shadow-black/50">
-            <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
+            <ShimmerButton
+              href={waLink(trialMessage)}
+              className="w-full"
+              variant="gold"
+              attention
+            >
               Start Trial on WhatsApp
             </ShimmerButton>
             <div className="mt-1 text-center text-[10px] text-white/55">
