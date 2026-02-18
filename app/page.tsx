@@ -1,59 +1,312 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 
-/** WhatsApp Link */
+/**
+ * Next.js-safe env read (no import.meta).
+ * Set NEXT_PUBLIC_WHATSAPP_NUMBER in Vercel env vars for production.
+ */
 const readWaEnv = (): string | null => {
   const env = typeof process !== "undefined" ? process.env : undefined;
-  return env?.NEXT_PUBLIC_WHATSAPP_NUMBER
-    ? String(env.NEXT_PUBLIC_WHATSAPP_NUMBER)
-    : null;
+  const fromProcess =
+    env?.NEXT_PUBLIC_WHATSAPP_NUMBER ||
+    env?.REACT_APP_WHATSAPP_NUMBER ||
+    env?.VITE_WHATSAPP_NUMBER;
+
+  return fromProcess ? String(fromProcess) : null;
 };
 
 const __WA_ENV__ = readWaEnv();
+
 // Fallback is lightly obfuscated to avoid plain-text exposure in source
 const __WA_FALLBACK__ = ["44", "7922", "309925"].join("");
+
 const getWhatsAppNumber = () => __WA_ENV__ || __WA_FALLBACK__;
 
 export function waLink(message: string) {
-  return `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(
-    message
-  )}`;
+  const text = encodeURIComponent(message);
+  const number = getWhatsAppNumber();
+  return `https://wa.me/${number}?text=${text}`;
 }
 
-/** UI */
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
+      {children}
+    </span>
+  );
+}
+
 function SectionTitle({
   kicker,
   title,
   subtitle,
-  align = "center",
 }: {
   kicker?: string;
   title: string;
   subtitle?: string;
-  align?: "center" | "left";
 }) {
   return (
-    <div
-      className={[
-        "mx-auto max-w-2xl",
-        align === "center" ? "text-center" : "text-left",
-      ].join(" ")}
-    >
+    <div className="mx-auto mb-10 max-w-2xl text-center">
       {kicker ? (
-        <p className="mb-2 text-[11px] uppercase tracking-[0.28em] text-[#F6E27A]">
-          {kicker}
-        </p>
+        <div className="mb-3 flex justify-center">
+          <Badge>{kicker}</Badge>
+        </div>
       ) : null}
-      <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-4xl">
+      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-3 text-sm leading-relaxed text-white/65 sm:text-base">
+        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">
           {subtitle}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+function PricingToggle({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const options = [
+    { id: "monthly", label: "Monthly" },
+    { id: "sixmonth", label: "6 Months" },
+    { id: "annual", label: "1 Year", badge: "Best Value" },
+  ];
+
+  return (
+    <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          onClick={() => onChange(o.id)}
+          className={
+            "rounded-xl px-4 py-2 text-sm transition " +
+            (value === o.id
+              ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm"
+              : "text-white/70 hover:text-white")
+          }
+          type="button"
+        >
+          <span className="inline-flex items-center gap-2">
+            <span>{o.label}</span>
+            {o.badge ? (
+              <span className="rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] font-semibold text-[#F6E27A]">
+                {o.badge}
+              </span>
+            ) : null}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Check({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M20 6L9 17l-5-5"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function MiniIcon({ d }: { d: string }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d={d}
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ShimmerButton({
+  href,
+  children,
+  className = "",
+  variant = "gold",
+  attention = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  variant?: "gold" | "dark";
+  attention?: boolean;
+}) {
+  const base =
+    "group relative isolate overflow-hidden inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-bold transition";
+
+  const goldBase =
+    "text-black shadow-lg shadow-[#D4AF37]/20 bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] hover:brightness-105";
+
+  const gold = attention
+    ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]"
+    : goldBase;
+
+  const dark =
+    "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={`${base} ${variant === "gold" ? gold : dark} ${className}`}
+    >
+      {attention && variant === "gold" && (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Occasional luxury glint */}
+      <span
+        className={
+          "pointer-events-none absolute -inset-y-12 -left-1/2 w-[200%] rotate-12 opacity-0 " +
+          "[background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent)] " +
+          "animate-[glint_7.5s_ease-in-out_infinite]"
+        }
+        aria-hidden="true"
+      />
+
+      {/* Hover shimmer */}
+      <span
+        className={
+          "pointer-events-none absolute -inset-y-10 -left-1/2 w-[200%] rotate-12 opacity-0 " +
+          "[background:linear-gradient(90deg,transparent,rgba(255,255,255,0.65),transparent)] " +
+          "transition-opacity duration-200 group-hover:opacity-45 group-hover:animate-[shimmer_2.2s_ease-in-out_infinite]"
+        }
+        aria-hidden="true"
+      />
+
+      <span className="relative z-10 inline-flex items-center gap-2">
+        {children}
+        <span className="transition-transform duration-300 group-hover:animate-[arrowSlide_0.6s_ease-in-out]">
+          →
+        </span>
+      </span>
+    </a>
+  );
+}
+
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setVisible(true);
+            obs.disconnect();
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={
+        "transition-all duration-700 will-change-transform motion-reduce:transition-none " +
+        (visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3") +
+        " " +
+        className
+      }
+    >
+      {children}
+    </div>
+  );
+}
+
+function FloatingParticles() {
+  const particles = useMemo(() => {
+    const seeds: Array<[number, number, number, number]> = [
+      [8, 18, 1.2, 16],
+      [22, 62, 1.6, 20],
+      [35, 28, 1.1, 18],
+      [44, 78, 1.4, 26],
+      [58, 14, 1.0, 22],
+      [66, 52, 1.7, 30],
+      [74, 32, 1.2, 24],
+      [82, 70, 1.3, 28],
+      [90, 24, 1.1, 19],
+      [12, 84, 1.5, 32],
+      [28, 8, 1.0, 21],
+      [52, 88, 1.2, 34],
+    ];
+
+    return seeds.map((s, i) => {
+      const [x, y, r, dur] = s;
+      return { id: i, x, y, r, dur, delay: (i * 0.7) % 5 };
+    });
+  }, []);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {particles.map((p) => (
+        <span
+          key={p.id}
+          className="absolute rounded-full bg-white/40 blur-[0.3px] motion-reduce:animate-none"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: `${p.r * 6}px`,
+            height: `${p.r * 6}px`,
+            animation: `floaty ${p.dur}s ease-in-out ${p.delay}s infinite`,
+            opacity: 0.18,
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -65,6 +318,7 @@ function WhatsAppIcon({ className = "" }: { className?: string }) {
       height="16"
       viewBox="0 0 24 24"
       fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-hidden="true"
     >
@@ -73,167 +327,6 @@ function WhatsAppIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function CTAButton({
-  href,
-  children,
-  className = "",
-}: {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={
-        "inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-black " +
-        "bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] " +
-        "shadow-lg shadow-[#D4AF37]/20 hover:brightness-110 transition " +
-        "sm:w-auto sm:px-7 sm:py-3 " +
-        className
-      }
-    >
-      <WhatsAppIcon />
-      {children}
-      <span aria-hidden="true">→</span>
-    </a>
-  );
-}
-
-function PricingToggle({
-  value,
-  onChange,
-}: {
-  value: "monthly" | "sixmonth" | "annual";
-  onChange: (v: "monthly" | "sixmonth" | "annual") => void;
-}) {
-  const options: Array<{
-    id: "monthly" | "sixmonth" | "annual";
-    label: string;
-    badge?: string;
-  }> = [
-    { id: "monthly", label: "Monthly" },
-    { id: "sixmonth", label: "6 Months" },
-    { id: "annual", label: "1 Year", badge: "Best Value" },
-  ];
-
-  return (
-    <div className="inline-flex w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur sm:w-auto">
-      {options.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          onClick={() => onChange(o.id)}
-          aria-pressed={value === o.id}
-          className={
-            "flex-1 rounded-xl px-3 py-2.5 text-sm transition sm:flex-none sm:px-4 sm:py-2 " +
-            (value === o.id
-              ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm"
-              : "text-white/70 hover:text-white")
-          }
-        >
-          <span className="inline-flex items-center justify-center gap-2">
-            <span>{o.label}</span>
-            {o.badge ? (
-              <span className="hidden rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] font-semibold text-[#F6E27A] sm:inline">
-                {o.badge}
-              </span>
-            ) : null}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function StarRow() {
-  return (
-    <div className="inline-flex items-center gap-1 text-[#F6E27A]">
-      <span aria-hidden="true">★</span>
-      <span aria-hidden="true">★</span>
-      <span aria-hidden="true">★</span>
-      <span aria-hidden="true">★</span>
-      <span aria-hidden="true">★</span>
-      <span className="sr-only">5 out of 5 stars</span>
-    </div>
-  );
-}
-
-/** UNIFORM watermark: same size + same placement everywhere */
-function BrandWatermark() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.02] sm:opacity-[0.03]"
-      style={{
-        maskImage: "radial-gradient(circle at center, black 40%, transparent 75%)",
-        WebkitMaskImage:
-          "radial-gradient(circle at center, black 40%, transparent 75%)",
-      }}
-      aria-hidden="true"
-    >
-      <Image
-        src="/logo.png"
-        alt=""
-        width={900}
-        height={320}
-        className="w-[420px] sm:w-[620px] md:w-[720px] object-contain blur-[0.2px]"
-      />
-    </div>
-  );
-}
-
-/** Monogram watermark (no extra files needed) */
-function MonogramWatermark() {
-  return (
-    <div
-      className="pointer-events-none absolute -top-10 right-[-10px] sm:right-[-40px] opacity-[0.05] sm:opacity-[0.07] blur-[0.2px]"
-      aria-hidden="true"
-    >
-      <div className="text-[140px] sm:text-[220px] font-semibold tracking-[-0.08em] text-white/10">
-        EH
-      </div>
-    </div>
-  );
-}
-
-/** Luxury engraved divider */
-function LuxeDivider() {
-  return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6" aria-hidden="true">
-      <div className="relative my-10 sm:my-14">
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-[#D4AF37]/35 to-transparent" />
-        <div className="absolute left-1/2 top-1/2 h-6 w-56 -translate-x-1/2 -translate-y-1/2 bg-[#D4AF37]/10 blur-2xl" />
-      </div>
-    </div>
-  );
-}
-
-/** Micro logo pattern (optional – used once for pricing, does not affect watermark uniformity) */
-function MicroLogoPattern() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 opacity-[0.035] sm:opacity-[0.05]"
-      aria-hidden="true"
-    >
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `radial-gradient(rgba(212,175,55,0.12) 1px, transparent 1px)`,
-          backgroundSize: "26px 26px",
-          maskImage:
-            "radial-gradient(75% 55% at 50% 35%, black 30%, transparent 70%)",
-          WebkitMaskImage:
-            "radial-gradient(75% 55% at 50% 35%, black 30%, transparent 70%)",
-        }}
-      />
-      <div className="absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_0%,rgba(212,175,55,0.10),transparent_60%)]" />
-    </div>
-  );
-}
-
-/** iPhone-safe Premium EPG: ONE horizontal scroller (no nested scroll) */
 function EpgMock() {
   const timeline = [
     "18:00",
@@ -253,150 +346,164 @@ function EpgMock() {
   const rows = [
     {
       ch: "101",
-      abbr: "MOV",
-      name: "Cinema",
-      blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"],
+      abbr: "VC",
+      name: "Velour Cinema",
+      blocks: [
+        "10,000+ Live Channels",
+        "100,000+ Video On Demand",
+        "4K Ultra HD Streaming",
+        "Seamless channel playback",
+      ],
     },
     {
       ch: "102",
-      abbr: "SPT",
-      name: "Sports",
-      blocks: ["LIVE Match", "Highlights", "Studio", "Championships"],
+      abbr: "AS",
+      name: "Apex Sports",
+      blocks: [
+        "LIVE Championship",
+        "All channels working perfectly",
+        "Zero missing listings",
+        "Reliable premium streaming",
+      ],
     },
     {
       ch: "103",
-      abbr: "ENT",
-      name: "Entertainment",
-      blocks: ["Trending", "Reality", "Late Night", "Top Picks"],
+      abbr: "NV",
+      name: "Nova Vista",
+      blocks: [
+        "Instant access",
+        "Precision programme guide data",
+        "Smooth browsing experience",
+        "Consistent presentation",
+      ],
     },
     {
       ch: "104",
-      abbr: "DOC",
-      name: "Documentary",
-      blocks: ["Nature", "History", "True Stories", "Discovery"],
+      abbr: "OR",
+      name: "Orion Discovery",
+      blocks: [
+        "Fast WhatsApp setup",
+        "Clean channel lineup",
+        "Stable playback",
+        "Support when you need it",
+      ],
     },
     {
       ch: "105",
-      abbr: "KID",
-      name: "Kids",
-      blocks: ["Family Time", "Cartoons", "Education", "Classics"],
+      abbr: "LX",
+      name: "Luxe Kids",
+      blocks: [
+        "Family-ready experience",
+        "Clear titles & logos",
+        "No broken channels",
+        "Premium reliability",
+      ],
     },
   ];
 
-  const slotW = 96; // mobile-friendly
-  const leftW = 128; // sticky channel column width
-  const programCols = timeline.length;
-  const tableMinW = leftW + programCols * slotW;
+  const nowLeft = "52.5%";
+  const slotW = 120;
+  const programWidth = timeline.length * slotW;
 
   return (
-    <div className="relative rounded-2xl border border-white/10 bg-black/55 overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 opacity-80">
-        <div className="absolute inset-0 bg-[radial-gradient(85%_60%_at_50%_0%,rgba(212,175,55,0.16),rgba(0,0,0,0)_60%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05),rgba(255,255,255,0.00),rgba(255,255,255,0.05))]" />
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/75 opacity-80 animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
+          style={{ left: nowLeft }}
+        />
+        <div
+          className="absolute top-0 bottom-0 w-[54px] bg-[#D4AF37]/10 blur-xl animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
+          style={{ left: `calc(${nowLeft} - 27px)` }}
+        />
       </div>
 
-      <div className="relative px-3 pt-3 pb-2 border-b border-white/10 bg-white/[0.03]">
-        <div className="flex items-center justify-between">
-          <div className="text-[10px] uppercase tracking-[0.26em] text-white/45">
-            Programme Guide Preview
-          </div>
-          <div className="rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-1 text-[10px] font-semibold text-[#F6E27A]">
-            Swipe →
+      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="w-[180px] text-[10px] text-white/55">Channel</div>
+          <div className="relative flex-1 overflow-hidden">
+            <div className="relative whitespace-nowrap">
+              <div
+                className="flex animate-[marquee_22s_linear_infinite] motion-reduce:animate-none"
+                style={{ width: programWidth * 2 }}
+              >
+                {[0, 1].map((dup) => (
+                  <div key={dup} className="flex" style={{ width: programWidth }}>
+                    {timeline.map((t) => (
+                      <div
+                        key={`${dup}-${t}`}
+                        className="shrink-0 text-[10px] text-white/55"
+                        style={{ width: slotW }}
+                      >
+                        {t}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div
-        className="relative overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        style={{
-          WebkitOverflowScrolling: "touch",
-          touchAction: "pan-x",
-        }}
-      >
-        <div style={{ minWidth: tableMinW }} className="relative">
-          {/* Timeline row */}
-          <div className="flex border-b border-white/10">
-            <div
-              className="sticky left-0 z-20 px-3 py-2 bg-black/70 backdrop-blur-md"
-              style={{ width: leftW }}
-            >
-              <div className="text-[10px] uppercase tracking-[0.26em] text-white/45">
-                Channel
-              </div>
-            </div>
-
-            <div className="flex">
-              {timeline.map((t) => (
-                <div
-                  key={t}
-                  className="px-2 py-2 text-[10px] text-white/45"
-                  style={{ width: slotW }}
-                >
-                  {t}
+      <div className="px-4 py-3">
+        <div className="grid gap-3">
+          {rows.map((row, idx) => (
+            <div key={row.ch} className="flex items-stretch gap-2">
+              <div className="flex w-[180px] items-center gap-3">
+                <div className="grid h-9 w-9 place-items-center rounded-xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-[11px] font-extrabold text-[#F6E27A]">
+                  {row.abbr}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Rows */}
-          <div className="px-2 py-3">
-            <div className="grid gap-3">
-              {rows.map((row, ridx) => (
-                <div key={row.ch} className="flex">
-                  <div
-                    className="sticky left-0 z-20 flex items-center gap-2 px-2 py-2 bg-black/70 backdrop-blur-md"
-                    style={{ width: leftW }}
-                  >
-                    <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
-                      {row.abbr}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[11px] font-semibold text-white/90 leading-tight truncate">
-                        {row.name}
-                      </div>
-                      <div className="text-[10px] text-white/45">CH {row.ch}</div>
-                    </div>
+                <div className="min-w-0 pr-1">
+                  <div className="break-words text-[11px] font-semibold leading-tight text-white/90">
+                    {row.name}
                   </div>
+                  <div className="text-[10px] text-white/50">{row.ch}</div>
+                </div>
+              </div>
 
-                  <div className="flex items-stretch">
-                    {Array.from({ length: programCols }).map((_, cidx) => {
-                      const b = row.blocks[cidx % row.blocks.length];
-                      const isLive = b.toUpperCase().includes("LIVE");
-                      const isNow = ridx === 1 && cidx === 2;
+              <div className="relative flex-1 overflow-hidden">
+                <div
+                  className="flex animate-[marquee_24s_linear_infinite] motion-reduce:animate-none"
+                  style={{ width: programWidth * 2 }}
+                >
+                  {[0, 1].map((dup) => (
+                    <div key={dup} className="flex gap-2 pr-2" style={{ width: programWidth }}>
+                      {row.blocks.map((b, i) => {
+                        const isLive = b.toUpperCase().includes("LIVE");
+                        const isNow = idx === 2 && i === 1;
+                        const w = 3 * slotW;
 
-                      return (
-                        <div key={`${row.ch}-${cidx}`} style={{ width: slotW }} className="px-1">
+                        return (
                           <div
+                            key={`${dup}-${row.ch}-${i}`}
                             className={
-                              "h-full rounded-2xl border border-white/10 " +
-                              "bg-gradient-to-b from-white/[0.06] to-white/[0.03] px-3 py-2 " +
-                              (isNow ? "ring-1 ring-[#D4AF37]/25" : "")
+                              "relative shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 " +
+                              (isNow ? "ring-1 ring-white/20" : "")
                             }
+                            style={{ width: w }}
+                            title={b}
                           >
                             <div className="flex items-start gap-2">
-                              <div className="text-[11px] font-semibold text-white/90 leading-tight line-clamp-2">
+                              <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
                                 {b}
                               </div>
                               {isLive ? (
-                                <span className="mt-0.5 shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/12 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
+                                <span className="mt-0.5 shrink-0 rounded-full bg-[#D4AF37]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
                                   LIVE
                                 </span>
                               ) : null}
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                      <div className="shrink-0" style={{ width: slotW }} />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-
-            <div className="mt-3 px-2 text-[10px] text-white/45 flex items-center justify-between">
-              <span>Accurate listings</span>
-              <span>Smooth navigation</span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -406,445 +513,404 @@ function EpgMock() {
 }
 
 export default function EliteHouseLandingPage() {
-  const trialMessage =
-    "Hi Elite House. I'd like to start the 24-hour free trial. Please share the next steps.";
-
-  const [billing, setBilling] = useState<"monthly" | "sixmonth" | "annual">(
-    "sixmonth"
-  );
+  const [billing, setBilling] = useState("sixmonth");
 
   const pricing = useMemo(() => {
-    const base: Record<
-      "monthly" | "sixmonth" | "annual",
-      { price: string; note: string; savings?: string; subnote?: string }
-    > = {
-      monthly: { price: "£14.99", note: "per month", subnote: "Cancel anytime" },
+    const base: Record<string, { price: string; note: string; savings: string | null }> = {
+      monthly: { price: "£14.99", note: "per month", savings: null },
       sixmonth: { price: "£60", note: "every 6 months", savings: "Save £29.94" },
       annual: { price: "£100", note: "per year", savings: "Save £79.88" },
     };
-
-    const plan = base[billing];
-    return {
-      ...plan,
-      label:
-        billing === "sixmonth"
-          ? "6 Months"
-          : billing === "annual"
-          ? "1 Year"
-          : "Monthly",
-    };
+    return base[billing];
   }, [billing]);
 
-  const testimonials = [
-    {
-      quote:
-        "Setup was genuinely fast. Everything looks clean and works smoothly across devices.",
-      name: "Jordan",
-      meta: "UK",
-    },
-    {
-      quote:
-        "The interface feels premium — no clutter, just easy browsing and solid playback.",
-      name: "Aisha",
-      meta: "London",
-    },
-    {
-      quote:
-        "Support replies quickly and actually solves things. Best experience I’ve had.",
-      name: "Marcus",
-      meta: "Manchester",
-    },
-    {
-      quote: "Reliable streams, great library, and it just feels… polished.",
-      name: "Sophie",
-      meta: "Birmingham",
-    },
-  ];
+  const trialMessage =
+    "Hi Elite House. I'd like to start the 24-hour free trial. Please share the next steps.";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-black text-white">
-      {/* Background glow */}
-      <div className="pointer-events-none fixed inset-0 opacity-40">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(212,175,55,0.26),transparent_58%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.16),transparent_62%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_85%,rgba(170,90,255,0.10),transparent_62%)]" />
+    <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
+      <style>{`
+        @keyframes gradientMove {
+          0%, 100% { transform: translate3d(0,0,0) scale(1); }
+          50% { transform: translate3d(-2%, -3%, 0) scale(1.05); }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-35%) rotate(12deg); opacity: 0.12; }
+          55% { opacity: 0.55; }
+          100% { transform: translateX(35%) rotate(12deg); opacity: 0.15; }
+        }
+        @keyframes glint {
+          0%, 74% { opacity: 0; transform: translateX(-45%) rotate(12deg); }
+          78% { opacity: 0.22; }
+          84% { opacity: 0.65; }
+          90% { opacity: 0.18; }
+          100% { opacity: 0; transform: translateX(45%) rotate(12deg); }
+        }
+        @keyframes floaty {
+          0%, 100% { transform: translate3d(0,0,0); opacity: 0.12; }
+          50% { transform: translate3d(0,-16px,0); opacity: 0.22; }
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes nowGlow {
+          0%, 100% { opacity: 0.55; filter: drop-shadow(0 0 0 rgba(212,175,55,0)); }
+          50% { opacity: 0.95; filter: drop-shadow(0 0 14px rgba(212,175,55,0.28)); }
+        }
+        @keyframes borderBreath {
+          0%, 100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.18), 0 0 18px rgba(212,175,55,0.10); }
+          50% { box-shadow: 0 0 0 1px rgba(212,175,55,0.38), 0 0 32px rgba(212,175,55,0.22); }
+        }
+        @keyframes ctaPulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55,0.25); }
+          50% { transform: scale(1.02); box-shadow: 0 0 26px 6px rgba(212,175,55,0.18); }
+        }
+        @keyframes ringPulse {
+          0% { opacity: 0.45; transform: scale(0.92); }
+          70% { opacity: 0; transform: scale(1.18); }
+          100% { opacity: 0; transform: scale(1.18); }
+        }
+        @keyframes arrowSlide {
+          0% { transform: translateX(0); }
+          50% { transform: translateX(3px); }
+          100% { transform: translateX(0); }
+        }
+      `}</style>
+
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute inset-0 animate-[gradientMove_14s_ease-in-out_infinite] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_80%,rgba(170,90,255,0.12),transparent_65%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
+        <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(212,175,55,0.18),rgba(0,0,0,0)_62%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_15%_40%,rgba(184,134,11,0.14),rgba(0,0,0,0)_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_85%_45%,rgba(246,226,122,0.10),rgba(0,0,0,0)_72%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_20%_80%,rgba(80,120,255,0.10),rgba(0,0,0,0)_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_85%_75%,rgba(170,90,255,0.08),rgba(0,0,0,0)_72%)]" />
+        <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
+        <FloatingParticles />
       </div>
+
+      <header className="relative z-10 bg-black/80 backdrop-blur-md border-b border-[#D4AF37]/20">
+        <div className="mx-auto relative flex max-w-6xl items-center justify-center px-4 py-8 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="Elite House Logo"
+              width={420}
+              height={140}
+              priority
+              className="h-40 w-auto object-contain drop-shadow-[0_22px_60px_rgba(212,175,55,0.65)] transition-all duration-700 hover:scale-110"
+            />
+          </div>
+
+          <nav className="hidden sm:flex items-center gap-7 text-[13px] tracking-[0.18em] uppercase text-white/65 absolute left-6">
+            {[
+              { href: "#features", label: "Features" },
+              { href: "#pricing", label: "Pricing" },
+              { href: "#faq", label: "FAQ" },
+            ].map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="group relative py-2 text-white/65 transition-colors hover:text-white"
+              >
+                <span>{item.label}</span>
+                <span
+                  className="absolute left-0 right-0 -bottom-0.5 h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent transition-transform duration-500 group-hover:scale-x-100"
+                  aria-hidden="true"
+                />
+              </a>
+            ))}
+          </nav>
+        </div>
+      </header>
 
       <main className="relative z-10">
         {/* HERO */}
-        <section className="mx-auto max-w-6xl px-4 pt-9 pb-12 sm:px-6 sm:pt-14 sm:pb-16">
-          <div className="relative grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
-            <MonogramWatermark />
-
-            {/* EPG card FIRST on mobile */}
-            <div className="order-1 lg:order-2 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
-              {/* Make this match the section style + centered */}
-              <div className="text-center">
-                <p className="mb-2 text-[11px] uppercase tracking-[0.28em] text-[#F6E27A]">
-                  Superior EPG
-                </p>
-                <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-white">
-                  Accurate listings. Premium presentation.
-                </h3>
-                <p className="mt-2 text-sm text-white/65 leading-relaxed">
-                  Smooth browsing, fast navigation, and a clean guide that looks the part.
-                </p>
+        <section className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <div className="mb-4 flex flex-wrap gap-2">
+                <Badge>24-hour trial via WhatsApp</Badge>
+                <Badge>Global live access and an on demand library</Badge>
               </div>
 
-              <div className="mt-5">
-                <EpgMock />
-              </div>
-
-              <div className="mt-6 text-center">
-                <CTAButton className="w-full" href={waLink(trialMessage)}>
-                  Start Trial on WhatsApp
-                </CTAButton>
-                <p className="mt-3 text-xs text-white/45">
-                  Priority replies • Setup handled personally
-                </p>
-              </div>
-            </div>
-
-            {/* Brand + copy */}
-            <div className="order-2 lg:order-1">
-              <div className="mb-5 flex justify-center lg:justify-start">
-                <Image
-                  src="/logo.png"
-                  alt="Elite House Logo"
-                  width={620}
-                  height={240}
-                  priority
-                  className="h-24 w-auto object-contain sm:h-28 md:h-32 drop-shadow-[0_22px_55px_rgba(212,175,55,0.38)]"
-                />
-              </div>
-
-              <h1 className="text-[34px] leading-[1.05] sm:text-5xl font-semibold tracking-tight text-center lg:text-left">
+              <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
                 Elite Access.
-                <span className="mt-2 block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                  Superior EPG. Smooth Streaming.
+                <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent leading-tight pb-1">
+                  For Viewers Who Expect More.
                 </span>
               </h1>
 
-              <p className="mt-4 max-w-xl text-white/65 text-[15px] sm:text-lg leading-relaxed text-center lg:text-left mx-auto lg:mx-0">
-                A premium experience built around accurate programme listings and seamless playback.
-                Clean, consistent, effortless across your devices.
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
+                Elite House delivers a polished, dependable subscription—consistent, clean, and built to work across your favourite devices.
               </p>
 
-              <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-                <CTAButton href={waLink(trialMessage)}>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
                   Start Trial on WhatsApp
-                </CTAButton>
-
+                </ShimmerButton>
                 <a
                   href="#pricing"
-                  className="inline-flex w-full sm:w-auto items-center justify-center rounded-2xl border border-white/15 px-6 py-3.5 sm:px-7 sm:py-3 text-sm font-semibold text-white/80 hover:bg-white/5 transition"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white/85 backdrop-blur transition hover:bg-white/[0.06]"
                 >
-                  View membership <span aria-hidden="true">→</span>
+                  View membership
                 </a>
               </div>
 
-              <div className="mt-5 flex justify-center lg:justify-start">
-                <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/70 backdrop-blur">
-                  <span className="font-semibold text-white/85">
-                    1,200+ Members
-                  </span>
-                  <span className="h-4 w-px bg-white/15" />
-                  <StarRow />
-                  <span className="h-4 w-px bg-white/15" />
-                  <span>Activated in minutes</span>
+              {/* Premium trust pill (bigger + cleaner) */}
+              <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
+                <span className="font-semibold text-white/90">1,200+ Members</span>
+                <span className="h-4 w-px bg-white/15" />
+                <span className="text-[#F6E27A] text-base leading-none">★★★★★</span>
+                <span className="h-4 w-px bg-white/15" />
+                <span>Activated in Minutes</span>
+              </div>
+            </div>
+
+            {/* RIGHT PANEL */}
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/60 backdrop-blur">
+              <div className="absolute inset-0 opacity-80">
+                <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
+                <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#B8860B]/15 blur-3xl" />
+                <div className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5078FF]/10 blur-3xl" />
+              </div>
+
+              <div className="relative p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="text-sm font-semibold text-white/90">
+                    Global live access with a private library
+                  </div>
+                </div>
+
+                <EpgMock />
+
+                <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <div className="text-xs font-semibold text-[#F6E27A]">24-hour trial</div>
+                  <div className="mt-1 text-sm text-white/80">
+                    Message us on WhatsApp and we&apos;ll set you up for a private 24-hour trial.
+                  </div>
+
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <a
+                      href={waLink(trialMessage)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-black/60 px-4 py-2 text-sm font-semibold text-[#F6E27A] ring-1 ring-[#D4AF37]/25 transition hover:bg-black/70"
+                    >
+                      <WhatsAppIcon className="shrink-0" />
+                      <span>Chat on WhatsApp →</span>
+                    </a>
+                    <div className="text-xs text-white/55">Replies usually within minutes</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
-
-        <LuxeDivider />
 
         {/* FEATURES */}
-        <section
-          id="features"
-          className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16"
-        >
-          <BrandWatermark />
-          <div className="relative">
-            <div className="mb-7">
-              <SectionTitle
-                kicker="Elite Features"
-                title="Everything included."
-                subtitle="Superior EPG, smooth streaming, and direct support all in one private membership."
-              />
-            </div>
+        <section id="features" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+          <Reveal>
+            <SectionTitle
+              kicker="Elite Access"
+              title="Elite Access, Made Simple."
+              subtitle="Global live access. A vast on demand library. Seamless performance—delivered without compromise."
+            />
+          </Reveal>
 
-            <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
-              {[
-                {
-                  title: "Superior EPG",
-                  desc: "Accurate programme listings with a clean layout that’s easy to browse.",
-                },
-                {
-                  title: "Smooth Streaming",
-                  desc: "Seamless playback with a premium feel built for daily reliability.",
-                },
-                {
-                  title: "Direct WhatsApp Support",
-                  desc: "Fast setup, upgrades, and personal help whenever needed.",
-                },
-              ].map((f) => (
-                <div
-                  key={f.title}
-                  className="rounded-3xl border border-white/10 bg-white/[0.05] p-6 sm:p-7 backdrop-blur hover:bg-white/[0.07] transition"
-                >
-                  <h3 className="text-lg sm:text-xl font-semibold mb-2.5">
-                    {f.title}
-                  </h3>
-                  <p className="text-sm text-white/65 leading-relaxed">
-                    {f.desc}
-                  </p>
+          <div className="mt-16 grid gap-10 md:grid-cols-3">
+            <Reveal delay={100}>
+              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
+                <h3 className="text-2xl font-semibold mb-4">Members-Only Live Access</h3>
+                <p className="text-white/70 leading-relaxed text-sm mb-4">
+                  Worldwide live television, organised clearly and presented cleanly.
+                </p>
+                <div className="text-[#F6E27A] text-sm font-medium">
+                  Live access—delivered reliably.
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <LuxeDivider />
-
-        {/* TESTIMONIALS */}
-        <section
-          id="testimonials"
-          className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14"
-        >
-          <BrandWatermark />
-          <div className="relative">
-            <div className="mb-7">
-              <SectionTitle
-                kicker="Trusted"
-                title="What members say."
-                subtitle="Short feedback from members who value reliability and a clean experience."
-              />
-            </div>
-
-            {/* Mobile: horizontal snap */}
-            <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-              <div className="flex gap-4 snap-x snap-mandatory pb-2">
-                {testimonials.map((t) => (
-                  <div
-                    key={t.name}
-                    className="snap-start min-w-[85%] rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur"
-                  >
-                    <div className="flex items-center justify-between">
-                      <StarRow />
-                      <span className="text-xs text-white/45">{t.meta}</span>
-                    </div>
-                    <p className="mt-4 text-sm leading-relaxed text-white/70">
-                      “{t.quote}”
-                    </p>
-                    <div className="mt-4 text-sm font-semibold text-white/85">
-                      {t.name}
-                    </div>
-                  </div>
-                ))}
               </div>
-            </div>
+            </Reveal>
 
-            {/* Desktop/tablet grid */}
-            <div className="hidden md:grid gap-4 md:grid-cols-2">
-              {testimonials.map((t) => (
-                <div
-                  key={t.name}
-                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
-                >
-                  <div className="flex items-center justify-between">
-                    <StarRow />
-                    <span className="text-xs text-white/45">{t.meta}</span>
-                  </div>
-                  <p className="mt-4 text-sm leading-relaxed text-white/70">
-                    “{t.quote}”
-                  </p>
-                  <div className="mt-4 text-sm font-semibold text-white/85">
-                    {t.name}
-                  </div>
+            <Reveal delay={200}>
+              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
+                <h3 className="text-2xl font-semibold mb-4">Private Film & Series Library</h3>
+                <p className="text-white/70 leading-relaxed text-sm mb-4">
+                  Over 100,000 films and series available instantly. Browse smoothly. Press play confidently.
+                </p>
+                <div className="text-[#F6E27A] text-sm font-medium">
+                  A library for those who expect more.
                 </div>
-              ))}
-            </div>
+              </div>
+            </Reveal>
 
-            <div className="mt-7 flex justify-center">
-              <CTAButton href={waLink(trialMessage)}>
-                Start Trial on WhatsApp
-              </CTAButton>
-            </div>
+            <Reveal delay={300}>
+              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
+                <h3 className="text-2xl font-semibold mb-4">Direct Support</h3>
+                <p className="text-white/70 leading-relaxed text-sm mb-4">
+                  WhatsApp assistance handled quickly and personally. Setup, upgrades, support—streamlined.
+                </p>
+                <div className="text-[#F6E27A] text-sm font-medium">
+                  Support reserved for active members.
+                </div>
+              </div>
+            </Reveal>
           </div>
-        </section>
 
-        <LuxeDivider />
+          <Reveal delay={400} className="mt-20 text-center">
+            <div className="text-white/70 mb-6 text-sm tracking-wide">
+              Limited access is available. Start with a private 24-hour trial while spaces remain.
+            </div>
+            <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
+              Start Trial on WhatsApp
+            </ShimmerButton>
+          </Reveal>
+        </section>
 
         {/* PRICING */}
-        <section
-          id="pricing"
-          className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 overflow-hidden"
-        >
-          <MicroLogoPattern />
-          <BrandWatermark />
+        <section id="pricing" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+          <Reveal>
+            <SectionTitle
+              kicker="Membership"
+              title="One Plan. Full Access."
+              subtitle="Choose your billing. Everything is included. Request private trial access to begin."
+            />
+          </Reveal>
 
-          <div className="relative">
-            <div className="mb-7">
-              <SectionTitle
-                kicker="Membership"
-                title="Choose your billing."
-                subtitle="Simple pricing. Everything included. Confirmed privately via WhatsApp."
-              />
+          <Reveal delay={70} className="mt-10">
+            <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur sm:grid-cols-3">
+              {["Message us on WhatsApp", "Trial activated", "Start watching"].map((t, i) => (
+                <div key={t} className="flex items-center gap-3">
+                  <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
+                    {i + 1}
+                  </div>
+                  <div className="text-sm font-semibold text-white/85">{t}</div>
+                </div>
+              ))}
             </div>
+          </Reveal>
 
-            <div className="flex justify-center">
-              <PricingToggle value={billing} onChange={setBilling} />
-            </div>
+          <Reveal delay={80} className="mt-8 flex justify-center">
+            <PricingToggle value={billing} onChange={setBilling} />
+          </Reveal>
 
-            <div className="mt-7 sm:mt-8 flex justify-center">
-              <div className="relative w-full max-w-2xl overflow-hidden rounded-[28px] sm:rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-8 sm:p-10 text-center shadow-xl backdrop-blur">
-                <div className="pointer-events-none absolute inset-0 opacity-60">
-                  <div className="absolute -left-24 -top-24 h-56 w-56 rounded-full bg-[#D4AF37]/12 blur-3xl" />
-                  <div className="absolute -right-24 -bottom-24 h-56 w-56 rounded-full bg-[#B8860B]/10 blur-3xl" />
+          <div className="mt-14 flex justify-center">
+            <Reveal delay={140}>
+              <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
+                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                  <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/20 blur-3xl animate-[floaty_6s_ease-in-out_infinite]" />
+                  <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/20 blur-3xl animate-[floaty_8s_ease-in-out_infinite]" />
                 </div>
 
-                <div className="relative">
+                <div className="relative text-center">
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
                     Elite Access Membership
                   </div>
 
-                  <div className="mt-5 text-xs tracking-widest uppercase text-white/50">
-                    {pricing.label}
+                  <div className="mt-6 text-xs tracking-widest uppercase text-white/50">Billing</div>
+                  <div className="mt-2 text-sm font-semibold text-white/85">
+                    {billing === "sixmonth" ? "6 Months" : billing === "annual" ? "1 Year" : "Monthly"}
                   </div>
 
-                  <div className="mt-4 text-5xl sm:text-6xl font-semibold tracking-tight">
+                  <div className="mt-6 text-6xl font-semibold tracking-tight">
                     <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
                       {pricing.price}
                     </span>
                   </div>
-
                   <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
 
-                  {pricing.subnote ? (
-                    <div className="mt-2 text-xs text-white/45">
-                      {pricing.subnote}
-                    </div>
-                  ) : null}
-
                   {pricing.savings ? (
-                    <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
+                    <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A] animate-pulse">
                       {pricing.savings}
                     </div>
                   ) : null}
 
-                  <div className="mt-7">
-                    <CTAButton className="w-full" href={waLink(trialMessage)}>
+                  <div className="mt-8">
+                    <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
                       Start Trial on WhatsApp
-                    </CTAButton>
+                    </ShimmerButton>
                     <div className="mt-3 text-[11px] text-white/55">
-                      Private access • Confirmed individually
+                      Private access. Confirmed individually via WhatsApp.
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-5 sm:mt-6 flex justify-center">
-              <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 backdrop-blur sm:grid-cols-3">
-                {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
-                  (t, i) => (
-                    <div key={t} className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
-                        {i + 1}
-                      </div>
-                      <div className="text-sm font-semibold text-white/85">{t}</div>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
+            </Reveal>
           </div>
         </section>
 
-        <LuxeDivider />
-
         {/* FAQ */}
-        <section
-          id="faq"
-          className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14"
-        >
-          <BrandWatermark />
-          <div className="relative">
-            <div className="mb-7">
-              <SectionTitle
-                kicker="Support"
-                title="Private access, handled properly."
-                subtitle="Everything is set up personally through WhatsApp. Fast, discreet, simple."
-              />
-            </div>
+        <section id="faq" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <SectionTitle
+            kicker="FAQ"
+            title="Questions, answered"
+            subtitle="If you don&apos;t see what you need, message us on WhatsApp and we&apos;ll help quickly."
+          />
 
-            <div className="grid gap-4 lg:grid-cols-2">
-              {[
-                {
-                  q: "How does the free trial work?",
-                  a: "Tap the WhatsApp button and we’ll activate your trial. Setup is handled step by step.",
-                },
-                {
-                  q: "Is it instant?",
-                  a: "Most trials are activated within minutes. Replies are fast because support is direct.",
-                },
-                {
-                  q: "What’s included?",
-                  a: "Full access to live channels, the on-demand library, and ongoing support.",
-                },
-                {
-                  q: "Can I upgrade later?",
-                  a: "Yes. Upgrades and renewals are handled with a quick message.",
-                },
-              ].map((item) => (
-                <div
-                  key={item.q}
-                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-7 backdrop-blur"
-                >
-                  <h3 className="text-base font-semibold text-white">{item.q}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">
-                    {item.a}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            {[
+              {
+                q: "How do I start the 24-hour trial?",
+                a: "Tap any WhatsApp button and send the pre-filled message. We&apos;ll reply with setup steps.",
+              },
+              {
+                q: "Which devices does it work on?",
+                a: "Most popular streaming platforms are supported. If you&apos;re unsure, ask us on WhatsApp.",
+              },
+              {
+                q: "Can I upgrade my plan later?",
+                a: "Yes. Message us anytime and we&apos;ll upgrade you seamlessly—quick, simple, and handled via WhatsApp.",
+              },
+              {
+                q: "How quickly will you reply?",
+                a: "Support is handled directly through WhatsApp, so responses are typically fast, personal, and effortless.",
+              },
+            ].map((item) => (
+              <div key={item.q} className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur">
+                <div className="text-base font-semibold text-white">{item.q}</div>
+                <div className="mt-2 text-sm leading-relaxed text-white/70">{item.a}</div>
+              </div>
+            ))}
+          </div>
 
-            <div className="mt-7 sm:mt-8 flex justify-center">
-              <CTAButton href={waLink(trialMessage)}>
-                Start Trial on WhatsApp
-              </CTAButton>
-            </div>
+          <div className="mt-10 flex justify-center">
+            <ShimmerButton href={waLink(trialMessage)} className="px-7 py-3" variant="gold" attention>
+              Start Trial on WhatsApp
+            </ShimmerButton>
           </div>
         </section>
 
         {/* FOOTER */}
-        <footer className="mx-auto max-w-6xl px-4 pb-28 sm:pb-10 sm:px-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 text-center backdrop-blur">
-            <div className="flex justify-center">
-              <Image
-                src="/logo.png"
-                alt="Elite House"
-                width={420}
-                height={140}
-                className="h-14 w-auto object-contain opacity-95"
-              />
+        <footer className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <div className="text-sm font-semibold text-white/90">Elite House</div>
+                <div className="mt-1 text-xs text-white/60">
+                  Premium viewing. Seamless experience. Direct support via WhatsApp.
+                </div>
+              </div>
+              <a
+                href={waLink(trialMessage)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-5 py-2 text-sm font-semibold text-[#F6E27A] transition hover:bg-black/55"
+              >
+                <WhatsAppIcon />
+                Start Trial on WhatsApp
+              </a>
             </div>
-            <p className="mt-3 text-xs text-white/50">
-              Premium viewing • Private membership • WhatsApp support
-            </p>
           </div>
         </footer>
 
         {/* Mobile sticky CTA */}
         <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
           <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-2 shadow-2xl shadow-black/50">
-            <CTAButton className="w-full" href={waLink(trialMessage)}>
+            <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
               Start Trial on WhatsApp
-            </CTAButton>
+            </ShimmerButton>
             <div className="mt-1 text-center text-[10px] text-white/55">
-              Priority replies within minutes
+              24-hour trial • Priority replies within minutes
             </div>
           </div>
         </div>
