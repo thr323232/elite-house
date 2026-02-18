@@ -22,7 +22,7 @@ export function waLink(message: string) {
   )}`;
 }
 
-/** Small UI */
+/** UI */
 function SectionTitle({
   kicker,
   title,
@@ -153,6 +153,201 @@ function StarRow() {
   );
 }
 
+/** Premium Scrolling EPG */
+function EpgMock() {
+  const timeline = [
+    "18:00",
+    "18:30",
+    "19:00",
+    "19:30",
+    "20:00",
+    "20:30",
+    "21:00",
+    "21:30",
+    "22:00",
+    "22:30",
+    "23:00",
+    "23:30",
+  ];
+
+  // More “premium” labels (less playful)
+  const rows = [
+    {
+      ch: "101",
+      abbr: "MOV",
+      name: "Cinema",
+      blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"],
+    },
+    {
+      ch: "102",
+      abbr: "SPT",
+      name: "Sports",
+      blocks: ["LIVE Match", "Highlights", "Studio", "Championships"],
+    },
+    {
+      ch: "103",
+      abbr: "ENT",
+      name: "Entertainment",
+      blocks: ["Trending", "Reality", "Late Night", "Top Picks"],
+    },
+    {
+      ch: "104",
+      abbr: "DOC",
+      name: "Documentary",
+      blocks: ["Nature", "History", "True Stories", "Discovery"],
+    },
+    {
+      ch: "105",
+      abbr: "KID",
+      name: "Kids",
+      blocks: ["Family Time", "Cartoons", "Education", "Classics"],
+    },
+  ];
+
+  const nowLeft = "52.5%";
+  const slotW = 120;
+  const programWidth = timeline.length * slotW;
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+      {/* Subtle top sheen */}
+      <div className="pointer-events-none absolute inset-0 opacity-70">
+        <div className="absolute inset-0 bg-[radial-gradient(80%_55%_at_50%_0%,rgba(212,175,55,0.14),rgba(0,0,0,0)_60%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04),rgba(255,255,255,0.00),rgba(255,255,255,0.04))]" />
+      </div>
+
+      {/* Now line */}
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/80 opacity-80 motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
+          style={{ left: nowLeft }}
+        />
+        <div
+          className="absolute top-0 bottom-0 w-[60px] bg-[#D4AF37]/10 blur-xl motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
+          style={{ left: `calc(${nowLeft} - 30px)` }}
+        />
+      </div>
+
+      {/* Timeline */}
+      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="w-[180px] text-[10px] uppercase tracking-[0.26em] text-white/45">
+            Programme guide
+          </div>
+          <div className="relative flex-1 overflow-hidden">
+            <div className="relative whitespace-nowrap">
+              <div
+                className="flex motion-reduce:animate-none animate-[marquee_34s_linear_infinite]"
+                style={{ width: programWidth * 2 }}
+              >
+                {[0, 1].map((dup) => (
+                  <div
+                    key={dup}
+                    className="flex"
+                    style={{ width: programWidth }}
+                  >
+                    {timeline.map((t) => (
+                      <div
+                        key={`${dup}-${t}`}
+                        className="shrink-0 text-[10px] text-white/45"
+                        style={{ width: slotW }}
+                      >
+                        {t}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Rows */}
+      <div className="px-4 py-3">
+        <div className="grid gap-3">
+          {rows.map((row, idx) => (
+            <div key={row.ch} className="flex items-stretch gap-2">
+              <div className="flex w-[180px] items-center gap-3">
+                {/* “Logo chip” */}
+                <div className="relative grid h-10 w-10 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
+                  <span className="relative z-10">{row.abbr}</span>
+                  <span className="pointer-events-none absolute inset-0 rounded-2xl [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
+                </div>
+
+                <div className="min-w-0 pr-1">
+                  <div className="text-[11px] font-semibold leading-tight text-white/90">
+                    {row.name}
+                  </div>
+                  <div className="text-[10px] text-white/45">CH {row.ch}</div>
+                </div>
+              </div>
+
+              <div className="relative flex-1 overflow-hidden">
+                {/* soft fade edges */}
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-black/55 to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-black/55 to-transparent" />
+
+                <div
+                  className="flex motion-reduce:animate-none animate-[marquee_38s_linear_infinite]"
+                  style={{ width: programWidth * 2 }}
+                >
+                  {[0, 1].map((dup) => (
+                    <div
+                      key={dup}
+                      className="flex gap-2 pr-2"
+                      style={{ width: programWidth }}
+                    >
+                      {row.blocks.map((b, i) => {
+                        const isLive = b.toUpperCase().includes("LIVE");
+                        const isNow = idx === 1 && i === 0; // subtle “now” highlight
+                        const w = 3 * slotW;
+
+                        return (
+                          <div
+                            key={`${dup}-${row.ch}-${i}`}
+                            className={
+                              "relative shrink-0 overflow-hidden rounded-2xl border border-white/10 " +
+                              "bg-gradient-to-b from-white/[0.06] to-white/[0.03] px-3 py-2 " +
+                              (isNow ? "ring-1 ring-[#D4AF37]/25" : "")
+                            }
+                            style={{ width: w }}
+                            title={b}
+                          >
+                            <div className="flex items-start gap-2">
+                              <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
+                                {b}
+                              </div>
+                              {isLive ? (
+                                <span className="mt-0.5 shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/12 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
+                                  LIVE
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="shrink-0" style={{ width: slotW }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* tiny reassurance */}
+        <div className="mt-3 flex items-center justify-between text-[10px] text-white/45">
+          <span>Accurate listings • Clean layout</span>
+          <span>Fast navigation</span>
+        </div>
+      </div>
+
+      <div className="pointer-events-none h-10 bg-gradient-to-t from-black/60 to-transparent" />
+    </div>
+  );
+}
+
 export default function EliteHouseLandingPage() {
   const trialMessage =
     "Hi Elite House. I'd like to start the 24-hour free trial. Please share the next steps.";
@@ -219,7 +414,16 @@ export default function EliteHouseLandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-black text-white">
-      {/* Background glow (calm) */}
+      {/* Minimal keyframes for EPG */}
+      <style>{`
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes nowGlow {
+          0%, 100% { opacity: 0.55; filter: drop-shadow(0 0 0 rgba(212,175,55,0)); }
+          50% { opacity: 0.95; filter: drop-shadow(0 0 14px rgba(212,175,55,0.28)); }
+        }
+      `}</style>
+
+      {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 opacity-40">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(212,175,55,0.26),transparent_58%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.16),transparent_62%)]" />
@@ -237,20 +441,19 @@ export default function EliteHouseLandingPage() {
                 width={340}
                 height={120}
                 priority
-                className="h-20 w-auto object-contain drop-shadow-[0_18px_40px_rgba(212,175,55,0.35)] mb-6"
+                className="mb-6 h-20 w-auto object-contain drop-shadow-[0_18px_40px_rgba(212,175,55,0.35)]"
               />
 
               <h1 className="text-4xl sm:text-5xl font-semibold leading-tight tracking-tight">
                 Elite Access.
                 <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                  For Viewers Who Expect More.
+                  Superior EPG. Smooth Streaming.
                 </span>
               </h1>
 
               <p className="mt-4 max-w-xl text-white/65 text-base sm:text-lg leading-relaxed">
-                Premium live entertainment and a private on-demand library —
-                designed to feel seamless, discreet, and effortless across your
-                devices.
+                A premium experience built around accurate programme listings and
+                seamless playback — clean, consistent, and effortless across your devices.
               </p>
 
               <div className="mt-7 flex flex-col sm:flex-row gap-4">
@@ -274,38 +477,54 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* Right card */}
+            {/* Right card with Premium EPG */}
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-white/85">
-                    Private 24-hour trial access
+                  <p className="text-sm font-semibold text-white/90">
+                    A guide that feels refined
                   </p>
                   <p className="mt-2 text-sm text-white/65 leading-relaxed">
-                    Message us directly on WhatsApp and we’ll activate your trial
-                    quickly.
+                    Smooth browsing, accurate listings, and clean presentation — designed
+                    for everyday reliability.
                   </p>
                 </div>
                 <div className="shrink-0 rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-3 py-2 text-xs font-semibold text-[#F6E27A]">
-                  VIP
+                  EPG+
                 </div>
               </div>
 
               <div className="mt-5">
-                <CTAButton className="w-full" href={waLink(trialMessage)}>
-                  Request trial access
-                </CTAButton>
+                <EpgMock />
               </div>
 
-              <p className="mt-3 text-xs text-white/45">
-                Priority replies • Setup handled personally
-              </p>
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="text-xs font-semibold text-[#F6E27A]">
+                  Private 24-hour trial
+                </div>
+                <div className="mt-1 text-sm text-white/70">
+                  Message us on WhatsApp and we’ll activate your trial quickly.
+                </div>
+
+                <div className="mt-4">
+                  <CTAButton className="w-full" href={waLink(trialMessage)}>
+                    Request trial access
+                  </CTAButton>
+                </div>
+
+                <p className="mt-3 text-xs text-white/45">
+                  Priority replies • Setup handled personally
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* FEATURES */}
-        <section id="features" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+        <section
+          id="features"
+          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
+        >
           <SectionTitle
             kicker="Elite Features"
             title="Everything included."
@@ -315,12 +534,12 @@ export default function EliteHouseLandingPage() {
           <div className="grid gap-6 md:grid-cols-3">
             {[
               {
-                title: "Live Channels",
-                desc: "Worldwide live access, organised cleanly and delivered reliably.",
+                title: "Superior EPG",
+                desc: "Accurate programme listings with a clean layout that’s easy to browse.",
               },
               {
-                title: "On Demand Library",
-                desc: "Thousands of films and series ready instantly — smooth browsing, no clutter.",
+                title: "Smooth Streaming",
+                desc: "Seamless playback with a premium feel — built for daily reliability.",
               },
               {
                 title: "Direct WhatsApp Support",
@@ -339,7 +558,10 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* TESTIMONIALS */}
-        <section id="testimonials" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
+        <section
+          id="testimonials"
+          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14"
+        >
           <SectionTitle
             kicker="Trusted"
             title="What members say."
@@ -367,12 +589,17 @@ export default function EliteHouseLandingPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+            <CTAButton href={waLink(trialMessage)}>
+              Start Trial on WhatsApp
+            </CTAButton>
           </div>
         </section>
 
-        {/* PRICING (with toggle) */}
-        <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+        {/* PRICING */}
+        <section
+          id="pricing"
+          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
+        >
           <SectionTitle
             kicker="Membership"
             title="Choose your billing."
@@ -385,7 +612,6 @@ export default function EliteHouseLandingPage() {
 
           <div className="mt-8 flex justify-center">
             <div className="relative w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 text-center shadow-xl backdrop-blur">
-              {/* soft glow */}
               <div className="pointer-events-none absolute inset-0 opacity-60">
                 <div className="absolute -left-24 -top-24 h-56 w-56 rounded-full bg-[#D4AF37]/12 blur-3xl" />
                 <div className="absolute -right-24 -bottom-24 h-56 w-56 rounded-full bg-[#B8860B]/10 blur-3xl" />
@@ -430,7 +656,6 @@ export default function EliteHouseLandingPage() {
             </div>
           </div>
 
-          {/* small reassurance row */}
           <div className="mt-6 flex justify-center">
             <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur sm:grid-cols-3">
               {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
@@ -447,8 +672,11 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* FAQ / Assurance (UPDATED) */}
-        <section id="faq" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
+        {/* FAQ / Assurance */}
+        <section
+          id="faq"
+          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14"
+        >
           <SectionTitle
             kicker="Support"
             title="Private access, handled properly."
@@ -487,7 +715,9 @@ export default function EliteHouseLandingPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+            <CTAButton href={waLink(trialMessage)}>
+              Start Trial on WhatsApp
+            </CTAButton>
           </div>
         </section>
 
