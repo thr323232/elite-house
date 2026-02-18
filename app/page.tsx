@@ -1,34 +1,24 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 
-/**
- * Next.js-safe env read (no import.meta).
- * Set NEXT_PUBLIC_WHATSAPP_NUMBER in Vercel env vars for production.
- */
+/** Env-based WA number (Next.js-safe) */
 const readWaEnv = (): string | null => {
   const env = typeof process !== "undefined" ? process.env : undefined;
-  const fromProcess =
+  return (
     env?.NEXT_PUBLIC_WHATSAPP_NUMBER ||
     env?.REACT_APP_WHATSAPP_NUMBER ||
-    env?.VITE_WHATSAPP_NUMBER;
-
-  return fromProcess ? String(fromProcess) : null;
+    env?.VITE_WHATSAPP_NUMBER ||
+    null
+  )?.toString();
 };
 
 const __WA_ENV__ = readWaEnv();
-
-// Fallback is lightly obfuscated to avoid plain-text exposure in source
 const __WA_FALLBACK__ = ["44", "7922", "309925"].join("");
-
 const getWhatsAppNumber = () => __WA_ENV__ || __WA_FALLBACK__;
 
-export function waLink(message: string) {
-  const text = encodeURIComponent(message);
-  const number = getWhatsAppNumber();
-  return `https://wa.me/${number}?text=${text}`;
-}
+export const waLink = (message: string) =>
+  `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(message)}`;
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -54,13 +44,9 @@ function SectionTitle({
           <Badge>{kicker}</Badge>
         </div>
       ) : null}
-      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        {title}
-      </h2>
+      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
       {subtitle ? (
-        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">
-          {subtitle}
-        </p>
+        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">{subtitle}</p>
       ) : null}
     </div>
   );
@@ -73,17 +59,21 @@ function PricingToggle({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const options = [
-    { id: "monthly", label: "Monthly" },
-    { id: "sixmonth", label: "6 Months" },
-    { id: "annual", label: "1 Year", badge: "Best Value" },
-  ];
+  const options = useMemo(
+    () => [
+      { id: "monthly", label: "Monthly" },
+      { id: "sixmonth", label: "6 Months" },
+      { id: "annual", label: "1 Year", badge: "Best Value" },
+    ],
+    []
+  );
 
   return (
     <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur">
       {options.map((o) => (
         <button
           key={o.id}
+          type="button"
           onClick={() => onChange(o.id)}
           className={
             "rounded-xl px-4 py-2 text-sm transition " +
@@ -91,7 +81,6 @@ function PricingToggle({
               ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm"
               : "text-white/70 hover:text-white")
           }
-          type="button"
         >
           <span className="inline-flex items-center gap-2">
             <span>{o.label}</span>
@@ -104,49 +93,6 @@ function PricingToggle({
         </button>
       ))}
     </div>
-  );
-}
-
-function Check({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M20 6L9 17l-5-5"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function MiniIcon({ d }: { d: string }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d={d}
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 
@@ -165,16 +111,10 @@ function ShimmerButton({
 }) {
   const base =
     "group relative isolate overflow-hidden inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-bold transition";
-
   const goldBase =
     "text-black shadow-lg shadow-[#D4AF37]/20 bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] hover:brightness-105";
-
-  const gold = attention
-    ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]"
-    : goldBase;
-
-  const dark =
-    "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
+  const gold = attention ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]" : goldBase;
+  const dark = "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
 
   return (
     <a
@@ -183,14 +123,13 @@ function ShimmerButton({
       rel="noreferrer"
       className={`${base} ${variant === "gold" ? gold : dark} ${className}`}
     >
-      {attention && variant === "gold" && (
+      {attention && variant === "gold" ? (
         <span
           className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
           aria-hidden="true"
         />
-      )}
+      ) : null}
 
-      {/* Occasional luxury glint */}
       <span
         className={
           "pointer-events-none absolute -inset-y-12 -left-1/2 w-[200%] rotate-12 opacity-0 " +
@@ -199,8 +138,6 @@ function ShimmerButton({
         }
         aria-hidden="true"
       />
-
-      {/* Hover shimmer */}
       <span
         className={
           "pointer-events-none absolute -inset-y-10 -left-1/2 w-[200%] rotate-12 opacity-0 " +
@@ -235,19 +172,15 @@ function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
     const obs = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setVisible(true);
-            obs.disconnect();
-          }
-        });
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisible(true);
+          obs.disconnect();
+        }
       },
       { threshold: 0.15 }
     );
-
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -269,27 +202,24 @@ function Reveal({
 }
 
 function FloatingParticles() {
-  const particles = useMemo(() => {
-    const seeds: Array<[number, number, number, number]> = [
-      [8, 18, 1.2, 16],
-      [22, 62, 1.6, 20],
-      [35, 28, 1.1, 18],
-      [44, 78, 1.4, 26],
-      [58, 14, 1.0, 22],
-      [66, 52, 1.7, 30],
-      [74, 32, 1.2, 24],
-      [82, 70, 1.3, 28],
-      [90, 24, 1.1, 19],
-      [12, 84, 1.5, 32],
-      [28, 8, 1.0, 21],
-      [52, 88, 1.2, 34],
-    ];
-
-    return seeds.map((s, i) => {
-      const [x, y, r, dur] = s;
-      return { id: i, x, y, r, dur, delay: (i * 0.7) % 5 };
-    });
-  }, []);
+  const particles = useMemo(
+    () =>
+      [
+        [8, 18, 1.2, 16],
+        [22, 62, 1.6, 20],
+        [35, 28, 1.1, 18],
+        [44, 78, 1.4, 26],
+        [58, 14, 1.0, 22],
+        [66, 52, 1.7, 30],
+        [74, 32, 1.2, 24],
+        [82, 70, 1.3, 28],
+        [90, 24, 1.1, 19],
+        [12, 84, 1.5, 32],
+        [28, 8, 1.0, 21],
+        [52, 88, 1.2, 34],
+      ].map(([x, y, r, dur], i) => ({ id: i, x, y, r, dur, delay: (i * 0.7) % 5 })),
+    []
+  );
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -328,78 +258,22 @@ function WhatsAppIcon({ className = "" }: { className?: string }) {
 }
 
 function EpgMock() {
-  const timeline = [
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
-    "20:00",
-    "20:30",
-    "21:00",
-    "21:30",
-    "22:00",
-    "22:30",
-    "23:00",
-    "23:30",
-  ];
+  const timeline = useMemo(
+    () =>
+      ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"],
+    []
+  );
 
-  const rows = [
-    {
-      ch: "101",
-      abbr: "VC",
-      name: "Velour Cinema",
-      blocks: [
-        "10,000+ Live Channels",
-        "100,000+ Video On Demand",
-        "4K Ultra HD Streaming",
-        "Seamless channel playback",
-      ],
-    },
-    {
-      ch: "102",
-      abbr: "AS",
-      name: "Apex Sports",
-      blocks: [
-        "LIVE Championship",
-        "All channels working perfectly",
-        "Zero missing listings",
-        "Reliable premium streaming",
-      ],
-    },
-    {
-      ch: "103",
-      abbr: "NV",
-      name: "Nova Vista",
-      blocks: [
-        "Instant access",
-        "Precision programme guide data",
-        "Smooth browsing experience",
-        "Consistent presentation",
-      ],
-    },
-    {
-      ch: "104",
-      abbr: "OR",
-      name: "Orion Discovery",
-      blocks: [
-        "Fast WhatsApp setup",
-        "Clean channel lineup",
-        "Stable playback",
-        "Support when you need it",
-      ],
-    },
-    {
-      ch: "105",
-      abbr: "LX",
-      name: "Luxe Kids",
-      blocks: [
-        "Family-ready experience",
-        "Clear titles & logos",
-        "No broken channels",
-        "Premium reliability",
-      ],
-    },
-  ];
+  const rows = useMemo(
+    () => [
+      { ch: "101", abbr: "VC", name: "Velour Cinema", blocks: ["10,000+ Live Channels", "100,000+ Video On Demand", "4K Ultra HD Streaming", "Seamless channel playback"] },
+      { ch: "102", abbr: "AS", name: "Apex Sports", blocks: ["LIVE Championship", "All channels working perfectly", "Zero missing listings", "Reliable premium streaming"] },
+      { ch: "103", abbr: "NV", name: "Nova Vista", blocks: ["Instant access", "Precision programme guide data", "Smooth browsing experience", "Consistent presentation"] },
+      { ch: "104", abbr: "OR", name: "Orion Discovery", blocks: ["Fast WhatsApp setup", "Clean channel lineup", "Stable playback", "Support when you need it"] },
+      { ch: "105", abbr: "LX", name: "Luxe Kids", blocks: ["Family-ready experience", "Clear titles & logos", "No broken channels", "Premium reliability"] },
+    ],
+    []
+  );
 
   const nowLeft = "52.5%";
   const slotW = 120;
@@ -430,11 +304,7 @@ function EpgMock() {
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex" style={{ width: programWidth }}>
                     {timeline.map((t) => (
-                      <div
-                        key={`${dup}-${t}`}
-                        className="shrink-0 text-[10px] text-white/55"
-                        style={{ width: slotW }}
-                      >
+                      <div key={`${dup}-${t}`} className="shrink-0 text-[10px] text-white/55" style={{ width: slotW }}>
                         {t}
                       </div>
                     ))}
@@ -455,9 +325,7 @@ function EpgMock() {
                   {row.abbr}
                 </div>
                 <div className="min-w-0 pr-1">
-                  <div className="break-words text-[11px] font-semibold leading-tight text-white/90">
-                    {row.name}
-                  </div>
+                  <div className="break-words text-[11px] font-semibold leading-tight text-white/90">{row.name}</div>
                   <div className="text-[10px] text-white/50">{row.ch}</div>
                 </div>
               </div>
@@ -514,7 +382,6 @@ function EpgMock() {
 
 export default function EliteHouseLandingPage() {
   const [billing, setBilling] = useState("sixmonth");
-
   const pricing = useMemo(() => {
     const base: Record<string, { price: string; note: string; savings: string | null }> = {
       monthly: { price: "£14.99", note: "per month", savings: null },
@@ -527,55 +394,29 @@ export default function EliteHouseLandingPage() {
   const trialMessage =
     "Hi Elite House. I'd like to start the 24-hour free trial. Please share the next steps.";
 
+  const faq = useMemo(
+    () => [
+      { q: "How do I start the 24-hour trial?", a: "Tap any WhatsApp button and send the pre-filled message. We&apos;ll reply with setup steps." },
+      { q: "Which devices does it work on?", a: "Most popular streaming platforms are supported. If you&apos;re unsure, ask us on WhatsApp." },
+      { q: "Can I upgrade my plan later?", a: "Yes. Message us anytime and we&apos;ll upgrade you seamlessly—quick, simple, and handled via WhatsApp." },
+      { q: "How quickly will you reply?", a: "Support is handled directly through WhatsApp, so responses are typically fast, personal, and effortless." },
+    ],
+    []
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
       <style>{`
-        @keyframes gradientMove {
-          0%, 100% { transform: translate3d(0,0,0) scale(1); }
-          50% { transform: translate3d(-2%, -3%, 0) scale(1.05); }
-        }
-        @keyframes shimmer {
-          0% { transform: translateX(-35%) rotate(12deg); opacity: 0.12; }
-          55% { opacity: 0.55; }
-          100% { transform: translateX(35%) rotate(12deg); opacity: 0.15; }
-        }
-        @keyframes glint {
-          0%, 74% { opacity: 0; transform: translateX(-45%) rotate(12deg); }
-          78% { opacity: 0.22; }
-          84% { opacity: 0.65; }
-          90% { opacity: 0.18; }
-          100% { opacity: 0; transform: translateX(45%) rotate(12deg); }
-        }
-        @keyframes floaty {
-          0%, 100% { transform: translate3d(0,0,0); opacity: 0.12; }
-          50% { transform: translate3d(0,-16px,0); opacity: 0.22; }
-        }
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes nowGlow {
-          0%, 100% { opacity: 0.55; filter: drop-shadow(0 0 0 rgba(212,175,55,0)); }
-          50% { opacity: 0.95; filter: drop-shadow(0 0 14px rgba(212,175,55,0.28)); }
-        }
-        @keyframes borderBreath {
-          0%, 100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.18), 0 0 18px rgba(212,175,55,0.10); }
-          50% { box-shadow: 0 0 0 1px rgba(212,175,55,0.38), 0 0 32px rgba(212,175,55,0.22); }
-        }
-        @keyframes ctaPulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55,0.25); }
-          50% { transform: scale(1.02); box-shadow: 0 0 26px 6px rgba(212,175,55,0.18); }
-        }
-        @keyframes ringPulse {
-          0% { opacity: 0.45; transform: scale(0.92); }
-          70% { opacity: 0; transform: scale(1.18); }
-          100% { opacity: 0; transform: scale(1.18); }
-        }
-        @keyframes arrowSlide {
-          0% { transform: translateX(0); }
-          50% { transform: translateX(3px); }
-          100% { transform: translateX(0); }
-        }
+        @keyframes gradientMove { 0%,100%{transform:translate3d(0,0,0) scale(1)} 50%{transform:translate3d(-2%,-3%,0) scale(1.05)} }
+        @keyframes shimmer { 0%{transform:translateX(-35%) rotate(12deg);opacity:.12} 55%{opacity:.55} 100%{transform:translateX(35%) rotate(12deg);opacity:.15} }
+        @keyframes glint { 0%,74%{opacity:0;transform:translateX(-45%) rotate(12deg)} 78%{opacity:.22} 84%{opacity:.65} 90%{opacity:.18} 100%{opacity:0;transform:translateX(45%) rotate(12deg)} }
+        @keyframes floaty { 0%,100%{transform:translate3d(0,0,0);opacity:.12} 50%{transform:translate3d(0,-16px,0);opacity:.22} }
+        @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        @keyframes nowGlow { 0%,100%{opacity:.55;filter:drop-shadow(0 0 0 rgba(212,175,55,0))} 50%{opacity:.95;filter:drop-shadow(0 0 14px rgba(212,175,55,.28))} }
+        @keyframes borderBreath { 0%,100%{box-shadow:0 0 0 1px rgba(212,175,55,.18),0 0 18px rgba(212,175,55,.10)} 50%{box-shadow:0 0 0 1px rgba(212,175,55,.38),0 0 32px rgba(212,175,55,.22)} }
+        @keyframes ctaPulse { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(212,175,55,.25)} 50%{transform:scale(1.02);box-shadow:0 0 26px 6px rgba(212,175,55,.18)} }
+        @keyframes ringPulse { 0%{opacity:.45;transform:scale(.92)} 70%,100%{opacity:0;transform:scale(1.18)} }
+        @keyframes arrowSlide { 0%{transform:translateX(0)} 50%{transform:translateX(3px)} 100%{transform:translateX(0)} }
       `}</style>
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -590,15 +431,11 @@ export default function EliteHouseLandingPage() {
         <FloatingParticles />
       </div>
 
-      {/* HEADER REMOVED */}
-
       <main className="relative z-10">
-        {/* HERO */}
-        <section className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14">
+        {/* HERO (tightened bottom padding) */}
+        <section className="mx-auto max-w-6xl px-4 pb-6 pt-10 sm:px-6 sm:pb-8 sm:pt-14">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              {/* HERO BADGES REMOVED */}
-
               <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
                 Elite Access.
                 <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent leading-tight pb-1">
@@ -622,7 +459,6 @@ export default function EliteHouseLandingPage() {
                 </a>
               </div>
 
-              {/* Premium trust pill (bigger + cleaner) */}
               <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
                 <span className="font-semibold text-white/90">1,200+ Members</span>
                 <span className="h-4 w-px bg-white/15" />
@@ -632,69 +468,54 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* RIGHT PANEL */}
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/60 backdrop-blur">
               <div className="absolute inset-0 opacity-80">
                 <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#B8860B]/15 blur-3xl" />
                 <div className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5078FF]/10 blur-3xl" />
               </div>
-
               <div className="relative p-6">
-                {/* "Global live access..." LABEL REMOVED */}
                 <EpgMock />
-                {/* 24-hour trial WhatsApp BOX REMOVED */}
               </div>
             </div>
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section id="features" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        {/* FEATURES (tightened top padding + no kicker badge above) */}
+        <section id="features" className="mx-auto max-w-6xl px-4 pt-12 pb-24 sm:px-6 sm:pt-14">
           <Reveal>
             <SectionTitle
-              kicker="Elite Access"
               title="Elite Access, Made Simple."
               subtitle="Global live access. A vast on demand library. Seamless performance—delivered without compromise."
             />
           </Reveal>
 
           <div className="mt-16 grid gap-10 md:grid-cols-3">
-            <Reveal delay={100}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                <h3 className="text-2xl font-semibold mb-4">Members-Only Live Access</h3>
-                <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  Worldwide live television, organised clearly and presented cleanly.
-                </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  Live access—delivered reliably.
+            {[
+              {
+                h: "Members-Only Live Access",
+                p: "Worldwide live television, organised clearly and presented cleanly.",
+                f: "Live access—delivered reliably.",
+              },
+              {
+                h: "Private Film & Series Library",
+                p: "Over 100,000 films and series available instantly. Browse smoothly. Press play confidently.",
+                f: "A library for those who expect more.",
+              },
+              {
+                h: "Direct Support",
+                p: "WhatsApp assistance handled quickly and personally. Setup, upgrades, support—streamlined.",
+                f: "Support reserved for active members.",
+              },
+            ].map((c, i) => (
+              <Reveal key={c.h} delay={100 + i * 100}>
+                <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
+                  <h3 className="text-2xl font-semibold mb-4">{c.h}</h3>
+                  <p className="text-white/70 leading-relaxed text-sm mb-4">{c.p}</p>
+                  <div className="text-[#F6E27A] text-sm font-medium">{c.f}</div>
                 </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={200}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                <h3 className="text-2xl font-semibold mb-4">Private Film & Series Library</h3>
-                <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  Over 100,000 films and series available instantly. Browse smoothly. Press play confidently.
-                </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  A library for those who expect more.
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={300}>
-              <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                <h3 className="text-2xl font-semibold mb-4">Direct Support</h3>
-                <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  WhatsApp assistance handled quickly and personally. Setup, upgrades, support—streamlined.
-                </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  Support reserved for active members.
-                </div>
-              </div>
-            </Reveal>
+              </Reveal>
+            ))}
           </div>
 
           <Reveal delay={400} className="mt-20 text-center">
@@ -769,9 +590,7 @@ export default function EliteHouseLandingPage() {
                     <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
                       Start Trial on WhatsApp
                     </ShimmerButton>
-                    <div className="mt-3 text-[11px] text-white/55">
-                      Private access. Confirmed individually via WhatsApp.
-                    </div>
+                    <div className="mt-3 text-[11px] text-white/55">Private access. Confirmed individually via WhatsApp.</div>
                   </div>
                 </div>
               </div>
@@ -788,24 +607,7 @@ export default function EliteHouseLandingPage() {
           />
 
           <div className="grid gap-5 lg:grid-cols-2">
-            {[
-              {
-                q: "How do I start the 24-hour trial?",
-                a: "Tap any WhatsApp button and send the pre-filled message. We&apos;ll reply with setup steps.",
-              },
-              {
-                q: "Which devices does it work on?",
-                a: "Most popular streaming platforms are supported. If you&apos;re unsure, ask us on WhatsApp.",
-              },
-              {
-                q: "Can I upgrade my plan later?",
-                a: "Yes. Message us anytime and we&apos;ll upgrade you seamlessly—quick, simple, and handled via WhatsApp.",
-              },
-              {
-                q: "How quickly will you reply?",
-                a: "Support is handled directly through WhatsApp, so responses are typically fast, personal, and effortless.",
-              },
-            ].map((item) => (
+            {faq.map((item) => (
               <div key={item.q} className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur">
                 <div className="text-base font-semibold text-white">{item.q}</div>
                 <div className="mt-2 text-sm leading-relaxed text-white/70">{item.a}</div>
@@ -843,17 +645,7 @@ export default function EliteHouseLandingPage() {
           </div>
         </footer>
 
-        {/* Mobile sticky CTA */}
-        <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
-          <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-2 shadow-2xl shadow-black/50">
-            <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
-              Start Trial on WhatsApp
-            </ShimmerButton>
-            <div className="mt-1 text-center text-[10px] text-white/55">
-              24-hour trial • Priority replies within minutes
-            </div>
-          </div>
-        </div>
+        {/* Sticky CTA removed ✅ */}
       </main>
     </div>
   );
