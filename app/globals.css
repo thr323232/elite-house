@@ -92,3 +92,18 @@ body {
   50% { transform: translateX(3px); }
   100% { transform: translateX(0); }
 }
+
+@keyframes luxeSheen {
+  0% { transform: translateX(-35%) rotate(12deg); opacity: 0.0; }
+  12% { opacity: 0.06; }
+  55% { opacity: 0.03; }
+  100% { transform: translateX(35%) rotate(12deg); opacity: 0.0; }
+}
+
+@keyframes luxeBreath {
+  0%,100% { opacity: 0.55; }
+  50% { opacity: 0.8; }
+}
+
+/* Optional: make everything feel “smoother” */
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }

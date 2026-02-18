@@ -22,7 +22,7 @@ export function waLink(message: string) {
   return `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(message)}`;
 }
 
-/* ---------------- Static data ---------------- */
+/* ---------------- Types + Data ---------------- */
 
 type Billing = "monthly" | "sixmonth" | "annual";
 
@@ -73,19 +73,34 @@ const EPG_ROWS = [
     ch: "101",
     abbr: "AC",
     name: "Aurum Cinema",
-    blocks: ["Flawless programme listings", "Private curated film library", "4K Ultra HD presentation", "Confident playback, every time"],
+    blocks: [
+      "Flawless programme listings",
+      "Private curated film library",
+      "4K Ultra HD presentation",
+      "Confident playback, every time",
+    ],
   },
   {
     ch: "102",
     abbr: "SS",
     name: "Sovereign Sports",
-    blocks: ["LIVE events presented cleanly", "Seamless channel transitions", "Accurate listings", "Premium broadcast stability"],
+    blocks: [
+      "LIVE events presented cleanly",
+      "Seamless channel transitions",
+      "Accurate listings",
+      "Premium broadcast stability",
+    ],
   },
   {
     ch: "103",
     abbr: "VD",
     name: "Velvet Drama",
-    blocks: ["Precision EPG data", "Effortless browsing", "Consistent performance", "Refined viewing experience"],
+    blocks: [
+      "Precision EPG data",
+      "Refined viewing experience",
+      "Consistent performance",
+      "Effortless browsing",
+    ],
   },
   {
     ch: "104",
@@ -98,6 +113,27 @@ const EPG_ROWS = [
     abbr: "LF",
     name: "Luxe Family",
     blocks: ["Family-ready experience", "Clear titles & logos", "Reliable streaming", "Premium consistency"],
+  },
+];
+
+const FEATURE_CARDS = [
+  {
+    h: "Flawless Listings",
+    p: "A meticulously maintained guide—clean, accurate, and effortless to browse.",
+    f: "Precision EPG, done properly.",
+    d: 100,
+  },
+  {
+    h: "Seamless Playback",
+    p: "Stable, consistent streaming built for viewers who expect reliability—every day.",
+    f: "Smooth playback you can trust.",
+    d: 200,
+  },
+  {
+    h: "Private Support",
+    p: "Discreet WhatsApp assistance handled quickly and personally—setup, upgrades, and support.",
+    f: "Direct help, without friction.",
+    d: 300,
   },
 ];
 
@@ -120,19 +156,15 @@ const FAQ = [
   },
 ];
 
-const FEATURE_CARDS = [
-  { h: "Flawless Listings", p: "A meticulously maintained guide—clean, accurate, and effortless to browse.", f: "Precision EPG, done properly.", d: 100 },
-  { h: "Seamless Playback", p: "Stable, consistent streaming built for viewers who expect reliability—every day.", f: "Smooth playback you can trust.", d: 200 },
-  { h: "Private Support", p: "Discreet WhatsApp assistance handled quickly and personally—setup, upgrades, and support.", f: "Direct help, without friction.", d: 300 },
-];
-
-/* ---------------- UI pieces ---------------- */
+/* ---------------- UI ---------------- */
 
 function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mx-auto mb-10 max-w-2xl text-center">
       <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
-      {subtitle ? <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">{subtitle}</p> : null}
+      {subtitle ? (
+        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">{subtitle}</p>
+      ) : null}
     </div>
   );
 }
@@ -194,7 +226,10 @@ function ShimmerButton({
   return (
     <a href={href} target="_blank" rel="noreferrer" className={`${base} ${variant === "gold" ? gold : dark} ${className}`}>
       {attention && variant === "gold" ? (
-        <span className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]" aria-hidden="true" />
+        <span
+          className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
+          aria-hidden="true"
+        />
       ) : null}
 
       <span
@@ -230,7 +265,6 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
     const obs = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
@@ -240,7 +274,6 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
       },
       { threshold: 0.15 }
     );
-
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -262,7 +295,11 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
 }
 
 function FloatingParticles() {
-  const particles = useMemo(() => PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({ id: i, x, y, r, dur, delay: (i * 0.7) % 5 })), []);
+  const particles = useMemo(
+    () => PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({ id: i, x, y, r, dur, delay: (i * 0.7) % 5 })),
+    []
+  );
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {particles.map((p) => (
@@ -286,7 +323,7 @@ function FloatingParticles() {
 function WhatsAppIcon({ className = "" }: { className?: string }) {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.10-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
+      <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
     </svg>
   );
 }
@@ -300,23 +337,28 @@ function EpgMock() {
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+      {/* Now highlight */}
       <div className="pointer-events-none absolute inset-0">
         <div
-          className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/75 opacity-80 animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/80 opacity-90 animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{ left: nowLeft }}
         />
         <div
-          className="absolute top-0 bottom-0 w-[54px] bg-[#D4AF37]/10 blur-xl animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
-          style={{ left: `calc(${nowLeft} - 27px)` }}
+          className="absolute top-0 bottom-0 w-[64px] bg-[#D4AF37]/12 blur-xl animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
+          style={{ left: `calc(${nowLeft} - 32px)` }}
         />
       </div>
 
+      {/* Timeline */}
       <div className="border-b border-white/10 bg-white/[0.03] px-4 py-4">
         <div className="flex items-center gap-2">
           <div className="w-[180px] text-[11px] text-white/60">Channel</div>
           <div className="relative flex-1 overflow-hidden">
             <div className="relative whitespace-nowrap">
-              <div className="flex animate-[marquee_30s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
+              <div
+                className="flex animate-[marquee_34s_linear_infinite] motion-reduce:animate-none"
+                style={{ width: programWidth * 2 }}
+              >
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex" style={{ width: programWidth }}>
                     {EPG_TIMELINE.map((t) => (
@@ -332,6 +374,7 @@ function EpgMock() {
         </div>
       </div>
 
+      {/* Rows */}
       <div className="px-4 py-4">
         <div className="grid gap-4">
           {EPG_ROWS.map((row, idx) => (
@@ -347,7 +390,10 @@ function EpgMock() {
               </div>
 
               <div className="relative flex-1 overflow-hidden">
-                <div className="flex animate-[marquee_34s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
+                <div
+                  className="flex animate-[marquee_38s_linear_infinite] motion-reduce:animate-none"
+                  style={{ width: programWidth * 2 }}
+                >
                   {[0, 1].map((dup) => (
                     <div key={dup} className="flex gap-3 pr-3" style={{ width: programWidth }}>
                       {row.blocks.map((b, i) => {
@@ -358,29 +404,32 @@ function EpgMock() {
                           <div
                             key={`${dup}-${row.ch}-${i}`}
                             className={
-                              "relative shrink-0 rounded-xl border bg-white/[0.04] px-4 py-3.5 min-h-[56px] transition " +
+                              "relative shrink-0 rounded-xl border bg-white/[0.04] px-4 py-4 min-h-[60px] transition " +
                               (isNow
-                                ? "border-[#D4AF37]/55 bg-[#D4AF37]/10 ring-1 ring-[#F6E27A]/25 shadow-[0_0_0_1px_rgba(212,175,55,0.25),0_18px_40px_rgba(0,0,0,0.45)]"
+                                ? "border-[#D4AF37]/60 bg-[#D4AF37]/10 ring-1 ring-[#F6E27A]/25 shadow-[0_0_0_1px_rgba(212,175,55,0.22),0_18px_40px_rgba(0,0,0,0.45)]"
                                 : "border-white/10 hover:border-[#D4AF37]/35")
                             }
-                            style={{ width: 3.5 * slotW }}
+                            style={{ width: 3.6 * slotW }}
                             title={b}
                           >
                             {isNow ? (
                               <span
-                                className="pointer-events-none absolute -inset-6 opacity-40 blur-2xl"
-                                style={{ background: "radial-gradient(circle at 30% 30%, rgba(212,175,55,0.35), transparent 55%)" }}
+                                className="pointer-events-none absolute -inset-6 opacity-45 blur-2xl"
+                                style={{
+                                  background:
+                                    "radial-gradient(circle at 30% 30%, rgba(246,226,122,0.22), rgba(212,175,55,0.18), transparent 60%)",
+                                }}
                                 aria-hidden="true"
                               />
                             ) : null}
 
                             <div className="relative flex items-start gap-2">
-                              <div className={"flex-1 whitespace-normal text-[12px] font-semibold leading-snug " + (isNow ? "text-white" : "text-white/90")}>
+                              <div className={"flex-1 whitespace-normal text-[12.5px] font-semibold leading-snug " + (isNow ? "text-white" : "text-white/90")}>
                                 {b}
                               </div>
 
                               {isLive ? (
-                                <span className={"mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold " + (isNow ? "bg-[#D4AF37]/25 text-[#F6E27A]" : "bg-[#D4AF37]/20 text-[#F6E27A]")}>
+                                <span className={"mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold " + (isNow ? "bg-[#D4AF37]/28 text-[#F6E27A]" : "bg-[#D4AF37]/20 text-[#F6E27A]")}>
                                   LIVE
                                 </span>
                               ) : null}
@@ -412,18 +461,67 @@ export default function EliteHouseLandingPage() {
   const trialMessage =
     "Hello Elite House. I would like to request private access and begin the 24-hour trial. Please share the next steps.";
 
-  const SECTION = "mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20";
+  const SECTION = "mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
+      {/* Luxe-only keyframes (keeps this page self-contained if you forget globals additions) */}
+      <style>{`
+        @keyframes luxeSheen {
+          0% { transform: translateX(-35%) rotate(12deg); opacity: 0; }
+          12% { opacity: 0.06; }
+          55% { opacity: 0.03; }
+          100% { transform: translateX(35%) rotate(12deg); opacity: 0; }
+        }
+      `}</style>
+
+      {/* Luxury + colourful background stack */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        {/* Colour radials */}
         <div className="absolute inset-0 animate-[gradientMove_14s_ease-in-out_infinite] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_80%,rgba(170,90,255,0.12),transparent_65%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
-        <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(212,175,55,0.18),rgba(0,0,0,0)_62%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_15%_40%,rgba(184,134,11,0.14),rgba(0,0,0,0)_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_85%_45%,rgba(246,226,122,0.10),rgba(0,0,0,0)_72%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_20%_80%,rgba(80,120,255,0.10),rgba(0,0,0,0)_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_85%_75%,rgba(170,90,255,0.08),rgba(0,0,0,0)_72%)]" />
+
+        {/* Luxe sheen sweep */}
+        <div
+          className="absolute -inset-y-24 -left-1/2 w-[200%] rotate-12 opacity-0"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(246,226,122,0.10), rgba(212,175,55,0.10), transparent)",
+            animation: "luxeSheen 14s ease-in-out infinite",
+          }}
+        />
+
+        {/* Soft grid */}
+        <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
+
+        {/* Noise / grain */}
+        <div
+          className="absolute inset-0 opacity-[0.055] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E\")",
+          }}
+        />
+
+        {/* Vignette */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(70% 65% at 50% 35%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.72) 100%)",
+          }}
+        />
+
         <FloatingParticles />
       </div>
 
       <main className="relative z-10">
+        {/* HERO */}
         <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-10">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
@@ -432,8 +530,8 @@ export default function EliteHouseLandingPage() {
                 <Image
                   src="/logo.png"
                   alt="Elite House"
-                  width={340}
-                  height={110}
+                  width={360}
+                  height={120}
                   priority
                   className="h-20 w-auto object-contain drop-shadow-[0_22px_70px_rgba(212,175,55,0.52)]"
                 />
@@ -447,8 +545,8 @@ export default function EliteHouseLandingPage() {
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-                Elite House delivers flawless listings, seamless playback, and a viewing experience above the rest. Precision guide data. Stable streaming.
-                Refined performance—without compromise.
+                Elite House delivers flawless listings, seamless playback, and a viewing experience above the rest.
+                Precision guide data. Stable streaming. Refined performance—without compromise.
               </p>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -472,7 +570,8 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/60 backdrop-blur">
+            {/* Right panel */}
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/70 backdrop-blur-xl">
               <div className="pointer-events-none absolute inset-0 opacity-80">
                 <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#B8860B]/15 blur-3xl" />
@@ -480,8 +579,8 @@ export default function EliteHouseLandingPage() {
               </div>
 
               {/* Larger watermark logo */}
-              <div className="pointer-events-none absolute inset-0 grid place-items-center opacity-[0.08]">
-                <Image src="/logo.png" alt="" width={900} height={320} className="w-[88%] max-w-[720px] object-contain" />
+              <div className="pointer-events-none absolute inset-0 grid place-items-center opacity-[0.09]">
+                <Image src="/logo.png" alt="" width={980} height={340} className="w-[92%] max-w-[780px] object-contain" />
               </div>
 
               <div className="relative p-6">
@@ -500,11 +599,11 @@ export default function EliteHouseLandingPage() {
             />
           </Reveal>
 
-          {/* equal-height boxes */}
-          <div className="mt-12 grid gap-8 md:grid-cols-3 items-stretch">
+          {/* equal-height feature boxes */}
+          <div className="mt-10 grid gap-8 md:grid-cols-3 items-stretch">
             {FEATURE_CARDS.map((c) => (
               <Reveal key={c.h} delay={c.d} className="h-full">
-                <Card className="h-full bg-white/[0.05] p-8 transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08] flex flex-col">
+                <Card className="h-full bg-white/[0.045] p-8 border-white/10 hover:border-[#D4AF37]/35 hover:bg-white/[0.06] transition flex flex-col">
                   <h3 className="mb-4 text-2xl font-semibold">{c.h}</h3>
                   <p className="mb-4 text-sm leading-relaxed text-white/70 flex-1">{c.p}</p>
                   <div className="text-sm font-medium text-[#F6E27A]">{c.f}</div>
@@ -513,8 +612,10 @@ export default function EliteHouseLandingPage() {
             ))}
           </div>
 
-          <Reveal delay={400} className="mt-16 text-center">
-            <div className="mb-6 text-sm tracking-wide text-white/70">Limited trial access is available. Request private access while spaces remain.</div>
+          <Reveal delay={400} className="mt-14 text-center">
+            <div className="mb-6 text-sm tracking-wide text-white/70">
+              Limited trial access is available. Request private access while spaces remain.
+            </div>
             <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
               Request Private Access
             </ShimmerButton>
@@ -530,13 +631,13 @@ export default function EliteHouseLandingPage() {
             />
           </Reveal>
 
-          <Reveal delay={80} className="mt-8 flex justify-center">
+          <Reveal delay={80} className="mt-6 flex justify-center">
             <PricingToggle value={billing} onChange={setBilling} />
           </Reveal>
 
-          <div className="mt-14 flex justify-center">
-            <Reveal delay={140}>
-              <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
+          <div className="mt-12 flex justify-center">
+            <Reveal delay={140} className="w-full max-w-2xl">
+              <div className="relative group w-full overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
                 <div className="relative text-center">
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
                     Elite Access Membership
@@ -598,7 +699,9 @@ export default function EliteHouseLandingPage() {
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <div className="text-sm font-semibold text-white/90">Elite House</div>
-                <div className="mt-1 text-xs text-white/60">Flawless listings. Seamless playback. A viewing experience above the rest.</div>
+                <div className="mt-1 text-xs text-white/60">
+                  Flawless listings. Seamless playback. A viewing experience above the rest.
+                </div>
               </div>
               <a
                 href={waLink(trialMessage)}
