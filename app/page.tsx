@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-/* ---------------- WhatsApp link ---------------- */
+/* ---------------- WhatsApp ---------------- */
 
 const readWaEnv = (): string | null => {
   const env = typeof process !== "undefined" ? process.env : undefined;
@@ -18,19 +18,14 @@ const __WA_FALLBACK__ = ["44", "7922", "309925"].join("");
 const getWhatsAppNumber = () => __WA_ENV__ || __WA_FALLBACK__;
 
 export function waLink(message: string) {
-  const text = encodeURIComponent(message);
-  const number = getWhatsAppNumber();
-  return `https://wa.me/${number}?text=${text}`;
+  return `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(message)}`;
 }
 
 /* ---------------- Static data ---------------- */
 
 type Billing = "monthly" | "sixmonth" | "annual";
 
-const PRICING: Record<
-  Billing,
-  { price: string; note: string; savings: string | null }
-> = {
+const PRICING: Record<Billing, { price: string; note: string; savings: string | null }> = {
   monthly: { price: "£14.99", note: "per month", savings: null },
   sixmonth: { price: "£60", note: "every 6 months", savings: "Save £29.94" },
   annual: { price: "£100", note: "per year", savings: "Save £79.88" },
@@ -75,173 +70,103 @@ const EPG_TIMELINE = [
 const EPG_ROWS = [
   {
     ch: "101",
-    abbr: "VC",
-    name: "Velour Cinema",
-    blocks: [
-      "10,000+ Live Channels",
-      "100,000+ Video On Demand",
-      "4K Ultra HD Streaming",
-      "Seamless channel playback",
-    ],
+    abbr: "AC",
+    name: "Aurum Cinema",
+    blocks: ["Flawless programme listings", "Private curated film library", "4K Ultra HD presentation", "Confident playback, every time"],
   },
   {
     ch: "102",
-    abbr: "AS",
-    name: "Apex Sports",
-    blocks: [
-      "LIVE Championship",
-      "All channels working perfectly",
-      "Zero missing listings",
-      "Reliable premium streaming",
-    ],
+    abbr: "SS",
+    name: "Sovereign Sports",
+    blocks: ["LIVE events presented cleanly", "Seamless channel transitions", "Accurate listings", "Premium broadcast stability"],
   },
   {
     ch: "103",
-    abbr: "NV",
-    name: "Nova Vista",
-    blocks: [
-      "Instant access",
-      "Precision programme guide data",
-      "Smooth browsing experience",
-      "Consistent presentation",
-    ],
+    abbr: "VD",
+    name: "Velvet Drama",
+    blocks: ["Precision EPG data", "Effortless browsing", "Consistent performance", "Refined viewing experience"],
   },
   {
     ch: "104",
-    abbr: "OR",
-    name: "Orion Discovery",
-    blocks: [
-      "Fast WhatsApp setup",
-      "Clean channel lineup",
-      "Stable playback",
-      "Support when you need it",
-    ],
+    abbr: "ND",
+    name: "Noir Documentaries",
+    blocks: ["Curated discovery catalogue", "Stable playback", "Elegant presentation", "Private access"],
   },
   {
     ch: "105",
-    abbr: "LX",
-    name: "Luxe Kids",
-    blocks: [
-      "Family-ready experience",
-      "Clear titles & logos",
-      "No broken channels",
-      "Premium reliability",
-    ],
+    abbr: "LF",
+    name: "Luxe Family",
+    blocks: ["Family-ready experience", "Clear titles & logos", "Reliable streaming", "Premium consistency"],
   },
 ];
 
 const FAQ = [
   {
-    q: "How do I start the 24-hour trial?",
-    a: "Tap any WhatsApp button and send the pre-filled message. We&apos;ll reply with setup steps.",
+    q: "How do I begin the 24-hour trial?",
+    a: "Select any WhatsApp button and send the pre-filled message. We will respond promptly with clear activation instructions.",
   },
   {
-    q: "Which devices does it work on?",
-    a: "Most popular streaming platforms are supported. If you&apos;re unsure, ask us on WhatsApp.",
+    q: "Which devices are supported?",
+    a: "Elite House works across most leading streaming platforms. If you are unsure about your device, message us and we will confirm compatibility immediately.",
   },
   {
-    q: "Can I upgrade my plan later?",
-    a: "Yes. Message us anytime and we&apos;ll upgrade you seamlessly—quick, simple, and handled via WhatsApp.",
+    q: "Can I upgrade my membership later?",
+    a: "Yes. Upgrades are handled seamlessly via WhatsApp. Message us at any time and we will take care of the rest.",
   },
   {
     q: "How quickly will you reply?",
-    a: "Support is handled directly through WhatsApp, so responses are typically fast, personal, and effortless.",
+    a: "Support is managed personally through WhatsApp for fast, attentive assistance. Most enquiries receive a response within minutes.",
   },
 ];
 
 const FEATURE_CARDS = [
   {
-    h: "Members-Only Live Access",
-    p: "Worldwide live television, organised clearly and presented cleanly.",
-    f: "Live access—delivered reliably.",
+    h: "Flawless Listings",
+    p: "A meticulously maintained guide—clean, accurate, and effortless to browse.",
+    f: "Precision EPG, done properly.",
     d: 100,
   },
   {
-    h: "Private Film & Series Library",
-    p: "Over 100,000 films and series available instantly. Browse smoothly. Press play confidently.",
-    f: "A library for those who expect more.",
+    h: "Seamless Playback",
+    p: "Stable, consistent streaming built for viewers who expect reliability—every day.",
+    f: "Smooth playback you can trust.",
     d: 200,
   },
   {
-    h: "Direct Support",
-    p: "WhatsApp assistance handled quickly and personally. Setup, upgrades, support—streamlined.",
-    f: "Support reserved for active members.",
+    h: "Private Support",
+    p: "Discreet WhatsApp assistance handled quickly and personally—setup, upgrades, and support.",
+    f: "Direct help, without friction.",
     d: 300,
   },
 ];
 
 /* ---------------- UI pieces ---------------- */
 
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
-      {children}
-    </span>
-  );
-}
-
-function SectionTitle({
-  kicker,
-  title,
-  subtitle,
-}: {
-  kicker?: string;
-  title: string;
-  subtitle?: string;
-}) {
+function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mx-auto mb-10 max-w-2xl text-center">
-      {kicker ? (
-        <div className="mb-3 flex justify-center">
-          <Badge>{kicker}</Badge>
-        </div>
-      ) : null}
-      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        {title}
-      </h2>
-      {subtitle ? (
-        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">
-          {subtitle}
-        </p>
-      ) : null}
+      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
+      {subtitle ? <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">{subtitle}</p> : null}
     </div>
   );
 }
 
-function Card({
-  className = "",
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={`rounded-3xl border border-white/10 backdrop-blur ${className}`}>
-      {children}
-    </div>
-  );
+function Card({ className = "", children }: { className?: string; children: React.ReactNode }) {
+  return <div className={`rounded-3xl border border-white/10 backdrop-blur ${className}`}>{children}</div>;
 }
 
-function PricingToggle({
-  value,
-  onChange,
-}: {
-  value: Billing;
-  onChange: (v: Billing) => void;
-}) {
+function PricingToggle({ value, onChange }: { value: Billing; onChange: (v: Billing) => void }) {
   return (
     <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur">
       {BILLING_OPTIONS.map((o) => (
         <button
           key={o.id}
+          type="button"
           onClick={() => onChange(o.id)}
           className={
             "rounded-xl px-4 py-2 text-sm transition " +
-            (value === o.id
-              ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm"
-              : "text-white/70 hover:text-white")
+            (value === o.id ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm" : "text-white/70 hover:text-white")
           }
-          type="button"
         >
           <span className="inline-flex items-center gap-2">
             <span>{o.label}</span>
@@ -276,26 +201,18 @@ function ShimmerButton({
   const goldBase =
     "text-black shadow-lg shadow-[#D4AF37]/20 bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] hover:brightness-105";
 
-  const gold = attention
-    ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]"
-    : goldBase;
+  const gold = attention ? goldBase + " animate-[ctaPulse_3s_ease-in-out_infinite]" : goldBase;
 
-  const dark =
-    "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
+  const dark = "text-[#F6E27A] bg-black/60 ring-1 ring-[#D4AF37]/25 hover:bg-black/70";
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={`${base} ${variant === "gold" ? gold : dark} ${className}`}
-    >
-      {attention && variant === "gold" && (
+    <a href={href} target="_blank" rel="noreferrer" className={`${base} ${variant === "gold" ? gold : dark} ${className}`}>
+      {attention && variant === "gold" ? (
         <span
           className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
           aria-hidden="true"
         />
-      )}
+      ) : null}
 
       <span
         className={
@@ -305,6 +222,7 @@ function ShimmerButton({
         }
         aria-hidden="true"
       />
+
       <span
         className={
           "pointer-events-none absolute -inset-y-10 -left-1/2 w-[200%] rotate-12 opacity-0 " +
@@ -316,23 +234,13 @@ function ShimmerButton({
 
       <span className="relative z-10 inline-flex items-center gap-2">
         {children}
-        <span className="transition-transform duration-300 group-hover:animate-[arrowSlide_0.6s_ease-in-out]">
-          →
-        </span>
+        <span className="transition-transform duration-300 group-hover:animate-[arrowSlide_0.6s_ease-in-out]">→</span>
       </span>
     </a>
   );
 }
 
-function Reveal({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
+function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -372,15 +280,7 @@ function Reveal({
 
 function FloatingParticles() {
   const particles = useMemo(
-    () =>
-      PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({
-        id: i,
-        x,
-        y,
-        r,
-        dur,
-        delay: (i * 0.7) % 5,
-      })),
+    () => PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({ id: i, x, y, r, dur, delay: (i * 0.7) % 5 })),
     []
   );
 
@@ -406,15 +306,7 @@ function FloatingParticles() {
 
 function WhatsAppIcon({ className = "" }: { className?: string }) {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
       <path d="M20.52 3.48A11.78 11.78 0 0012.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.14 1.6 5.95L0 24l6.38-1.67a11.8 11.8 0 005.67 1.44h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.31zM12.06 21.4h-.01a9.46 9.46 0 01-4.82-1.32l-.35-.21-3.79.99 1.01-3.7-.23-.38a9.44 9.44 0 01-1.45-5.03c0-5.23 4.25-9.48 9.48-9.48a9.41 9.41 0 016.7 2.78 9.41 9.41 0 012.78 6.7c0 5.23-4.25 9.48-9.48 9.48zm5.2-7.07c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.15-1.23-.45-2.35-1.43-.87-.77-1.46-1.72-1.63-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49l-.55-.01c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.44s1.03 2.83 1.17 3.03c.14.19 2.02 3.09 4.9 4.33.69.3 1.22.48 1.63.61.69.22 1.31.19 1.8.11.55-.08 1.7-.69 1.94-1.35.24-.67.24-1.24.17-1.35-.07-.12-.26-.19-.55-.33z" />
     </svg>
   );
@@ -440,23 +332,16 @@ function EpgMock() {
         />
       </div>
 
-      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-4">
         <div className="flex items-center gap-2">
-          <div className="w-[180px] text-[10px] text-white/55">Channel</div>
+          <div className="w-[180px] text-[11px] text-white/60">Channel</div>
           <div className="relative flex-1 overflow-hidden">
             <div className="relative whitespace-nowrap">
-              <div
-                className="flex animate-[marquee_22s_linear_infinite] motion-reduce:animate-none"
-                style={{ width: programWidth * 2 }}
-              >
+              <div className="flex animate-[marquee_22s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex" style={{ width: programWidth }}>
                     {EPG_TIMELINE.map((t) => (
-                      <div
-                        key={`${dup}-${t}`}
-                        className="shrink-0 text-[10px] text-white/55"
-                        style={{ width: slotW }}
-                      >
+                      <div key={`${dup}-${t}`} className="shrink-0 text-[11px] text-white/55" style={{ width: slotW }}>
                         {t}
                       </div>
                     ))}
@@ -468,29 +353,24 @@ function EpgMock() {
         </div>
       </div>
 
-      <div className="px-4 py-3">
-        <div className="grid gap-3">
+      <div className="px-4 py-4">
+        <div className="grid gap-4">
           {EPG_ROWS.map((row, idx) => (
-            <div key={row.ch} className="flex items-stretch gap-2">
+            <div key={row.ch} className="flex items-stretch gap-3">
               <div className="flex w-[180px] items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-[11px] font-extrabold text-[#F6E27A]">
+                <div className="grid h-11 w-11 place-items-center rounded-xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-sm font-extrabold text-[#F6E27A]">
                   {row.abbr}
                 </div>
                 <div className="min-w-0 pr-1">
-                  <div className="break-words text-[11px] font-semibold leading-tight text-white/90">
-                    {row.name}
-                  </div>
-                  <div className="text-[10px] text-white/50">{row.ch}</div>
+                  <div className="break-words text-[12px] font-semibold leading-tight text-white/90">{row.name}</div>
+                  <div className="text-[11px] text-white/50">{row.ch}</div>
                 </div>
               </div>
 
               <div className="relative flex-1 overflow-hidden">
-                <div
-                  className="flex animate-[marquee_24s_linear_infinite] motion-reduce:animate-none"
-                  style={{ width: programWidth * 2 }}
-                >
+                <div className="flex animate-[marquee_24s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
                   {[0, 1].map((dup) => (
-                    <div key={dup} className="flex gap-2 pr-2" style={{ width: programWidth }}>
+                    <div key={dup} className="flex gap-3 pr-3" style={{ width: programWidth }}>
                       {row.blocks.map((b, i) => {
                         const isLive = b.toUpperCase().includes("LIVE");
                         const isNow = idx === 2 && i === 1;
@@ -499,16 +379,14 @@ function EpgMock() {
                           <div
                             key={`${dup}-${row.ch}-${i}`}
                             className={
-                              "relative shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 " +
+                              "relative shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 " +
                               (isNow ? "ring-1 ring-white/20" : "")
                             }
-                            style={{ width: 3 * slotW }}
+                            style={{ width: 3.5 * slotW }}
                             title={b}
                           >
                             <div className="flex items-start gap-2">
-                              <div className="flex-1 break-words text-[11px] font-semibold leading-tight text-white/90">
-                                {b}
-                              </div>
+                              <div className="flex-1 whitespace-normal text-[12px] font-semibold leading-snug text-white/90">{b}</div>
                               {isLive ? (
                                 <span className="mt-0.5 shrink-0 rounded-full bg-[#D4AF37]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
                                   LIVE
@@ -533,17 +411,15 @@ function EpgMock() {
   );
 }
 
-/* ---------------- PAGE ---------------- */
+/* ---------------- Page ---------------- */
 
 export default function EliteHouseLandingPage() {
   const [billing, setBilling] = useState<Billing>("sixmonth");
   const pricing = PRICING[billing];
 
   const trialMessage =
-    "Hi Elite House. I'd like to start the 24-hour free trial. Please share the next steps.";
+    "Hello Elite House. I would like to begin the 24-hour private trial. Please share the next steps.";
 
-  // Consistent luxury spacing across sections:
-  // mobile: py-14, desktop+: py-20
   const SECTION = "mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20";
 
   return (
@@ -560,27 +436,27 @@ export default function EliteHouseLandingPage() {
         <FloatingParticles />
       </div>
 
-      {/* HEADER REMOVED */}
-
+      {/* Header removed */}
       <main className="relative z-10">
-        {/* HERO (slightly tighter than the rest, so it leads into sections) */}
-        <section className="mx-auto max-w-6xl px-4 pt-10 pb-10 sm:px-6 sm:pt-14 sm:pb-12">
+        {/* HERO */}
+        <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-10">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
               <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
                 Elite Access.
                 <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent leading-tight pb-1">
-                  For Viewers Who Expect More.
+                  Above the Rest.
                 </span>
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-                Elite House delivers a polished, dependable subscription—consistent, clean, and built to work across your favourite devices.
+                Elite House delivers flawless listings, seamless playback, and a viewing experience above the rest. Precision guide data.
+                Stable streaming. Refined performance—without compromise.
               </p>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
-                  Start Trial on WhatsApp
+                  Begin Private Trial on WhatsApp
                 </ShimmerButton>
                 <a
                   href="#pricing"
@@ -618,7 +494,7 @@ export default function EliteHouseLandingPage() {
           <Reveal>
             <SectionTitle
               title="Elite Access, Made Simple."
-              subtitle="Global live access. A vast on demand library. Seamless performance—delivered without compromise."
+              subtitle="A refined viewing experience—built around precision listings, seamless playback, and performance you can trust."
             />
           </Reveal>
 
@@ -626,24 +502,20 @@ export default function EliteHouseLandingPage() {
             {FEATURE_CARDS.map((c) => (
               <Reveal key={c.h} delay={c.d}>
                 <Card className="bg-white/[0.05] p-8 transition hover:border-[#D4AF37]/40 hover:bg-white/[0.08]">
-                  <h3 className="text-2xl font-semibold mb-4">{c.h}</h3>
-                  <p className="text-white/70 leading-relaxed text-sm mb-4">
-                    {c.p}
-                  </p>
-                  <div className="text-[#F6E27A] text-sm font-medium">
-                    {c.f}
-                  </div>
+                  <h3 className="mb-4 text-2xl font-semibold">{c.h}</h3>
+                  <p className="mb-4 text-sm leading-relaxed text-white/70">{c.p}</p>
+                  <div className="text-sm font-medium text-[#F6E27A]">{c.f}</div>
                 </Card>
               </Reveal>
             ))}
           </div>
 
           <Reveal delay={400} className="mt-16 text-center">
-            <div className="text-white/70 mb-6 text-sm tracking-wide">
-              Limited access is available. Start with a private 24-hour trial while spaces remain.
+            <div className="mb-6 text-sm tracking-wide text-white/70">
+              Limited trial access is available. Begin with a private 24-hour trial while spaces remain.
             </div>
             <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
-              Start Trial on WhatsApp
+              Begin Private Trial on WhatsApp
             </ShimmerButton>
           </Reveal>
         </section>
@@ -652,29 +524,9 @@ export default function EliteHouseLandingPage() {
         <section id="pricing" className={SECTION}>
           <Reveal>
             <SectionTitle
-              kicker="Membership"
-              title="One Plan. Full Access."
-              subtitle="Choose your billing. Everything is included. Request private trial access to begin."
+              title="One Plan. Complete Access."
+              subtitle="Choose your billing. Everything is included—flawless listings, seamless playback, and private support."
             />
-          </Reveal>
-
-          <Reveal delay={70} className="mt-10">
-            <Card className="bg-white/[0.035] p-6">
-              <div className="grid gap-3 sm:grid-cols-3">
-                {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
-                  (t, i) => (
-                    <div key={t} className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
-                        {i + 1}
-                      </div>
-                      <div className="text-sm font-semibold text-white/85">
-                        {t}
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-            </Card>
           </Reveal>
 
           <Reveal delay={80} className="mt-8 flex justify-center">
@@ -684,7 +536,7 @@ export default function EliteHouseLandingPage() {
           <div className="mt-14 flex justify-center">
             <Reveal delay={140}>
               <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
-                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
                   <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/20 blur-3xl animate-[floaty_6s_ease-in-out_infinite]" />
                   <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/20 blur-3xl animate-[floaty_8s_ease-in-out_infinite]" />
                 </div>
@@ -694,15 +546,9 @@ export default function EliteHouseLandingPage() {
                     Elite Access Membership
                   </div>
 
-                  <div className="mt-6 text-xs tracking-widest uppercase text-white/50">
-                    Billing
-                  </div>
+                  <div className="mt-6 text-xs uppercase tracking-widest text-white/50">Billing</div>
                   <div className="mt-2 text-sm font-semibold text-white/85">
-                    {billing === "sixmonth"
-                      ? "6 Months"
-                      : billing === "annual"
-                      ? "1 Year"
-                      : "Monthly"}
+                    {billing === "sixmonth" ? "6 Months" : billing === "annual" ? "1 Year" : "Monthly"}
                   </div>
 
                   <div className="mt-6 text-6xl font-semibold tracking-tight">
@@ -719,17 +565,10 @@ export default function EliteHouseLandingPage() {
                   ) : null}
 
                   <div className="mt-8">
-                    <ShimmerButton
-                      href={waLink(trialMessage)}
-                      className="w-full"
-                      variant="gold"
-                      attention
-                    >
-                      Start Trial on WhatsApp
+                    <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
+                      Begin Private Trial on WhatsApp
                     </ShimmerButton>
-                    <div className="mt-3 text-[11px] text-white/55">
-                      Private access. Confirmed individually via WhatsApp.
-                    </div>
+                    <div className="mt-3 text-[11px] text-white/55">Private access. Confirmed individually via WhatsApp.</div>
                   </div>
                 </div>
               </div>
@@ -740,32 +579,22 @@ export default function EliteHouseLandingPage() {
         {/* FAQ */}
         <section id="faq" className={SECTION}>
           <SectionTitle
-            kicker="FAQ"
             title="Questions, answered"
-            subtitle="If you don&apos;t see what you need, message us on WhatsApp and we&apos;ll help quickly."
+            subtitle="If you need anything else, message us on WhatsApp and we will assist promptly."
           />
 
           <div className="grid gap-4 lg:grid-cols-2">
             {FAQ.map((item) => (
               <Card key={item.q} className="bg-white/[0.04] p-7">
-                <div className="text-base font-semibold text-white">
-                  {item.q}
-                </div>
-                <div className="mt-2 text-sm leading-relaxed text-white/70">
-                  {item.a}
-                </div>
+                <div className="text-base font-semibold text-white">{item.q}</div>
+                <div className="mt-2 text-sm leading-relaxed text-white/70">{item.a}</div>
               </Card>
             ))}
           </div>
 
           <div className="mt-10 flex justify-center">
-            <ShimmerButton
-              href={waLink(trialMessage)}
-              className="px-7 py-3"
-              variant="gold"
-              attention
-            >
-              Start Trial on WhatsApp
+            <ShimmerButton href={waLink(trialMessage)} className="px-7 py-3" variant="gold" attention>
+              Begin Private Trial on WhatsApp
             </ShimmerButton>
           </div>
         </section>
@@ -775,12 +604,9 @@ export default function EliteHouseLandingPage() {
           <Card className="bg-white/[0.03] p-6">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                <div className="text-sm font-semibold text-white/90">
-                  Elite House
-                </div>
+                <div className="text-sm font-semibold text-white/90">Elite House</div>
                 <div className="mt-1 text-xs text-white/60">
-                  Premium viewing. Seamless experience. Direct support via
-                  WhatsApp.
+                  Flawless listings. Seamless playback. A viewing experience above the rest.
                 </div>
               </div>
               <a
@@ -790,7 +616,7 @@ export default function EliteHouseLandingPage() {
                 className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-5 py-2 text-sm font-semibold text-[#F6E27A] transition hover:bg-black/55"
               >
                 <WhatsAppIcon />
-                Start Trial on WhatsApp
+                Begin Private Trial
               </a>
             </div>
           </Card>
