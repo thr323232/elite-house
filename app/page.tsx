@@ -337,7 +337,7 @@ function EpgMock() {
           <div className="w-[180px] text-[11px] text-white/60">Channel</div>
           <div className="relative flex-1 overflow-hidden">
             <div className="relative whitespace-nowrap">
-              <div className="flex animate-[marquee_22s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
+              <div className="flex animate-[marquee_30s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex" style={{ width: programWidth }}>
                     {EPG_TIMELINE.map((t) => (
@@ -368,7 +368,7 @@ function EpgMock() {
               </div>
 
               <div className="relative flex-1 overflow-hidden">
-                <div className="flex animate-[marquee_24s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
+                <div className="flex animate-[marquee_34s_linear_infinite] motion-reduce:animate-none" style={{ width: programWidth * 2 }}>
                   {[0, 1].map((dup) => (
                     <div key={dup} className="flex gap-3 pr-3" style={{ width: programWidth }}>
                       {row.blocks.map((b, i) => {
@@ -379,16 +379,32 @@ function EpgMock() {
                           <div
                             key={`${dup}-${row.ch}-${i}`}
                             className={
-                              "relative shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 " +
-                              (isNow ? "ring-1 ring-white/20" : "")
+                              "relative shrink-0 rounded-xl border bg-white/[0.04] px-4 py-3.5 min-h-[56px] transition " +
+                              (isNow
+                                ? "border-[#D4AF37]/55 bg-[#D4AF37]/10 ring-1 ring-[#F6E27A]/25 shadow-[0_0_0_1px_rgba(212,175,55,0.25),0_18px_40px_rgba(0,0,0,0.45)]"
+                                : "border-white/10 hover:border-[#D4AF37]/35")
                             }
                             style={{ width: 3.5 * slotW }}
                             title={b}
                           >
-                            <div className="flex items-start gap-2">
-                              <div className="flex-1 whitespace-normal text-[12px] font-semibold leading-snug text-white/90">{b}</div>
+                            {isNow ? (
+                              <span
+                                className="pointer-events-none absolute -inset-6 opacity-40 blur-2xl"
+                                style={{
+                                  background:
+                                    "radial-gradient(circle at 30% 30%, rgba(212,175,55,0.35), transparent 55%)",
+                                }}
+                                aria-hidden="true"
+                              />
+                            ) : null}
+
+                            <div className="relative flex items-start gap-2">
+                              <div className={"flex-1 whitespace-normal text-[12px] font-semibold leading-snug " + (isNow ? "text-white" : "text-white/90")}>
+                                {b}
+                              </div>
+
                               {isLive ? (
-                                <span className="mt-0.5 shrink-0 rounded-full bg-[#D4AF37]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#F6E27A]">
+                                <span className={"mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold " + (isNow ? "bg-[#D4AF37]/25 text-[#F6E27A]" : "bg-[#D4AF37]/20 text-[#F6E27A]")}>
                                   LIVE
                                 </span>
                               ) : null}
@@ -418,7 +434,7 @@ export default function EliteHouseLandingPage() {
   const pricing = PRICING[billing];
 
   const trialMessage =
-    "Hello Elite House. I would like to begin the 24-hour private trial. Please share the next steps.";
+    "Hello Elite House. I would like to request private access and begin the 24-hour trial. Please share the next steps.";
 
   const SECTION = "mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20";
 
@@ -436,7 +452,6 @@ export default function EliteHouseLandingPage() {
         <FloatingParticles />
       </div>
 
-      {/* Header removed */}
       <main className="relative z-10">
         {/* HERO */}
         <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-10">
@@ -456,13 +471,13 @@ export default function EliteHouseLandingPage() {
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
-                  Begin Private Trial on WhatsApp
+                  Request Private Access
                 </ShimmerButton>
                 <a
                   href="#pricing"
                   className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white/85 backdrop-blur transition hover:bg-white/[0.06]"
                 >
-                  View membership
+                  View Membership Options
                 </a>
               </div>
 
@@ -511,11 +526,9 @@ export default function EliteHouseLandingPage() {
           </div>
 
           <Reveal delay={400} className="mt-16 text-center">
-            <div className="mb-6 text-sm tracking-wide text-white/70">
-              Limited trial access is available. Begin with a private 24-hour trial while spaces remain.
-            </div>
+            <div className="mb-6 text-sm tracking-wide text-white/70">Limited trial access is available. Request private access while spaces remain.</div>
             <ShimmerButton href={waLink(trialMessage)} variant="gold" attention>
-              Begin Private Trial on WhatsApp
+              Request Private Access
             </ShimmerButton>
           </Reveal>
         </section>
@@ -523,10 +536,7 @@ export default function EliteHouseLandingPage() {
         {/* PRICING */}
         <section id="pricing" className={SECTION}>
           <Reveal>
-            <SectionTitle
-              title="One Plan. Complete Access."
-              subtitle="Choose your billing. Everything is included—flawless listings, seamless playback, and private support."
-            />
+            <SectionTitle title="One Plan. Complete Access." subtitle="Choose your billing. Everything is included—flawless listings, seamless playback, and private support." />
           </Reveal>
 
           <Reveal delay={80} className="mt-8 flex justify-center">
@@ -536,11 +546,6 @@ export default function EliteHouseLandingPage() {
           <div className="mt-14 flex justify-center">
             <Reveal delay={140}>
               <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
-                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
-                  <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/20 blur-3xl animate-[floaty_6s_ease-in-out_infinite]" />
-                  <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/20 blur-3xl animate-[floaty_8s_ease-in-out_infinite]" />
-                </div>
-
                 <div className="relative text-center">
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
                     Elite Access Membership
@@ -552,9 +557,7 @@ export default function EliteHouseLandingPage() {
                   </div>
 
                   <div className="mt-6 text-6xl font-semibold tracking-tight">
-                    <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                      {pricing.price}
-                    </span>
+                    <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">{pricing.price}</span>
                   </div>
                   <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
 
@@ -566,7 +569,7 @@ export default function EliteHouseLandingPage() {
 
                   <div className="mt-8">
                     <ShimmerButton href={waLink(trialMessage)} className="w-full" variant="gold" attention>
-                      Begin Private Trial on WhatsApp
+                      Request Private Access
                     </ShimmerButton>
                     <div className="mt-3 text-[11px] text-white/55">Private access. Confirmed individually via WhatsApp.</div>
                   </div>
@@ -578,10 +581,7 @@ export default function EliteHouseLandingPage() {
 
         {/* FAQ */}
         <section id="faq" className={SECTION}>
-          <SectionTitle
-            title="Questions, answered"
-            subtitle="If you need anything else, message us on WhatsApp and we will assist promptly."
-          />
+          <SectionTitle title="Questions, answered" subtitle="If you need anything else, message us on WhatsApp and we will assist promptly." />
 
           <div className="grid gap-4 lg:grid-cols-2">
             {FAQ.map((item) => (
@@ -594,7 +594,7 @@ export default function EliteHouseLandingPage() {
 
           <div className="mt-10 flex justify-center">
             <ShimmerButton href={waLink(trialMessage)} className="px-7 py-3" variant="gold" attention>
-              Begin Private Trial on WhatsApp
+              Request Private Access
             </ShimmerButton>
           </div>
         </section>
@@ -605,9 +605,7 @@ export default function EliteHouseLandingPage() {
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <div className="text-sm font-semibold text-white/90">Elite House</div>
-                <div className="mt-1 text-xs text-white/60">
-                  Flawless listings. Seamless playback. A viewing experience above the rest.
-                </div>
+                <div className="mt-1 text-xs text-white/60">Flawless listings. Seamless playback. A viewing experience above the rest.</div>
               </div>
               <a
                 href={waLink(trialMessage)}
@@ -616,13 +614,11 @@ export default function EliteHouseLandingPage() {
                 className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-5 py-2 text-sm font-semibold text-[#F6E27A] transition hover:bg-black/55"
               >
                 <WhatsAppIcon />
-                Begin Private Trial
+                Request Private Access
               </a>
             </div>
           </Card>
         </footer>
-
-        {/* Mobile sticky CTA removed ✅ */}
       </main>
     </div>
   );
