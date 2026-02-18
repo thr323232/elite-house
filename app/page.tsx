@@ -232,7 +232,10 @@ function ShimmerButton({
   return (
     <a href={href} target="_blank" rel="noreferrer" className={`${base} ${variant === "gold" ? gold : dark} ${className}`}>
       {attention && variant === "gold" ? (
-        <span className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]" aria-hidden="true" />
+        <span
+          className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
+          aria-hidden="true"
+        />
       ) : null}
 
       <span
@@ -331,7 +334,7 @@ function WhatsAppIcon({ className = "" }: { className?: string }) {
   );
 }
 
-/* ---------------- EPG (fixed hydration snap) ---------------- */
+/* ---------------- EPG (Option A: shorter blocks) ---------------- */
 
 function EpgMock() {
   const mounted = useMounted();
@@ -343,9 +346,10 @@ function EpgMock() {
   const marqueeTimeline = mounted ? "animate-[marquee_34s_linear_infinite]" : "";
   const marqueeRows = mounted ? "animate-[marquee_38s_linear_infinite]" : "";
 
+  const blockW = 2.6 * slotW; // Option A
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 min-h-[420px]">
-      {/* Now highlight */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/80 opacity-90 animate-[nowGlow_2.8s_ease-in-out_infinite] motion-reduce:animate-none"
@@ -357,7 +361,6 @@ function EpgMock() {
         />
       </div>
 
-      {/* Timeline */}
       <div className="border-b border-white/10 bg-white/[0.03] px-4 py-4">
         <div className="flex items-center gap-2">
           <div className="w-[180px] text-[11px] text-white/60">Channel</div>
@@ -379,7 +382,6 @@ function EpgMock() {
         </div>
       </div>
 
-      {/* Rows */}
       <div className="px-4 py-4">
         <div className="grid gap-4">
           {EPG_ROWS.map((row, idx) => (
@@ -411,7 +413,7 @@ function EpgMock() {
                                 ? "border-[#D4AF37]/60 bg-[#D4AF37]/10 ring-1 ring-[#F6E27A]/25 shadow-[0_0_0_1px_rgba(212,175,55,0.22),0_18px_40px_rgba(0,0,0,0.45)]"
                                 : "border-white/10 hover:border-[#D4AF37]/35")
                             }
-                            style={{ width: 3.6 * slotW }}
+                            style={{ width: blockW }}
                             title={b}
                           >
                             {isNow ? (
@@ -425,8 +427,17 @@ function EpgMock() {
                               />
                             ) : null}
 
+                            {/* 2-line clamp so shorter blocks still show more text cleanly */}
                             <div className="relative flex items-start gap-2">
-                              <div className={"flex-1 whitespace-normal text-[12.5px] font-semibold leading-snug " + (isNow ? "text-white" : "text-white/90")}>
+                              <div
+                                className={"flex-1 text-[12.5px] font-semibold leading-snug " + (isNow ? "text-white" : "text-white/90")}
+                                style={{
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                }}
+                              >
                                 {b}
                               </div>
 
@@ -476,7 +487,6 @@ export default function EliteHouseLandingPage() {
         }
       `}</style>
 
-      {/* Luxury + colourful background stack */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 animate-[gradientMove_14s_ease-in-out_infinite] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_80%,rgba(170,90,255,0.12),transparent_65%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
@@ -516,7 +526,6 @@ export default function EliteHouseLandingPage() {
       </div>
 
       <main className="relative z-10">
-        {/* HERO */}
         <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-10">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
@@ -564,7 +573,6 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* RIGHT PANEL */}
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/70 backdrop-blur-xl">
               <div className="pointer-events-none absolute inset-0 opacity-80">
                 <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
@@ -583,7 +591,6 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* FEATURES */}
         <section id="features" className={SECTION}>
           <Reveal>
             <SectionTitle
@@ -614,7 +621,6 @@ export default function EliteHouseLandingPage() {
           </Reveal>
         </section>
 
-        {/* PRICING */}
         <section id="pricing" className={SECTION}>
           <Reveal>
             <SectionTitle
@@ -665,7 +671,6 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* FAQ */}
         <section id="faq" className={SECTION}>
           <SectionTitle title="Questions, answered" subtitle="If you need anything else, message us on WhatsApp and we will assist promptly." />
 
@@ -685,7 +690,6 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* FOOTER */}
         <footer className="mx-auto max-w-6xl px-4 pb-14 sm:px-6 sm:pb-20">
           <Card className="bg-white/[0.03] p-6">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
