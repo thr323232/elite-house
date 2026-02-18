@@ -170,7 +170,6 @@ function EpgMock() {
     "23:30",
   ];
 
-  // More “premium” labels (less playful)
   const rows = [
     {
       ch: "101",
@@ -210,7 +209,7 @@ function EpgMock() {
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50">
-      {/* Subtle top sheen */}
+      {/* Subtle sheen */}
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <div className="absolute inset-0 bg-[radial-gradient(80%_55%_at_50%_0%,rgba(212,175,55,0.14),rgba(0,0,0,0)_60%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04),rgba(255,255,255,0.00),rgba(255,255,255,0.04))]" />
@@ -241,11 +240,7 @@ function EpgMock() {
                 style={{ width: programWidth * 2 }}
               >
                 {[0, 1].map((dup) => (
-                  <div
-                    key={dup}
-                    className="flex"
-                    style={{ width: programWidth }}
-                  >
+                  <div key={dup} className="flex" style={{ width: programWidth }}>
                     {timeline.map((t) => (
                       <div
                         key={`${dup}-${t}`}
@@ -269,7 +264,6 @@ function EpgMock() {
           {rows.map((row, idx) => (
             <div key={row.ch} className="flex items-stretch gap-2">
               <div className="flex w-[180px] items-center gap-3">
-                {/* “Logo chip” */}
                 <div className="relative grid h-10 w-10 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
                   <span className="relative z-10">{row.abbr}</span>
                   <span className="pointer-events-none absolute inset-0 rounded-2xl [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
@@ -284,7 +278,6 @@ function EpgMock() {
               </div>
 
               <div className="relative flex-1 overflow-hidden">
-                {/* soft fade edges */}
                 <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-black/55 to-transparent" />
                 <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-black/55 to-transparent" />
 
@@ -300,7 +293,7 @@ function EpgMock() {
                     >
                       {row.blocks.map((b, i) => {
                         const isLive = b.toUpperCase().includes("LIVE");
-                        const isNow = idx === 1 && i === 0; // subtle “now” highlight
+                        const isNow = idx === 1 && i === 0;
                         const w = 3 * slotW;
 
                         return (
@@ -336,7 +329,6 @@ function EpgMock() {
           ))}
         </div>
 
-        {/* tiny reassurance */}
         <div className="mt-3 flex items-center justify-between text-[10px] text-white/45">
           <span>Accurate listings • Clean layout</span>
           <span>Fast navigation</span>
@@ -362,16 +354,8 @@ export default function EliteHouseLandingPage() {
       { price: string; note: string; savings?: string; subnote?: string }
     > = {
       monthly: { price: "£14.99", note: "per month", subnote: "Cancel anytime" },
-      sixmonth: {
-        price: "£60",
-        note: "every 6 months",
-        savings: "Save £29.94",
-      },
-      annual: {
-        price: "£100",
-        note: "per year",
-        savings: "Save £79.88",
-      },
+      sixmonth: { price: "£60", note: "every 6 months", savings: "Save £29.94" },
+      annual: { price: "£100", note: "per year", savings: "Save £79.88" },
     };
 
     const plan = base[billing];
@@ -414,7 +398,7 @@ export default function EliteHouseLandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-black text-white">
-      {/* Minimal keyframes for EPG */}
+      {/* Keyframes */}
       <style>{`
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes nowGlow {
@@ -453,7 +437,7 @@ export default function EliteHouseLandingPage() {
 
               <p className="mt-4 max-w-xl text-white/65 text-base sm:text-lg leading-relaxed">
                 A premium experience built around accurate programme listings and
-                seamless playback — clean, consistent, and effortless across your devices.
+                seamless playback. Clean, consistent, and effortless across your devices.
               </p>
 
               <div className="mt-7 flex flex-col sm:flex-row gap-4">
@@ -477,7 +461,7 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* Right card with Premium EPG */}
+            {/* Right card with EPG only (trial block removed) */}
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -485,7 +469,7 @@ export default function EliteHouseLandingPage() {
                     A guide that feels refined
                   </p>
                   <p className="mt-2 text-sm text-white/65 leading-relaxed">
-                    Smooth browsing, accurate listings, and clean presentation — designed
+                    Smooth browsing, accurate listings, and clean presentation designed
                     for everyday reliability.
                   </p>
                 </div>
@@ -498,20 +482,10 @@ export default function EliteHouseLandingPage() {
                 <EpgMock />
               </div>
 
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <div className="text-xs font-semibold text-[#F6E27A]">
-                  Private 24-hour trial
-                </div>
-                <div className="mt-1 text-sm text-white/70">
-                  Message us on WhatsApp and we’ll activate your trial quickly.
-                </div>
-
-                <div className="mt-4">
-                  <CTAButton className="w-full" href={waLink(trialMessage)}>
-                    Request trial access
-                  </CTAButton>
-                </div>
-
+              <div className="mt-6">
+                <CTAButton className="w-full" href={waLink(trialMessage)}>
+                  Start Trial on WhatsApp
+                </CTAButton>
                 <p className="mt-3 text-xs text-white/45">
                   Priority replies • Setup handled personally
                 </p>
@@ -521,14 +495,11 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* FEATURES */}
-        <section
-          id="features"
-          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
-        >
+        <section id="features" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
           <SectionTitle
             kicker="Elite Features"
             title="Everything included."
-            subtitle="Live access, premium on-demand, and direct support — all in one private membership."
+            subtitle="Superior EPG, smooth streaming, and direct support — all in one private membership."
           />
 
           <div className="grid gap-6 md:grid-cols-3">
@@ -539,7 +510,7 @@ export default function EliteHouseLandingPage() {
               },
               {
                 title: "Smooth Streaming",
-                desc: "Seamless playback with a premium feel — built for daily reliability.",
+                desc: "Seamless playback with a premium feel built for daily reliability.",
               },
               {
                 title: "Direct WhatsApp Support",
@@ -558,14 +529,11 @@ export default function EliteHouseLandingPage() {
         </section>
 
         {/* TESTIMONIALS */}
-        <section
-          id="testimonials"
-          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14"
-        >
+        <section id="testimonials" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
           <SectionTitle
             kicker="Trusted"
             title="What members say."
-            subtitle="Short, real feedback from private members who value reliability and a clean experience."
+            subtitle="Short, real feedback from members who value reliability and a clean experience."
           />
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -589,17 +557,12 @@ export default function EliteHouseLandingPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <CTAButton href={waLink(trialMessage)}>
-              Start Trial on WhatsApp
-            </CTAButton>
+            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
           </div>
         </section>
 
         {/* PRICING */}
-        <section
-          id="pricing"
-          className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
-        >
+        <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
           <SectionTitle
             kicker="Membership"
             title="Choose your billing."
@@ -658,25 +621,20 @@ export default function EliteHouseLandingPage() {
 
           <div className="mt-6 flex justify-center">
             <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur sm:grid-cols-3">
-              {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
-                (t, i) => (
-                  <div key={t} className="flex items-center gap-3">
-                    <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
-                      {i + 1}
-                    </div>
-                    <div className="text-sm font-semibold text-white/85">{t}</div>
+              {["Message us on WhatsApp", "Trial activated", "Start watching"].map((t, i) => (
+                <div key={t} className="flex items-center gap-3">
+                  <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
+                    {i + 1}
                   </div>
-                )
-              )}
+                  <div className="text-sm font-semibold text-white/85">{t}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* FAQ / Assurance */}
-        <section
-          id="faq"
-          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14"
-        >
+        {/* FAQ */}
+        <section id="faq" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
           <SectionTitle
             kicker="Support"
             title="Private access, handled properly."
@@ -715,9 +673,7 @@ export default function EliteHouseLandingPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <CTAButton href={waLink(trialMessage)}>
-              Start Trial on WhatsApp
-            </CTAButton>
+            <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
           </div>
         </section>
 
