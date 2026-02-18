@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 
 /* ---------------- WhatsApp ---------------- */
 
@@ -120,24 +121,9 @@ const FAQ = [
 ];
 
 const FEATURE_CARDS = [
-  {
-    h: "Flawless Listings",
-    p: "A meticulously maintained guide—clean, accurate, and effortless to browse.",
-    f: "Precision EPG, done properly.",
-    d: 100,
-  },
-  {
-    h: "Seamless Playback",
-    p: "Stable, consistent streaming built for viewers who expect reliability—every day.",
-    f: "Smooth playback you can trust.",
-    d: 200,
-  },
-  {
-    h: "Private Support",
-    p: "Discreet WhatsApp assistance handled quickly and personally—setup, upgrades, and support.",
-    f: "Direct help, without friction.",
-    d: 300,
-  },
+  { h: "Flawless Listings", p: "A meticulously maintained guide—clean, accurate, and effortless to browse.", f: "Precision EPG, done properly.", d: 100 },
+  { h: "Seamless Playback", p: "Stable, consistent streaming built for viewers who expect reliability—every day.", f: "Smooth playback you can trust.", d: 200 },
+  { h: "Private Support", p: "Discreet WhatsApp assistance handled quickly and personally—setup, upgrades, and support.", f: "Direct help, without friction.", d: 300 },
 ];
 
 /* ---------------- UI pieces ---------------- */
@@ -208,10 +194,7 @@ function ShimmerButton({
   return (
     <a href={href} target="_blank" rel="noreferrer" className={`${base} ${variant === "gold" ? gold : dark} ${className}`}>
       {attention && variant === "gold" ? (
-        <span
-          className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
-          aria-hidden="true"
-        />
+        <span className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]" aria-hidden="true" />
       ) : null}
 
       <span
@@ -279,11 +262,7 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
 }
 
 function FloatingParticles() {
-  const particles = useMemo(
-    () => PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({ id: i, x, y, r, dur, delay: (i * 0.7) % 5 })),
-    []
-  );
-
+  const particles = useMemo(() => PARTICLE_SEEDS.map(([x, y, r, dur], i) => ({ id: i, x, y, r, dur, delay: (i * 0.7) % 5 })), []);
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {particles.map((p) => (
@@ -390,10 +369,7 @@ function EpgMock() {
                             {isNow ? (
                               <span
                                 className="pointer-events-none absolute -inset-6 opacity-40 blur-2xl"
-                                style={{
-                                  background:
-                                    "radial-gradient(circle at 30% 30%, rgba(212,175,55,0.35), transparent 55%)",
-                                }}
+                                style={{ background: "radial-gradient(circle at 30% 30%, rgba(212,175,55,0.35), transparent 55%)" }}
                                 aria-hidden="true"
                               />
                             ) : null}
@@ -457,6 +433,18 @@ export default function EliteHouseLandingPage() {
         <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-10">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
+              {/* Logo above headline (premium, no header) */}
+              <div className="mb-6 inline-flex items-center">
+                <Image
+                  src="/logo.png"
+                  alt="Elite House"
+                  width={220}
+                  height={72}
+                  priority
+                  className="h-14 w-auto object-contain drop-shadow-[0_18px_55px_rgba(212,175,55,0.45)]"
+                />
+              </div>
+
               <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
                 Elite Access.
                 <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent leading-tight pb-1">
@@ -465,8 +453,8 @@ export default function EliteHouseLandingPage() {
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-                Elite House delivers flawless listings, seamless playback, and a viewing experience above the rest. Precision guide data.
-                Stable streaming. Refined performance—without compromise.
+                Elite House delivers flawless listings, seamless playback, and a viewing experience above the rest. Precision guide data. Stable streaming.
+                Refined performance—without compromise.
               </p>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -490,11 +478,23 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
+            {/* Right panel with watermark logo */}
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/60 backdrop-blur">
-              <div className="absolute inset-0 opacity-80">
+              <div className="pointer-events-none absolute inset-0 opacity-80">
                 <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#B8860B]/15 blur-3xl" />
                 <div className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5078FF]/10 blur-3xl" />
+              </div>
+
+              {/* Watermark */}
+              <div className="pointer-events-none absolute inset-0 grid place-items-center opacity-[0.07]">
+                <Image
+                  src="/logo.png"
+                  alt=""
+                  width={560}
+                  height={200}
+                  className="w-[70%] max-w-[520px] object-contain"
+                />
               </div>
 
               <div className="relative p-6">
@@ -536,7 +536,10 @@ export default function EliteHouseLandingPage() {
         {/* PRICING */}
         <section id="pricing" className={SECTION}>
           <Reveal>
-            <SectionTitle title="One Plan. Complete Access." subtitle="Choose your billing. Everything is included—flawless listings, seamless playback, and private support." />
+            <SectionTitle
+              title="One Plan. Complete Access."
+              subtitle="Choose your billing. Everything is included—flawless listings, seamless playback, and private support."
+            />
           </Reveal>
 
           <Reveal delay={80} className="mt-8 flex justify-center">
@@ -557,7 +560,9 @@ export default function EliteHouseLandingPage() {
                   </div>
 
                   <div className="mt-6 text-6xl font-semibold tracking-tight">
-                    <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">{pricing.price}</span>
+                    <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                      {pricing.price}
+                    </span>
                   </div>
                   <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
 
