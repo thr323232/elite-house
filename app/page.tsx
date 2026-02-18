@@ -33,13 +33,13 @@ function SectionTitle({
   subtitle?: string;
 }) {
   return (
-    <div className="mx-auto mb-8 max-w-2xl text-center">
+    <div className="mx-auto mb-7 max-w-2xl text-center">
       {kicker ? (
-        <p className="mb-2 text-xs uppercase tracking-[0.3em] text-[#F6E27A]">
+        <p className="mb-2 text-[11px] uppercase tracking-[0.28em] text-[#F6E27A]">
           {kicker}
         </p>
       ) : null}
-      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+      <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-4xl">
         {title}
       </h2>
       {subtitle ? (
@@ -81,9 +81,10 @@ function CTAButton({
       target="_blank"
       rel="noreferrer"
       className={
-        "inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-3 text-sm font-semibold text-black " +
+        "inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-black " +
         "bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] " +
         "shadow-lg shadow-[#D4AF37]/20 hover:brightness-110 transition " +
+        "sm:w-auto sm:px-7 sm:py-3 " +
         className
       }
     >
@@ -112,7 +113,7 @@ function PricingToggle({
   ];
 
   return (
-    <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur">
+    <div className="inline-flex w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur sm:w-auto">
       {options.map((o) => (
         <button
           key={o.id}
@@ -120,16 +121,16 @@ function PricingToggle({
           onClick={() => onChange(o.id)}
           aria-pressed={value === o.id}
           className={
-            "rounded-xl px-4 py-2 text-sm transition " +
+            "flex-1 rounded-xl px-3 py-2.5 text-sm transition sm:flex-none sm:px-4 sm:py-2 " +
             (value === o.id
               ? "bg-[#D4AF37]/15 text-[#F6E27A] shadow-sm"
               : "text-white/70 hover:text-white")
           }
         >
-          <span className="inline-flex items-center gap-2">
+          <span className="inline-flex items-center justify-center gap-2">
             <span>{o.label}</span>
             {o.badge ? (
-              <span className="rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] font-semibold text-[#F6E27A]">
+              <span className="hidden rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] font-semibold text-[#F6E27A] sm:inline">
                 {o.badge}
               </span>
             ) : null}
@@ -171,66 +172,38 @@ function EpgMock() {
   ];
 
   const rows = [
-    {
-      ch: "101",
-      abbr: "MOV",
-      name: "Cinema",
-      blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"],
-    },
-    {
-      ch: "102",
-      abbr: "SPT",
-      name: "Sports",
-      blocks: ["LIVE Match", "Highlights", "Studio", "Championships"],
-    },
-    {
-      ch: "103",
-      abbr: "ENT",
-      name: "Entertainment",
-      blocks: ["Trending", "Reality", "Late Night", "Top Picks"],
-    },
-    {
-      ch: "104",
-      abbr: "DOC",
-      name: "Documentary",
-      blocks: ["Nature", "History", "True Stories", "Discovery"],
-    },
-    {
-      ch: "105",
-      abbr: "KID",
-      name: "Kids",
-      blocks: ["Family Time", "Cartoons", "Education", "Classics"],
-    },
+    { ch: "101", abbr: "MOV", name: "Cinema", blocks: ["Blockbusters", "New Releases", "Award Winners", "4K Premieres"] },
+    { ch: "102", abbr: "SPT", name: "Sports", blocks: ["LIVE Match", "Highlights", "Studio", "Championships"] },
+    { ch: "103", abbr: "ENT", name: "Entertainment", blocks: ["Trending", "Reality", "Late Night", "Top Picks"] },
+    { ch: "104", abbr: "DOC", name: "Documentary", blocks: ["Nature", "History", "True Stories", "Discovery"] },
+    { ch: "105", abbr: "KID", name: "Kids", blocks: ["Family Time", "Cartoons", "Education", "Classics"] },
   ];
 
   const nowLeft = "52.5%";
-  const slotW = 120;
+  const slotW = 118; // slightly tighter for mobile
   const programWidth = timeline.length * slotW;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50">
-      {/* Subtle sheen */}
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <div className="absolute inset-0 bg-[radial-gradient(80%_55%_at_50%_0%,rgba(212,175,55,0.14),rgba(0,0,0,0)_60%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04),rgba(255,255,255,0.00),rgba(255,255,255,0.04))]" />
       </div>
 
-      {/* Now line */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute top-0 bottom-0 w-px bg-[#F6E27A]/80 opacity-80 motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
           style={{ left: nowLeft }}
         />
         <div
-          className="absolute top-0 bottom-0 w-[60px] bg-[#D4AF37]/10 blur-xl motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
-          style={{ left: `calc(${nowLeft} - 30px)` }}
+          className="absolute top-0 bottom-0 w-[56px] bg-[#D4AF37]/10 blur-xl motion-reduce:animate-none animate-[nowGlow_2.8s_ease-in-out_infinite]"
+          style={{ left: `calc(${nowLeft} - 28px)` }}
         />
       </div>
 
-      {/* Timeline */}
-      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="border-b border-white/10 bg-white/[0.03] px-3 py-2.5 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
-          <div className="w-[180px] text-[10px] uppercase tracking-[0.26em] text-white/45">
+          <div className="w-[140px] text-[10px] uppercase tracking-[0.26em] text-white/45 sm:w-[180px]">
             Programme guide
           </div>
           <div className="relative flex-1 overflow-hidden">
@@ -258,17 +231,15 @@ function EpgMock() {
         </div>
       </div>
 
-      {/* Rows */}
-      <div className="px-4 py-3">
+      <div className="px-3 py-3 sm:px-4">
         <div className="grid gap-3">
           {rows.map((row, idx) => (
             <div key={row.ch} className="flex items-stretch gap-2">
-              <div className="flex w-[180px] items-center gap-3">
+              <div className="flex w-[140px] items-center gap-3 sm:w-[180px]">
                 <div className="relative grid h-10 w-10 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
                   <span className="relative z-10">{row.abbr}</span>
                   <span className="pointer-events-none absolute inset-0 rounded-2xl [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
                 </div>
-
                 <div className="min-w-0 pr-1">
                   <div className="text-[11px] font-semibold leading-tight text-white/90">
                     {row.name}
@@ -278,8 +249,8 @@ function EpgMock() {
               </div>
 
               <div className="relative flex-1 overflow-hidden">
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-black/55 to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-black/55 to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/55 to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/55 to-transparent" />
 
                 <div
                   className="flex motion-reduce:animate-none animate-[marquee_38s_linear_infinite]"
@@ -330,7 +301,7 @@ function EpgMock() {
         </div>
 
         <div className="mt-3 flex items-center justify-between text-[10px] text-white/45">
-          <span>Accurate listings • Clean layout</span>
+          <span>Accurate listings</span>
           <span>Fast navigation</span>
         </div>
       </div>
@@ -371,29 +342,10 @@ export default function EliteHouseLandingPage() {
   }, [billing]);
 
   const testimonials = [
-    {
-      quote:
-        "Setup was genuinely fast. Everything looks clean and works smoothly across devices.",
-      name: "Jordan",
-      meta: "UK",
-    },
-    {
-      quote:
-        "The interface feels premium — no clutter, just easy browsing and solid playback.",
-      name: "Aisha",
-      meta: "London",
-    },
-    {
-      quote:
-        "Support replies quickly and actually solves things. Best experience I’ve had.",
-      name: "Marcus",
-      meta: "Manchester",
-    },
-    {
-      quote: "Reliable streams, great library, and it just feels… polished.",
-      name: "Sophie",
-      meta: "Birmingham",
-    },
+    { quote: "Setup was genuinely fast. Everything looks clean and works smoothly across devices.", name: "Jordan", meta: "UK" },
+    { quote: "The interface feels premium — no clutter, just easy browsing and solid playback.", name: "Aisha", meta: "London" },
+    { quote: "Support replies quickly and actually solves things. Best experience I’ve had.", name: "Marcus", meta: "Manchester" },
+    { quote: "Reliable streams, great library, and it just feels… polished.", name: "Sophie", meta: "Birmingham" },
   ];
 
   return (
@@ -415,64 +367,32 @@ export default function EliteHouseLandingPage() {
       </div>
 
       <main className="relative z-10">
-        {/* HERO */}
-        <section className="mx-auto max-w-6xl px-4 pt-10 pb-14 sm:px-6 sm:pt-14 sm:pb-16">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <div>
-              <Image
-                src="/logo.png"
-                alt="Elite House Logo"
-                width={340}
-                height={120}
-                priority
-                className="mb-6 h-20 w-auto object-contain drop-shadow-[0_18px_40px_rgba(212,175,55,0.35)]"
-              />
-
-              <h1 className="text-4xl sm:text-5xl font-semibold leading-tight tracking-tight">
-                Elite Access.
-                <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                  Superior EPG. Smooth Streaming.
-                </span>
-              </h1>
-
-              <p className="mt-4 max-w-xl text-white/65 text-base sm:text-lg leading-relaxed">
-                A premium experience built around accurate programme listings and
-                seamless playback. Clean, consistent, and effortless across your devices.
-              </p>
-
-              <div className="mt-7 flex flex-col sm:flex-row gap-4">
-                <CTAButton href={waLink(trialMessage)}>
-                  Start Trial on WhatsApp
-                </CTAButton>
-                <a
-                  href="#pricing"
-                  className="inline-flex items-center justify-center rounded-2xl border border-white/15 px-7 py-3 text-sm font-semibold text-white/80 hover:bg-white/5 transition"
-                >
-                  View membership <span aria-hidden="true">→</span>
-                </a>
-              </div>
-
-              <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/70 backdrop-blur">
-                <span className="font-semibold text-white/85">1,200+ Members</span>
-                <span className="h-4 w-px bg-white/15" />
-                <StarRow />
-                <span className="h-4 w-px bg-white/15" />
-                <span>Activated in minutes</span>
-              </div>
-            </div>
-
-            {/* Right card with EPG only (trial block removed) */}
-            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
+        {/* HERO (mobile: show EPG first using order) */}
+        <section className="mx-auto max-w-6xl px-4 pt-9 pb-12 sm:px-6 sm:pt-14 sm:pb-16">
+          <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
+            {/* Right card (EPG) becomes first on mobile */}
+            <div className="order-1 lg:order-2 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-white/90">
-                    A guide that feels refined
-                  </p>
-                  <p className="mt-2 text-sm text-white/65 leading-relaxed">
-                    Smooth browsing, accurate listings, and clean presentation designed
-                    for everyday reliability.
-                  </p>
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 rounded-2xl border border-white/10 bg-black/30 p-2">
+                    <Image
+                      src="/logo.png"
+                      alt="Elite House"
+                      width={160}
+                      height={60}
+                      className="h-7 w-auto object-contain opacity-90"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white/90">
+                      Superior programme guide
+                    </p>
+                    <p className="mt-2 text-sm text-white/65 leading-relaxed">
+                      Accurate listings, smooth browsing, premium presentation.
+                    </p>
+                  </div>
                 </div>
+
                 <div className="shrink-0 rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-3 py-2 text-xs font-semibold text-[#F6E27A]">
                   EPG+
                 </div>
@@ -491,52 +411,141 @@ export default function EliteHouseLandingPage() {
                 </p>
               </div>
             </div>
+
+            {/* Left (brand + copy) second on mobile */}
+            <div className="order-2 lg:order-1">
+              <div className="mb-5 flex justify-center lg:justify-start">
+                <Image
+                  src="/logo.png"
+                  alt="Elite House Logo"
+                  width={560}
+                  height={200}
+                  priority
+                  className="h-24 w-auto object-contain sm:h-28 md:h-32 drop-shadow-[0_22px_55px_rgba(212,175,55,0.38)]"
+                />
+              </div>
+
+              <h1 className="text-[34px] leading-[1.05] sm:text-5xl font-semibold tracking-tight text-center lg:text-left">
+                Elite Access.
+                <span className="mt-2 block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                  Superior EPG. Smooth Streaming.
+                </span>
+              </h1>
+
+              <p className="mt-4 max-w-xl text-white/65 text-[15px] sm:text-lg leading-relaxed text-center lg:text-left mx-auto lg:mx-0">
+                A premium experience built around accurate programme listings and seamless playback.
+                Clean, consistent, effortless across your devices.
+              </p>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+                <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
+
+                <a
+                  href="#pricing"
+                  className="inline-flex w-full sm:w-auto items-center justify-center rounded-2xl border border-white/15 px-6 py-3.5 sm:px-7 sm:py-3 text-sm font-semibold text-white/80 hover:bg-white/5 transition"
+                >
+                  View membership <span aria-hidden="true">→</span>
+                </a>
+              </div>
+
+              <div className="mt-5 flex justify-center lg:justify-start">
+                <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/70 backdrop-blur">
+                  <span className="font-semibold text-white/85">1,200+ Members</span>
+                  <span className="h-4 w-px bg-white/15" />
+                  <StarRow />
+                  <span className="h-4 w-px bg-white/15" />
+                  <span>Activated in minutes</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* FEATURES */}
-        <section id="features" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
-          <SectionTitle
-            kicker="Elite Features"
-            title="Everything included."
-            subtitle="Superior EPG, smooth streaming, and direct support — all in one private membership."
-          />
+        <section
+          id="features"
+          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 relative"
+        >
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.02] sm:opacity-[0.035]">
+            <Image
+              src="/logo.png"
+              alt=""
+              width={900}
+              height={320}
+              className="w-[420px] sm:w-[680px] md:w-[760px] object-contain"
+            />
+          </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                title: "Superior EPG",
-                desc: "Accurate programme listings with a clean layout that’s easy to browse.",
-              },
-              {
-                title: "Smooth Streaming",
-                desc: "Seamless playback with a premium feel built for daily reliability.",
-              },
-              {
-                title: "Direct WhatsApp Support",
-                desc: "Fast setup, upgrades, and personal help whenever needed.",
-              },
-            ].map((f) => (
-              <div
-                key={f.title}
-                className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur hover:bg-white/[0.07] transition"
-              >
-                <h3 className="text-xl font-semibold mb-3">{f.title}</h3>
-                <p className="text-sm text-white/65 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
+          <div className="relative">
+            <SectionTitle
+              kicker="Elite Features"
+              title="Everything included."
+              subtitle="Superior EPG, smooth streaming, and direct support all in one private membership."
+            />
+
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+              {[
+                {
+                  title: "Superior EPG",
+                  desc: "Accurate programme listings with a clean layout that’s easy to browse.",
+                },
+                {
+                  title: "Smooth Streaming",
+                  desc: "Seamless playback with a premium feel built for daily reliability.",
+                },
+                {
+                  title: "Direct WhatsApp Support",
+                  desc: "Fast setup, upgrades, and personal help whenever needed.",
+                },
+              ].map((f) => (
+                <div
+                  key={f.title}
+                  className="rounded-3xl border border-white/10 bg-white/[0.05] p-6 sm:p-7 backdrop-blur hover:bg-white/[0.07] transition"
+                >
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2.5">{f.title}</h3>
+                  <p className="text-sm text-white/65 leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* TESTIMONIALS */}
-        <section id="testimonials" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
+        {/* TESTIMONIALS (mobile carousel) */}
+        <section
+          id="testimonials"
+          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14"
+        >
           <SectionTitle
             kicker="Trusted"
             title="What members say."
-            subtitle="Short, real feedback from members who value reliability and a clean experience."
+            subtitle="Short feedback from members who value reliability and a clean experience."
           />
 
-          <div className="grid gap-4 md:grid-cols-2">
+          {/* Mobile: horizontal snap */}
+          <div className="md:hidden -mx-4 px-4 overflow-x-auto">
+            <div className="flex gap-4 snap-x snap-mandatory pb-2">
+              {testimonials.map((t) => (
+                <div
+                  key={t.name}
+                  className="snap-start min-w-[85%] rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur"
+                >
+                  <div className="flex items-center justify-between">
+                    <StarRow />
+                    <span className="text-xs text-white/45">{t.meta}</span>
+                  </div>
+                  <p className="mt-4 text-sm leading-relaxed text-white/70">
+                    “{t.quote}”
+                  </p>
+                  <div className="mt-4 text-sm font-semibold text-white/85">
+                    {t.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop/tablet grid */}
+          <div className="hidden md:grid gap-4 md:grid-cols-2">
             {testimonials.map((t) => (
               <div
                 key={t.name}
@@ -556,13 +565,16 @@ export default function EliteHouseLandingPage() {
             ))}
           </div>
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-7 flex justify-center">
             <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
           </div>
         </section>
 
         {/* PRICING */}
-        <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+        <section
+          id="pricing"
+          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16"
+        >
           <SectionTitle
             kicker="Membership"
             title="Choose your billing."
@@ -573,8 +585,8 @@ export default function EliteHouseLandingPage() {
             <PricingToggle value={billing} onChange={setBilling} />
           </div>
 
-          <div className="mt-8 flex justify-center">
-            <div className="relative w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 text-center shadow-xl backdrop-blur">
+          <div className="mt-7 sm:mt-8 flex justify-center">
+            <div className="relative w-full max-w-2xl overflow-hidden rounded-[28px] sm:rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-8 sm:p-10 text-center shadow-xl backdrop-blur">
               <div className="pointer-events-none absolute inset-0 opacity-60">
                 <div className="absolute -left-24 -top-24 h-56 w-56 rounded-full bg-[#D4AF37]/12 blur-3xl" />
                 <div className="absolute -right-24 -bottom-24 h-56 w-56 rounded-full bg-[#B8860B]/10 blur-3xl" />
@@ -589,7 +601,7 @@ export default function EliteHouseLandingPage() {
                   {pricing.label}
                 </div>
 
-                <div className="mt-4 text-6xl font-semibold tracking-tight">
+                <div className="mt-4 text-5xl sm:text-6xl font-semibold tracking-tight">
                   <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
                     {pricing.price}
                   </span>
@@ -619,50 +631,55 @@ export default function EliteHouseLandingPage() {
             </div>
           </div>
 
-          <div className="mt-6 flex justify-center">
-            <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur sm:grid-cols-3">
-              {["Message us on WhatsApp", "Trial activated", "Start watching"].map((t, i) => (
-                <div key={t} className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
-                    {i + 1}
+          <div className="mt-5 sm:mt-6 flex justify-center">
+            <div className="grid w-full max-w-2xl gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 backdrop-blur sm:grid-cols-3">
+              {["Message us on WhatsApp", "Trial activated", "Start watching"].map(
+                (t, i) => (
+                  <div key={t} className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 text-xs font-semibold text-[#F6E27A]">
+                      {i + 1}
+                    </div>
+                    <div className="text-sm font-semibold text-white/85">{t}</div>
                   </div>
-                  <div className="text-sm font-semibold text-white/85">{t}</div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
+        <section
+          id="faq"
+          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14"
+        >
           <SectionTitle
             kicker="Support"
             title="Private access, handled properly."
-            subtitle="Everything is set up personally through WhatsApp — fast, discreet, and simple."
+            subtitle="Everything is set up personally through WhatsApp. Fast, discreet, simple."
           />
 
           <div className="grid gap-4 lg:grid-cols-2">
             {[
               {
                 q: "How does the free trial work?",
-                a: "Just tap the WhatsApp button and we’ll activate your private 24-hour trial. Setup is handled for you step-by-step.",
+                a: "Tap the WhatsApp button and we’ll activate your trial. Setup is handled step by step.",
               },
               {
-                q: "Is this instant or do I need to wait?",
-                a: "Most trials are activated within minutes. Replies are fast because support is handled directly, not through tickets.",
+                q: "Is it instant?",
+                a: "Most trials are activated within minutes. Replies are fast because support is direct.",
               },
               {
-                q: "What’s included with membership?",
-                a: "Full access — live channels, the complete on-demand library, and ongoing support. Everything is included in one plan.",
+                q: "What’s included?",
+                a: "Full access to live channels, the on-demand library, and ongoing support.",
               },
               {
-                q: "Can I upgrade or extend later?",
-                a: "Yes. Members can upgrade or renew anytime with a quick message. Everything is managed privately through WhatsApp.",
+                q: "Can I upgrade later?",
+                a: "Yes. Upgrades and renewals are handled with a quick message.",
               },
             ].map((item) => (
               <div
                 key={item.q}
-                className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
+                className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-7 backdrop-blur"
               >
                 <h3 className="text-base font-semibold text-white">{item.q}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/70">
@@ -672,16 +689,24 @@ export default function EliteHouseLandingPage() {
             ))}
           </div>
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-7 sm:mt-8 flex justify-center">
             <CTAButton href={waLink(trialMessage)}>Start Trial on WhatsApp</CTAButton>
           </div>
         </section>
 
         {/* FOOTER */}
-        <footer className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center backdrop-blur">
-            <p className="text-sm font-semibold text-white/90">Elite House</p>
-            <p className="mt-1 text-xs text-white/50">
+        <footer className="mx-auto max-w-6xl px-4 pb-28 sm:pb-10 sm:px-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 text-center backdrop-blur">
+            <div className="flex justify-center">
+              <Image
+                src="/logo.png"
+                alt="Elite House"
+                width={420}
+                height={140}
+                className="h-14 w-auto object-contain opacity-95"
+              />
+            </div>
+            <p className="mt-3 text-xs text-white/50">
               Premium viewing • Private membership • WhatsApp support
             </p>
           </div>
@@ -694,7 +719,7 @@ export default function EliteHouseLandingPage() {
               Start Trial on WhatsApp
             </CTAButton>
             <div className="mt-1 text-center text-[10px] text-white/55">
-              Private trial • Priority replies within minutes
+              Priority replies within minutes
             </div>
           </div>
         </div>
