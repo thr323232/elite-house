@@ -156,15 +156,21 @@ const FAQ = [
   },
 ];
 
+/* ---------------- Helpers ---------------- */
+
+function useMounted() {
+  const [m, setM] = useState(false);
+  useEffect(() => setM(true), []);
+  return m;
+}
+
 /* ---------------- UI ---------------- */
 
 function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mx-auto mb-10 max-w-2xl text-center">
       <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
-      {subtitle ? (
-        <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">{subtitle}</p>
-      ) : null}
+      {subtitle ? <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">{subtitle}</p> : null}
     </div>
   );
 }
@@ -226,10 +232,7 @@ function ShimmerButton({
   return (
     <a href={href} target="_blank" rel="noreferrer" className={`${base} ${variant === "gold" ? gold : dark} ${className}`}>
       {attention && variant === "gold" ? (
-        <span
-          className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]"
-          aria-hidden="true"
-        />
+        <span className="pointer-events-none absolute inset-0 rounded-2xl border border-[#D4AF37]/40 animate-[ringPulse_2.8s_ease-out_infinite]" aria-hidden="true" />
       ) : null}
 
       <span
@@ -328,15 +331,20 @@ function WhatsAppIcon({ className = "" }: { className?: string }) {
   );
 }
 
-/* ---------------- EPG ---------------- */
+/* ---------------- EPG (fixed hydration snap) ---------------- */
 
 function EpgMock() {
+  const mounted = useMounted();
+
   const nowLeft = "52.5%";
   const slotW = 120;
   const programWidth = EPG_TIMELINE.length * slotW;
 
+  const marqueeTimeline = mounted ? "animate-[marquee_34s_linear_infinite]" : "";
+  const marqueeRows = mounted ? "animate-[marquee_38s_linear_infinite]" : "";
+
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 min-h-[420px]">
       {/* Now highlight */}
       <div className="pointer-events-none absolute inset-0">
         <div
@@ -355,10 +363,7 @@ function EpgMock() {
           <div className="w-[180px] text-[11px] text-white/60">Channel</div>
           <div className="relative flex-1 overflow-hidden">
             <div className="relative whitespace-nowrap">
-              <div
-                className="flex animate-[marquee_34s_linear_infinite] motion-reduce:animate-none"
-                style={{ width: programWidth * 2 }}
-              >
+              <div className={`flex ${marqueeTimeline} motion-reduce:animate-none`} style={{ width: programWidth * 2 }}>
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex" style={{ width: programWidth }}>
                     {EPG_TIMELINE.map((t) => (
@@ -390,10 +395,7 @@ function EpgMock() {
               </div>
 
               <div className="relative flex-1 overflow-hidden">
-                <div
-                  className="flex animate-[marquee_38s_linear_infinite] motion-reduce:animate-none"
-                  style={{ width: programWidth * 2 }}
-                >
+                <div className={`flex ${marqueeRows} motion-reduce:animate-none`} style={{ width: programWidth * 2 }}>
                   {[0, 1].map((dup) => (
                     <div key={dup} className="flex gap-3 pr-3" style={{ width: programWidth }}>
                       {row.blocks.map((b, i) => {
@@ -465,7 +467,6 @@ export default function EliteHouseLandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
-      {/* Luxe-only keyframes (keeps this page self-contained if you forget globals additions) */}
       <style>{`
         @keyframes luxeSheen {
           0% { transform: translateX(-35%) rotate(12deg); opacity: 0; }
@@ -477,7 +478,6 @@ export default function EliteHouseLandingPage() {
 
       {/* Luxury + colourful background stack */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        {/* Colour radials */}
         <div className="absolute inset-0 animate-[gradientMove_14s_ease-in-out_infinite] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_80%,rgba(170,90,255,0.12),transparent_65%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(212,175,55,0.18),rgba(0,0,0,0)_62%)]" />
@@ -486,20 +486,16 @@ export default function EliteHouseLandingPage() {
         <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_20%_80%,rgba(80,120,255,0.10),rgba(0,0,0,0)_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_85%_75%,rgba(170,90,255,0.08),rgba(0,0,0,0)_72%)]" />
 
-        {/* Luxe sheen sweep */}
         <div
           className="absolute -inset-y-24 -left-1/2 w-[200%] rotate-12 opacity-0"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(246,226,122,0.10), rgba(212,175,55,0.10), transparent)",
+            background: "linear-gradient(90deg, transparent, rgba(246,226,122,0.10), rgba(212,175,55,0.10), transparent)",
             animation: "luxeSheen 14s ease-in-out infinite",
           }}
         />
 
-        {/* Soft grid */}
         <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
 
-        {/* Noise / grain */}
         <div
           className="absolute inset-0 opacity-[0.055] mix-blend-overlay"
           style={{
@@ -508,7 +504,6 @@ export default function EliteHouseLandingPage() {
           }}
         />
 
-        {/* Vignette */}
         <div
           className="absolute inset-0"
           style={{
@@ -525,7 +520,6 @@ export default function EliteHouseLandingPage() {
         <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:px-6 sm:pt-14 sm:pb-10">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              {/* Larger logo */}
               <div className="mb-7 inline-flex items-center">
                 <Image
                   src="/logo.png"
@@ -545,8 +539,8 @@ export default function EliteHouseLandingPage() {
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-                Elite House delivers flawless listings, seamless playback, and a viewing experience above the rest.
-                Precision guide data. Stable streaming. Refined performance—without compromise.
+                Elite House delivers flawless listings, seamless playback, and a viewing experience above the rest. Precision guide data. Stable streaming.
+                Refined performance—without compromise.
               </p>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -570,7 +564,7 @@ export default function EliteHouseLandingPage() {
               </div>
             </div>
 
-            {/* Right panel */}
+            {/* RIGHT PANEL */}
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/70 backdrop-blur-xl">
               <div className="pointer-events-none absolute inset-0 opacity-80">
                 <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#D4AF37]/15 blur-3xl" />
@@ -578,7 +572,6 @@ export default function EliteHouseLandingPage() {
                 <div className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5078FF]/10 blur-3xl" />
               </div>
 
-              {/* Larger watermark logo */}
               <div className="pointer-events-none absolute inset-0 grid place-items-center opacity-[0.09]">
                 <Image src="/logo.png" alt="" width={980} height={340} className="w-[92%] max-w-[780px] object-contain" />
               </div>
@@ -599,7 +592,6 @@ export default function EliteHouseLandingPage() {
             />
           </Reveal>
 
-          {/* equal-height feature boxes */}
           <div className="mt-10 grid gap-8 md:grid-cols-3 items-stretch">
             {FEATURE_CARDS.map((c) => (
               <Reveal key={c.h} delay={c.d} className="h-full">
