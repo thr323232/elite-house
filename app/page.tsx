@@ -230,9 +230,8 @@ function MicroLogoPattern() {
 }
 
 /**
- * Redesigned EPG:
- * - Mobile = compact preview, horizontal swipe inside, fixed max height
- * - Desktop = premium marquee
+ * MOBILE: compact, always-scroll preview (doesn't “zoom” / doesn't take over)
+ * DESKTOP: marquee premium
  */
 function EpgMock() {
   const timeline = [
@@ -259,36 +258,42 @@ function EpgMock() {
   ];
 
   const slotWDesktop = 118;
-  const slotWMobile = 92;
+  const slotWMobile = 84;
 
   const programWidthDesktop = timeline.length * slotWDesktop;
   const desktopTrackWidth = programWidthDesktop * 2;
 
+  // helper style (prevents iOS “rubber band zoom” vibe + ensures swipe works)
+  const scrollProps = {
+    style: {
+      WebkitOverflowScrolling: "touch" as const,
+      scrollbarWidth: "none" as const,
+      touchAction: "pan-x" as const,
+    },
+    className:
+      "overflow-x-auto overscroll-x-contain touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+  };
+
   return (
     <div className="relative rounded-2xl border border-white/10 bg-black/55 overflow-hidden">
-      {/* Premium subtle lighting */}
-      <div className="pointer-events-none absolute inset-0 opacity-75">
+      <div className="pointer-events-none absolute inset-0 opacity-80">
         <div className="absolute inset-0 bg-[radial-gradient(85%_60%_at_50%_0%,rgba(212,175,55,0.16),rgba(0,0,0,0)_60%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05),rgba(255,255,255,0.00),rgba(255,255,255,0.05))]" />
       </div>
 
-      {/* MOBILE COMPACT WRAP */}
+      {/* MOBILE */}
       <div className="sm:hidden relative">
         <div className="px-3 pt-3 pb-2 border-b border-white/10 bg-white/[0.03]">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="text-[10px] uppercase tracking-[0.26em] text-white/45">
               Programme Guide Preview
             </div>
             <div className="rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-2 py-1 text-[10px] font-semibold text-[#F6E27A]">
-              Swipe →
+              Swipe
             </div>
           </div>
 
-          {/* timeline swipe */}
-          <div
-            className="mt-2 overflow-x-auto overscroll-x-contain touch-pan-x"
-            style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
-          >
+          <div {...scrollProps} className={"mt-2 " + scrollProps.className} style={scrollProps.style}>
             <div className="flex min-w-max whitespace-nowrap pr-6">
               {timeline.map((t) => (
                 <div
@@ -303,12 +308,12 @@ function EpgMock() {
           </div>
         </div>
 
-        {/* rows compact (fixed height so it never “takes over”) */}
-        <div className="px-3 py-3 max-h-[280px] overflow-y-auto">
+        {/* smaller height + lighter density */}
+        <div className="px-3 py-3 max-h-[220px] overflow-y-auto">
           <div className="grid gap-3">
             {rows.slice(0, 4).map((row, idx) => (
               <div key={row.ch} className="flex min-w-0 gap-2">
-                <div className="w-[104px] shrink-0">
+                <div className="w-[96px] shrink-0">
                   <div className="flex items-center gap-2">
                     <div className="grid h-9 w-9 place-items-center rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/14 to-black/30 text-[10px] font-extrabold text-[#F6E27A]">
                       {row.abbr}
@@ -322,10 +327,7 @@ function EpgMock() {
                   </div>
                 </div>
 
-                <div
-                  className="flex-1 overflow-x-auto overscroll-x-contain touch-pan-x"
-                  style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
-                >
+                <div {...scrollProps} className={"flex-1 " + scrollProps.className} style={scrollProps.style}>
                   <div className="flex min-w-max gap-2 pr-6">
                     {row.blocks.map((b, i) => {
                       const isLive = b.toUpperCase().includes("LIVE");
@@ -368,7 +370,7 @@ function EpgMock() {
         </div>
       </div>
 
-      {/* DESKTOP (marquee premium) */}
+      {/* DESKTOP */}
       <div className="hidden sm:block relative">
         <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -556,7 +558,7 @@ export default function EliteHouseLandingPage() {
           <div className="relative grid items-start gap-6 lg:grid-cols-2 lg:gap-10">
             <MonogramWatermark />
 
-            {/* Copy FIRST on mobile (fixes “covers headline” feel) */}
+            {/* Copy FIRST on mobile */}
             <div className="order-1 lg:order-1">
               <div className="mb-4 flex justify-center lg:justify-start">
                 <Image
@@ -605,30 +607,25 @@ export default function EliteHouseLandingPage() {
 
             {/* EPG card SECOND on mobile */}
             <div className="order-2 lg:order-2 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl shadow-2xl shadow-black/50">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-white/90">
-                    Superior programme guide
-                  </p>
-                  <p className="mt-2 text-sm text-white/65 leading-relaxed">
-                    Accurate listings, smooth browsing, premium presentation.
-                  </p>
-                </div>
-
-                <div className="shrink-0 rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-3 py-2 text-xs font-semibold text-[#F6E27A]">
-                  EPG+
-                </div>
+              {/* FIX: smaller, centered like other titles */}
+              <div className="text-center">
+                <p className="text-[13px] font-semibold text-white/90">
+                  Superior programme guide
+                </p>
+                <p className="mt-2 text-sm text-white/65 leading-relaxed max-w-sm mx-auto">
+                  Accurate listings, smooth browsing, premium presentation.
+                </p>
               </div>
 
-              <div className="mt-5">
+              <div className="mt-4">
                 <EpgMock />
               </div>
 
-              <div className="mt-6">
+              <div className="mt-5">
                 <CTAButton className="w-full" href={waLink(trialMessage)}>
                   Start Trial on WhatsApp
                 </CTAButton>
-                <p className="mt-3 text-xs text-white/45">
+                <p className="mt-3 text-xs text-white/45 text-center">
                   Priority replies • Setup handled personally
                 </p>
               </div>
@@ -750,16 +747,18 @@ export default function EliteHouseLandingPage() {
 
         <LuxeDivider />
 
-        {/* PRICING */}
+        {/* PRICING (FIX: centered background logo watermark) */}
         <section
           id="pricing"
           className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 relative overflow-hidden"
         >
           <MicroLogoPattern />
+
+          {/* FIX: centralized watermark behind “Choose your billing” */}
           <BrandWatermark
             opacityClass="opacity-[0.014] sm:opacity-[0.022]"
-            sizeClass="w-[360px] sm:w-[520px] md:w-[600px]"
-            positionClass="right-0 top-0 items-start justify-end"
+            sizeClass="w-[380px] sm:w-[560px] md:w-[640px]"
+            positionClass="inset-0 items-center justify-center"
             blurClass="blur-[0.2px]"
           />
 
