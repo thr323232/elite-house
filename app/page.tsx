@@ -590,50 +590,14 @@ export default function EliteHouseLandingPage() {
         <FloatingParticles />
       </div>
 
-      <header className="relative z-10 bg-black/80 backdrop-blur-md border-b border-[#D4AF37]/20">
-        <div className="mx-auto relative flex max-w-6xl items-center justify-center px-4 py-8 sm:px-6">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Elite House Logo"
-              width={420}
-              height={140}
-              priority
-              className="h-40 w-auto object-contain drop-shadow-[0_22px_60px_rgba(212,175,55,0.65)] transition-all duration-700 hover:scale-110"
-            />
-          </div>
-
-          <nav className="hidden sm:flex items-center gap-7 text-[13px] tracking-[0.18em] uppercase text-white/65 absolute left-6">
-            {[
-              { href: "#features", label: "Features" },
-              { href: "#pricing", label: "Pricing" },
-              { href: "#faq", label: "FAQ" },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="group relative py-2 text-white/65 transition-colors hover:text-white"
-              >
-                <span>{item.label}</span>
-                <span
-                  className="absolute left-0 right-0 -bottom-0.5 h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent transition-transform duration-500 group-hover:scale-x-100"
-                  aria-hidden="true"
-                />
-              </a>
-            ))}
-          </nav>
-        </div>
-      </header>
+      {/* HEADER REMOVED */}
 
       <main className="relative z-10">
         {/* HERO */}
         <section className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              <div className="mb-4 flex flex-wrap gap-2">
-                <Badge>24-hour trial via WhatsApp</Badge>
-                <Badge>Global live access and an on demand library</Badge>
-              </div>
+              {/* HERO BADGES REMOVED */}
 
               <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
                 Elite Access.
@@ -677,33 +641,9 @@ export default function EliteHouseLandingPage() {
               </div>
 
               <div className="relative p-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="text-sm font-semibold text-white/90">
-                    Global live access with a private library
-                  </div>
-                </div>
-
+                {/* "Global live access..." LABEL REMOVED */}
                 <EpgMock />
-
-                <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <div className="text-xs font-semibold text-[#F6E27A]">24-hour trial</div>
-                  <div className="mt-1 text-sm text-white/80">
-                    Message us on WhatsApp and we&apos;ll set you up for a private 24-hour trial.
-                  </div>
-
-                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <a
-                      href={waLink(trialMessage)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-black/60 px-4 py-2 text-sm font-semibold text-[#F6E27A] ring-1 ring-[#D4AF37]/25 transition hover:bg-black/70"
-                    >
-                      <WhatsAppIcon className="shrink-0" />
-                      <span>Chat on WhatsApp →</span>
-                    </a>
-                    <div className="text-xs text-white/55">Replies usually within minutes</div>
-                  </div>
-                </div>
+                {/* 24-hour trial WhatsApp BOX REMOVED */}
               </div>
             </div>
           </div>
