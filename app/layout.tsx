@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Elite House — Premium Television Done Properly",
@@ -19,6 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-black text-white antialiased">
         {children}
+
+        {/* Vercel Analytics */}
+        <Analytics />
       </body>
     </html>
   );
