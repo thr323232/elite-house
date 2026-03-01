@@ -826,14 +826,14 @@ export default function EliteHouseLandingPage() {
           <SectionTitle
             kicker="FAQ"
             title="Questions, answered"
-            subtitle="If you don&apos;t see what you need, message us on Telegram and we&apos;ll help quickly."
+            subtitle="If you dont see what you need, message us on Telegram and we'll help quickly."
           />
 
           <div className="grid gap-4 lg:grid-cols-2">
             {[
               {
                 q: "How do I start the 24-hour trial?",
-                a: "Tap any Telegram button and send the pre-filled message. We&apos;ll reply with setup steps.",
+                a: "Tap any Telegram button and send the pre-filled message and we'll reply with setup steps.",
               },
               {
                 q: "Which devices does it work on?",
@@ -841,7 +841,7 @@ export default function EliteHouseLandingPage() {
               },
               {
                 q: "Can I upgrade my plan later?",
-                a: "Yes. Message us anytime and we&apos;ll upgrade you seamlessly—quick, simple, and handled via Telegram.",
+                a: "Yes. Message us anytime and we'll upgrade you seamlessly, quick and simple. Handled via Telegram.",
               },
               {
                 q: "How quickly will you reply?",
