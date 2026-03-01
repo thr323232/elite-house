@@ -4,34 +4,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 
 /**
- * Next.js-safe env read (no import.meta).
- * Set NEXT_PUBLIC_WHATSAPP_NUMBER in Vercel env vars for production.
- * (Kept for compatibility, but Telegram is used.)
+ * Elite House Landing (Telegram-first)
+ * - No WhatsApp
+ * - No “member count” pill
+ * - No pre-filled “copy trial message” logic across the site
+ * - Subtle premium background + SECTION SPOTLIGHT that follows scroll
  */
-const readWaEnv = (): string | null => {
-  const env = typeof process !== "undefined" ? process.env : undefined;
-  const fromProcess =
-    env?.NEXT_PUBLIC_WHATSAPP_NUMBER ||
-    env?.REACT_APP_WHATSAPP_NUMBER ||
-    env?.VITE_WHATSAPP_NUMBER;
 
-  return fromProcess ? String(fromProcess) : null;
-};
-
-const __WA_ENV__ = readWaEnv();
-
-// Fallback is lightly obfuscated to avoid plain-text exposure in source
-const __WA_FALLBACK__ = ["44", "7922", "309925"].join("");
-
-const getWhatsAppNumber = () => __WA_ENV__ || __WA_FALLBACK__;
-
-// Telegram public link
 const TELEGRAM_LINK = "https://t.me/EliteHouseTrialBot";
-
-export function waLink(_message: string) {
-  // message kept for compatibility; Telegram link is used instead
-  return TELEGRAM_LINK;
-}
+const CTA_HREF = TELEGRAM_LINK;
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -272,8 +253,7 @@ function FloatingParticles() {
   );
 }
 
-// Kept component name to avoid changing anything else; icon is Telegram
-function WhatsAppIcon({ className = "" }: { className?: string }) {
+function TelegramIcon({ className = "" }: { className?: string }) {
   return (
     <svg
       width="16"
@@ -286,6 +266,67 @@ function WhatsAppIcon({ className = "" }: { className?: string }) {
     >
       <path d="M9.993 15.674l-.397 5.6c.57 0 .817-.245 1.112-.54l2.67-2.558 5.535 4.05c1.014.56 1.732.266 1.993-.938l3.61-16.91.001-.001c.317-1.48-.535-2.06-1.523-1.69L1.19 9.02c-1.45.56-1.43 1.37-.247 1.74l5.64 1.76L19.11 5.2c.59-.36 1.13-.16.69.2" />
     </svg>
+  );
+}
+
+/**
+ * ✅ Section Spotlight (subtle, premium)
+ * Follows scroll and gently drifts.
+ * Uses CSS variables updated on scroll to position a radial highlight.
+ */
+function SectionSpotlight({ targetId }: { targetId: string }) {
+  useEffect(() => {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+
+      // 0..1 where 0 means top of viewport, 1 means bottom
+      const centerY = rect.top + rect.height * 0.35;
+      const t = Math.min(1, Math.max(0, centerY / vh));
+
+      // Place spotlight horizontally centered; vertically follows the section in viewport
+      const x = 50; // %
+      const y = 10 + t * 80; // %
+      el.style.setProperty("--spot-x", `${x}%`);
+      el.style.setProperty("--spot-y", `${y}%`);
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [targetId]);
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      {/* Main soft spotlight */}
+      <div
+        className={[
+          "absolute inset-0 opacity-70",
+          "[background:radial-gradient(420px_320px_at_var(--spot-x,50%)_var(--spot-y,40%),rgba(212,175,55,0.16),transparent_72%)]",
+        ].join(" ")}
+      />
+
+      {/* Secondary ultra-subtle cool tone for depth */}
+      <div
+        className={[
+          "absolute inset-0 opacity-45",
+          "[background:radial-gradient(520px_380px_at_calc(var(--spot-x,50%)+12%)_calc(var(--spot-y,40%)+10%),rgba(80,120,255,0.10),transparent_72%)]",
+        ].join(" ")}
+      />
+
+      {/* Gentle drift (very subtle) */}
+      <div className="absolute inset-0 opacity-55 motion-reduce:hidden animate-[spotDrift_10s_ease-in-out_infinite] [background:radial-gradient(540px_420px_at_50%_35%,rgba(246,226,122,0.08),transparent_70%)]" />
+    </div>
   );
 }
 
@@ -310,56 +351,31 @@ function EpgMock() {
       ch: "101",
       abbr: "VC",
       name: "Velour Cinema",
-      blocks: [
-        "10,000+ Live Channels",
-        "100,000+ Video On Demand",
-        "4K Ultra HD Streaming",
-        "Seamless channel playback",
-      ],
+      blocks: ["Live access", "Vast on demand library", "4K Ultra HD", "Seamless playback"],
     },
     {
       ch: "102",
       abbr: "AS",
       name: "Apex Sports",
-      blocks: [
-        "LIVE Championship",
-        "All channels working perfectly",
-        "Zero missing listings",
-        "Reliable premium streaming",
-      ],
+      blocks: ["LIVE Events", "Clean listings", "Reliable streams", "Smooth browsing"],
     },
     {
       ch: "103",
       abbr: "NV",
       name: "Nova Vista",
-      blocks: [
-        "Instant access",
-        "Precision programme guide data",
-        "Smooth browsing experience",
-        "Consistent presentation",
-      ],
+      blocks: ["Instant activation", "Clear guide data", "Consistent layout", "Premium stability"],
     },
     {
       ch: "104",
       abbr: "OR",
       name: "Orion Discovery",
-      blocks: [
-        "Fast Telegram setup",
-        "Clean channel lineup",
-        "Stable playback",
-        "Support when you need it",
-      ],
+      blocks: ["Fast Telegram setup", "Organised access", "Stable playback", "Support when needed"],
     },
     {
       ch: "105",
       abbr: "LX",
       name: "Luxe Kids",
-      blocks: [
-        "Family-ready experience",
-        "Clear titles & logos",
-        "No broken channels",
-        "Premium reliability",
-      ],
+      blocks: ["Family-ready", "Clear titles", "Reliable channels", "Premium experience"],
     },
   ];
 
@@ -430,11 +446,7 @@ function EpgMock() {
                   style={{ width: programWidth * 2 }}
                 >
                   {[0, 1].map((dup) => (
-                    <div
-                      key={dup}
-                      className="flex gap-2 pr-2"
-                      style={{ width: programWidth }}
-                    >
+                    <div key={dup} className="flex gap-2 pr-2" style={{ width: programWidth }}>
                       {row.blocks.map((b, i) => {
                         const isLive = b.toUpperCase().includes("LIVE");
                         const isNow = idx === 2 && i === 1;
@@ -539,23 +551,23 @@ export default function EliteHouseLandingPage() {
           50% { transform: translateX(3px); }
           100% { transform: translateX(0); }
         }
-        /* subtle luxury underline for headline */
-        @keyframes goldUnderline {
-          0%, 100% { transform: scaleX(0.65); opacity: 0.6; }
-          50% { transform: scaleX(1); opacity: 0.95; }
+        @keyframes spotDrift {
+          0%, 100% { transform: translate3d(0,0,0); opacity: 0.45; }
+          50% { transform: translate3d(0,-10px,0); opacity: 0.60; }
         }
       `}</style>
 
+      {/* Background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 animate-[gradientMove_14s_ease-in-out_infinite] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_80%,rgba(170,90,255,0.12),transparent_65%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(212,175,55,0.18),rgba(0,0,0,0)_62%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_15%_40%,rgba(184,134,11,0.14),rgba(0,0,0,0)_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_85%_45%,rgba(246,226,122,0.10),rgba(0,0,0,0)_72%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_20%_80%,rgba(80,120,255,0.10),rgba(0,0,0,0)_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(35%_30%_at_85%_75%,rgba(170,90,255,0.08),rgba(0,0,0,0)_72%)]" />
+
+        {/* Subtle moving “silk” layer */}
+        <div className="absolute inset-0 opacity-[0.10] motion-reduce:hidden animate-[gradientMove_18s_ease-in-out_infinite] [background:radial-gradient(50%_40%_at_15%_40%,rgba(184,134,11,0.22),transparent_70%),radial-gradient(45%_35%_at_85%_55%,rgba(246,226,122,0.18),transparent_72%)]" />
+
         <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
-        {/* calmer on mobile */}
+
         <div className="hidden sm:block">
           <FloatingParticles />
         </div>
@@ -566,7 +578,6 @@ export default function EliteHouseLandingPage() {
         <section className="mx-auto max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pb-12 sm:pt-10">
           <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
             <div>
-              {/* Logo moved into hero (header removed) */}
               <div className="mb-6">
                 <Image
                   src="/logo.png"
@@ -580,7 +591,7 @@ export default function EliteHouseLandingPage() {
 
               <div className="mb-4 flex flex-wrap gap-2">
                 <Badge>24-hour trial via Telegram</Badge>
-                <Badge>Global live access and an on demand library</Badge>
+                <Badge>Global live access + on demand library</Badge>
               </div>
 
               <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
@@ -590,16 +601,13 @@ export default function EliteHouseLandingPage() {
                 </span>
               </h1>
 
-              {/* subtle animated underline */}
-              <div className="mt-3 h-[2px] w-44 rounded-full bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-transparent opacity-70 animate-[goldUnderline_5.5s_ease-in-out_infinite]" />
-
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-                Elite House delivers a polished, dependable subscription which is consistent, clean, and built to work
-                across your favourite devices.
+                Elite House delivers a polished, dependable subscription — clean layout, consistent performance, and a
+                premium feel across your favourite devices.
               </p>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <ShimmerButton href={waLink("")} variant="gold" attention>
+                <ShimmerButton href={CTA_HREF} variant="gold" attention>
                   Start Trial on Telegram
                 </ShimmerButton>
                 <a
@@ -610,13 +618,15 @@ export default function EliteHouseLandingPage() {
                 </a>
               </div>
 
-              {/* Trust pill (UPDATED: removed member count + no trial-message copy anywhere) */}
-              <div className="mt-5 inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
-                <span className="font-semibold text-white/90">Private Access Only</span>
+              {/* Replaces the member count pill */}
+              <div className="mt-5 inline-flex flex-wrap items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
+                <span className="font-semibold text-white/90">Private access</span>
                 <span className="h-4 w-px bg-white/15" />
                 <span className="text-[#F6E27A] text-base leading-none">★★★★★</span>
                 <span className="h-4 w-px bg-white/15" />
-                <span>Instant Activation</span>
+                <span>Activated in minutes</span>
+                <span className="h-4 w-px bg-white/15 hidden sm:inline-block" />
+                <span className="hidden sm:inline-block">Direct Telegram support</span>
               </div>
             </div>
 
@@ -640,17 +650,17 @@ export default function EliteHouseLandingPage() {
                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                   <div className="text-xs font-semibold text-[#F6E27A]">24-hour trial</div>
                   <div className="mt-1 text-sm text-white/80">
-                    Message us on Telegram and we&apos;ll set you up for a private 24-hour trial.
+                    Message us on Telegram and we’ll set you up for a private 24-hour trial.
                   </div>
 
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <a
-                      href={waLink("")}
+                      href={CTA_HREF}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 rounded-xl bg-black/60 px-4 py-2 text-sm font-semibold text-[#F6E27A] ring-1 ring-[#D4AF37]/25 transition hover:bg-black/70"
                     >
-                      <WhatsAppIcon className="shrink-0" />
+                      <TelegramIcon className="shrink-0" />
                       <span>Chat on Telegram →</span>
                     </a>
                     <div className="text-xs text-white/55">Replies usually within minutes</div>
@@ -678,7 +688,7 @@ export default function EliteHouseLandingPage() {
                 <p className="text-white/70 leading-relaxed text-sm mb-4">
                   Worldwide live television, organised clearly and presented cleanly.
                 </p>
-                <div className="text-[#F6E27A] text-sm font-medium">Live access—delivered reliably.</div>
+                <div className="text-[#F6E27A] text-sm font-medium">Live access — delivered reliably.</div>
               </div>
             </Reveal>
 
@@ -686,7 +696,7 @@ export default function EliteHouseLandingPage() {
               <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
                 <h3 className="text-2xl font-semibold mb-3">Private Film & Series Library</h3>
                 <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  Over 100,000 films and series available instantly. Browse smoothly. Press play confidently.
+                  A deep on demand library available instantly. Browse smoothly. Press play confidently.
                 </p>
                 <div className="text-[#F6E27A] text-sm font-medium">A library for those who expect more.</div>
               </div>
@@ -696,7 +706,7 @@ export default function EliteHouseLandingPage() {
               <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-7 backdrop-blur transition hover:bg-white/[0.06]">
                 <h3 className="text-2xl font-semibold mb-3">Direct Support</h3>
                 <p className="text-white/70 leading-relaxed text-sm mb-4">
-                  Telegram assistance handled quickly and personally. Setup, upgrades, support—streamlined.
+                  Telegram assistance handled quickly and personally. Setup, upgrades, support — streamlined.
                 </p>
                 <div className="text-[#F6E27A] text-sm font-medium">Support reserved for active members.</div>
               </div>
@@ -707,23 +717,60 @@ export default function EliteHouseLandingPage() {
             <div className="text-white/70 mb-5 text-sm tracking-wide">
               Limited access is available. Start with a private 24-hour trial while spaces remain.
             </div>
-            <ShimmerButton href={waLink("")} variant="gold" attention>
+            <ShimmerButton href={CTA_HREF} variant="gold" attention>
               Start Trial on Telegram
             </ShimmerButton>
           </Reveal>
         </section>
 
-        {/* PRICING */}
-        <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+        {/* PRICING (prettied-up + spotlight follows scroll) */}
+        <section
+          id="pricing"
+          className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16"
+        >
+          <SectionSpotlight targetId="pricing" />
+
+          {/* Premium header */}
           <Reveal>
-            <SectionTitle
-              kicker="Membership"
-              title="One Plan. Full Access."
-              subtitle="Choose your billing. Everything is included. Request private trial access to begin."
-            />
+            <div className="relative mx-auto max-w-3xl text-center">
+              <div className="relative overflow-hidden rounded-[32px] border border-[#D4AF37]/20 bg-white/[0.04] px-6 py-10 backdrop-blur sm:px-10 sm:py-12">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/45 to-transparent" />
+                <div className="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(60%_55%_at_50%_0%,rgba(212,175,55,0.18),transparent_70%)]" />
+
+                <div className="mb-4 flex justify-center">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#F6E27A]/80" />
+                    Membership
+                  </span>
+                </div>
+
+                <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+                  One Plan.
+                  <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                    Full Access.
+                  </span>
+                </h2>
+
+                <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
+                  Clean, consistent access — across devices. Choose your billing option and start with a private 24-hour trial.
+                </p>
+
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+                  {["Private activation", "Fast setup", "Reliable access", "Direct Telegram support"].map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-[11px] font-semibold text-white/75"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </Reveal>
 
-          <Reveal delay={70} className="mt-8">
+          {/* Steps row */}
+          <Reveal delay={70} className="mt-6">
             <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur sm:grid-cols-3">
               {["Message us on Telegram", "Trial activated", "Start watching"].map((t, i) => (
                 <div key={t} className="flex items-center gap-3">
@@ -736,48 +783,87 @@ export default function EliteHouseLandingPage() {
             </div>
           </Reveal>
 
-          <Reveal delay={80} className="mt-6 flex justify-center">
+          {/* Toggle */}
+          <Reveal delay={110} className="mt-6 flex justify-center">
             <PricingToggle value={billing} onChange={setBilling} />
           </Reveal>
 
+          {/* Premium pricing card */}
           <div className="mt-10 flex justify-center">
-            <Reveal delay={140}>
-              <div className="relative group w-full max-w-2xl overflow-hidden rounded-[32px] border border-[#D4AF37]/25 bg-white/[0.05] p-10 backdrop-blur-xl transition-all duration-700 hover:scale-[1.01] hover:border-[#D4AF37]/50 animate-[borderBreath_5.5s_ease-in-out_infinite]">
-                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/20 blur-3xl animate-[floaty_6s_ease-in-out_infinite]" />
-                  <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/20 blur-3xl animate-[floaty_8s_ease-in-out_infinite]" />
+            <Reveal delay={160}>
+              <div className="relative w-full max-w-2xl overflow-hidden rounded-[34px] border border-[#D4AF37]/22 bg-white/[0.05] p-8 backdrop-blur-xl transition-all duration-700 hover:scale-[1.01] hover:border-[#D4AF37]/45 sm:p-10 animate-[borderBreath_5.5s_ease-in-out_infinite]">
+                <div className="pointer-events-none absolute inset-0 opacity-80">
+                  <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#D4AF37]/18 blur-3xl" />
+                  <div className="absolute -right-28 -bottom-32 h-96 w-96 rounded-full bg-[#B8860B]/16 blur-3xl" />
                 </div>
+
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#F6E27A]/40 to-transparent" />
 
                 <div className="relative text-center">
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
                     Elite Access Membership
+                    {billing === "annual" ? (
+                      <span className="ml-1 rounded-full border border-[#D4AF37]/30 bg-black/40 px-2 py-0.5 text-[10px] font-extrabold text-[#F6E27A]">
+                        Best Value
+                      </span>
+                    ) : null}
                   </div>
 
-                  <div className="mt-5 text-xs tracking-widest uppercase text-white/50">Billing</div>
-                  <div className="mt-2 text-sm font-semibold text-white/85">
+                  <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                    {[
+                      { k: "Live access", v: "Included" },
+                      { k: "On demand library", v: "Included" },
+                      { k: "Support", v: "Priority" },
+                    ].map((x) => (
+                      <div
+                        key={x.k}
+                        className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3"
+                      >
+                        <div className="text-[11px] font-semibold text-white/55">{x.k}</div>
+                        <div className="mt-1 text-sm font-semibold text-white/85">{x.v}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-7 text-xs tracking-widest uppercase text-white/45">Billing</div>
+                  <div className="mt-2 text-base font-semibold text-white/85">
                     {billing === "sixmonth" ? "6 Months" : billing === "annual" ? "1 Year" : "Monthly"}
                   </div>
 
-                  <div className="mt-5 text-6xl font-semibold tracking-tight">
-                    <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
-                      {pricing.price}
-                    </span>
+                  <div className="mt-6 flex items-end justify-center gap-2">
+                    <div className="text-6xl font-semibold tracking-tight">
+                      <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                        {pricing.price}
+                      </span>
+                    </div>
+                    <div className="pb-2 text-xs text-white/55">{pricing.note}</div>
                   </div>
-                  <div className="mt-2 text-xs text-white/60">{pricing.note}</div>
 
                   {pricing.savings ? (
-                    <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A] animate-pulse">
+                    <div className="mt-4 inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1 text-xs font-semibold text-[#F6E27A]">
                       {pricing.savings}
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="mt-4 text-xs text-white/55">Cancel anytime. Upgrade whenever you want.</div>
+                  )}
 
-                  <div className="mt-7">
-                    <ShimmerButton href={waLink("")} className="w-full" variant="gold" attention>
+                  <div className="mt-8">
+                    <ShimmerButton href={CTA_HREF} className="w-full" variant="gold" attention>
                       Start Trial on Telegram
                     </ShimmerButton>
+
                     <div className="mt-3 text-[11px] text-white/55">
-                      Private access. Confirmed individually via Telegram.
+                      Private access is confirmed individually via Telegram.
                     </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-white/55">
+                    {["Setup help included", "Smooth on mobile & TV", "Direct Telegram support"].map((t) => (
+                      <span key={t} className="inline-flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#F6E27A]/70" />
+                        {t}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -790,26 +876,26 @@ export default function EliteHouseLandingPage() {
           <SectionTitle
             kicker="FAQ"
             title="Questions, answered"
-            subtitle="If you dont see what you need, message us on Telegram and we'll help quickly."
+            subtitle="If you don’t see what you need, message us on Telegram and we’ll help quickly."
           />
 
           <div className="grid gap-4 lg:grid-cols-2">
             {[
               {
                 q: "How do I start the 24-hour trial?",
-                a: "Tap any Telegram button and send a message — we'll reply with setup steps.",
+                a: "Tap any Telegram button and message us. We’ll reply with setup steps and activation.",
               },
               {
                 q: "Which devices does it work on?",
-                a: "Most popular streaming platforms are supported. If you&apos;re unsure, ask us on Telegram.",
+                a: "Most popular platforms are supported. If you’re unsure, ask us on Telegram.",
               },
               {
                 q: "Can I upgrade my plan later?",
-                a: "Yes. Message us anytime and we'll upgrade you seamlessly, quick and simple. Handled via Telegram.",
+                a: "Yes. Message us anytime and we’ll upgrade you seamlessly.",
               },
               {
                 q: "How quickly will you reply?",
-                a: "Support is handled directly through Telegram, so responses are typically fast, personal, and effortless.",
+                a: "Support is handled directly through Telegram, so replies are typically fast and personal.",
               },
             ].map((item) => (
               <div
@@ -823,7 +909,7 @@ export default function EliteHouseLandingPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <ShimmerButton href={waLink("")} className="px-7 py-3" variant="gold" attention>
+            <ShimmerButton href={CTA_HREF} className="px-7 py-3" variant="gold" attention>
               Start Trial on Telegram
             </ShimmerButton>
           </div>
@@ -840,12 +926,12 @@ export default function EliteHouseLandingPage() {
                 </div>
               </div>
               <a
-                href={waLink("")}
+                href={CTA_HREF}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-5 py-2 text-sm font-semibold text-[#F6E27A] transition hover:bg-black/55"
               >
-                <WhatsAppIcon />
+                <TelegramIcon />
                 Start Trial on Telegram
               </a>
             </div>
@@ -855,7 +941,7 @@ export default function EliteHouseLandingPage() {
         {/* Mobile sticky CTA */}
         <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
           <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-2 shadow-2xl shadow-black/50">
-            <ShimmerButton href={waLink("")} className="w-full" variant="gold" attention>
+            <ShimmerButton href={CTA_HREF} className="w-full" variant="gold" attention>
               Start Trial on Telegram
             </ShimmerButton>
             <div className="mt-1 text-center text-[10px] text-white/55">
