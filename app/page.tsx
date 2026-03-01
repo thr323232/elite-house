@@ -678,7 +678,7 @@ export default function EliteHouseLandingPage() {
             <SectionTitle
               kicker="Elite Access"
               title="Elite Access, Made Simple."
-              subtitle="Global live access. A vast on demand library. Seamless performance—delivered without compromise."
+              subtitle="Global live access. A vast on demand library. Seamless performance, delivered without compromise."
             />
           </Reveal>
 
