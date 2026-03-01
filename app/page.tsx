@@ -595,7 +595,7 @@ export default function EliteHouseLandingPage() {
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-                Elite House delivers a polished, dependable subscription—consistent, clean, and built to work across your favourite devices.
+                Elite House delivers a polished, dependable subscription which is consistent, clean, and built to work across your favourite devices.
               </p>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
