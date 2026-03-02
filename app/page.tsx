@@ -5,12 +5,12 @@ import Image from "next/image";
 
 /**
  * Elite House — Minimal Luxury Landing Page (Telegram-first)
- * Updates:
- * - New pricing:
- *   - 1 month: £12.99
- *   - 6 months: £49.99 (Save £27.95 vs monthly)
- *   - 12 months: £79.99 (Save £75.89 vs monthly)
- * - Background upgraded: richer glow stack + subtle “aurora” sweep + refined grain + vignette
+ * Updates (merged):
+ * - Pricing (cheap ladder):
+ *   - 1 month: £9.99
+ *   - 6 months: £49.99 (Save £9.95 vs monthly)
+ *   - 12 months: £79.99 (Save £39.89 vs monthly)
+ * - Background: switched to CSS-driven layers (guaranteed visible even if Tailwind misses arbitrary bg gradients)
  *
  * Usage (Next.js App Router):
  * - Put this file at: app/page.tsx
@@ -429,22 +429,22 @@ export default function EliteHouseLandingPage() {
 
   const pricing = useMemo(() => {
     // Monthly reference for savings math
-    const monthly = 12.99;
+    const monthly = 9.99;
 
-    // Savings vs paying monthly for the same duration:
-    // 6 months: (12.99 * 6) - 49.99 = 27.95
-    // 12 months: (12.99 * 12) - 79.99 = 75.89
+    const sixPrice = 49.99;
+    const annualPrice = 79.99;
+
     const base: Record<string, { price: string; note: string; savings: string | null }> = {
-      monthly: { price: "£12.99", note: "per month", savings: null },
+      monthly: { price: "£9.99", note: "per month", savings: null },
       sixmonth: {
         price: "£49.99",
         note: "every 6 months",
-        savings: `Save £${(monthly * 6 - 49.99).toFixed(2)}`,
+        savings: `Save £${(monthly * 6 - sixPrice).toFixed(2)}`,
       },
       annual: {
         price: "£79.99",
         note: "per year",
-        savings: `Save £${(monthly * 12 - 79.99).toFixed(2)}`,
+        savings: `Save £${(monthly * 12 - annualPrice).toFixed(2)}`,
       },
     };
 
@@ -452,16 +452,17 @@ export default function EliteHouseLandingPage() {
   }, [billing]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
+    <div className="min-h-screen bg-[#050507] text-white">
       <style>{`
-        @keyframes gradientMove {
-          0%, 100% { transform: translate3d(0,0,0) scale(1); filter: saturate(1.08); }
-          50% { transform: translate3d(-2.6%, -3.4%, 0) scale(1.07); filter: saturate(1.18); }
+        @keyframes bgShift {
+          0% { transform: translate3d(0,0,0) scale(1); filter: saturate(1.05) brightness(1); }
+          50% { transform: translate3d(-2.6%, -3.2%, 0) scale(1.07); filter: saturate(1.22) brightness(1.08); }
+          100% { transform: translate3d(0,0,0) scale(1); filter: saturate(1.05) brightness(1); }
         }
-        @keyframes auroraSweep {
-          0% { transform: translateX(-18%) translateY(6%) rotate(-8deg); opacity: 0.35; }
-          50% { transform: translateX(12%) translateY(-4%) rotate(8deg); opacity: 0.55; }
-          100% { transform: translateX(-18%) translateY(6%) rotate(-8deg); opacity: 0.35; }
+        @keyframes aurora {
+          0% { transform: translateX(-16%) translateY(10%) rotate(-10deg); opacity: .38; }
+          50% { transform: translateX(14%) translateY(-8%) rotate(10deg); opacity: .62; }
+          100% { transform: translateX(-16%) translateY(10%) rotate(-10deg); opacity: .38; }
         }
         @keyframes shimmer {
           0% { transform: translateX(-35%) rotate(12deg); opacity: 0.12; }
@@ -489,7 +490,7 @@ export default function EliteHouseLandingPage() {
         }
         @keyframes borderBreath {
           0%, 100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.18), 0 0 18px rgba(212,175,55,0.10); }
-          50% { box-shadow: 0 0 0 1px rgba(212,175,55,0.42), 0 0 44px rgba(212,175,55,0.20); }
+          50% { box-shadow: 0 0 0 1px rgba(212,175,55,0.44), 0 0 48px rgba(212,175,55,0.22); }
         }
         @keyframes ctaPulse {
           0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55,0.22); }
@@ -506,48 +507,77 @@ export default function EliteHouseLandingPage() {
           100% { transform: translateX(0); }
         }
 
-        /* Subtle grain (no external asset) */
-        .grain {
+        /* Background system (CSS-driven, always visible) */
+        .bgfx {
+          position: absolute;
+          inset: 0;
+          background: #050507;
+          overflow: hidden;
+        }
+        .bgfx::before {
+          content: "";
+          position: absolute;
+          inset: -22%;
+          background:
+            radial-gradient(circle at 18% 20%, rgba(212,175,55,.30), transparent 52%),
+            radial-gradient(circle at 85% 30%, rgba(80,120,255,.20), transparent 60%),
+            radial-gradient(circle at 55% 88%, rgba(170,90,255,.18), transparent 62%),
+            radial-gradient(circle at 50% 0%, rgba(246,226,122,.10), transparent 55%);
+          animation: bgShift 16s ease-in-out infinite;
+        }
+        .bgfx::after {
+          content: "";
+          position: absolute;
+          inset: -30%;
+          background:
+            conic-gradient(from 180deg at 50% 50%,
+              rgba(246,226,122,.12),
+              rgba(80,120,255,.12),
+              rgba(170,90,255,.14),
+              rgba(212,175,55,.16),
+              rgba(246,226,122,.12)
+            );
+          filter: blur(42px);
+          mix-blend-mode: screen;
+          animation: aurora 12s ease-in-out infinite;
+          opacity: .60;
+        }
+        .bgfx .grain {
+          position: absolute;
+          inset: 0;
           background-image:
             radial-gradient(circle at 20% 10%, rgba(255,255,255,0.04), transparent 30%),
             radial-gradient(circle at 80% 40%, rgba(255,255,255,0.03), transparent 32%),
             radial-gradient(circle at 30% 80%, rgba(255,255,255,0.025), transparent 34%),
             repeating-linear-gradient(0deg, rgba(255,255,255,0.015), rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
           mix-blend-mode: overlay;
+          opacity: .22;
+        }
+        .bgfx .grid {
+          position: absolute;
+          inset: 0;
+          opacity: .10;
+          background-image:
+            linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+          background-size: 64px 64px;
+        }
+        .bgfx .vignette {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(90% 70% at 50% 30%, rgba(0,0,0,0), rgba(0,0,0,.82));
         }
       `}</style>
 
-      {/* Premium background (upgraded) */}
+      {/* Premium background (CSS-driven) */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        {/* Deep moving glow */}
-        <div className="absolute inset-0 animate-[gradientMove_18s_ease-in-out_infinite] bg-[radial-gradient(circle_at_22%_18%,rgba(212,175,55,0.22),transparent_55%),radial-gradient(circle_at_78%_28%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_86%,rgba(170,90,255,0.12),transparent_65%)]" />
-
-        {/* Aurora sweep layer */}
-        <div className="absolute -inset-x-24 -inset-y-24 blur-2xl opacity-50 animate-[auroraSweep_14s_ease-in-out_infinite]"
-          style={{
-            background:
-              "conic-gradient(from 180deg at 50% 50%, rgba(246,226,122,0.10), rgba(80,120,255,0.10), rgba(170,90,255,0.10), rgba(212,175,55,0.12), rgba(246,226,122,0.10))",
-          }}
-        />
-
-        {/* Dark base */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
-
-        {/* Luxury spotlights */}
-        <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(212,175,55,0.16),rgba(0,0,0,0)_62%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(55%_40%_at_12%_45%,rgba(184,134,11,0.12),rgba(0,0,0,0)_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(55%_40%_at_88%_48%,rgba(246,226,122,0.09),rgba(0,0,0,0)_72%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(55%_42%_at_50%_60%,rgba(80,120,255,0.08),rgba(0,0,0,0)_70%)]" />
-
-        {/* Subtle grid */}
-        <div className="absolute inset-0 opacity-[0.10] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:64px_64px]" />
-
-        {/* Grain + vignette */}
-        <div className="absolute inset-0 grain opacity-[0.22]" />
-        <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_30%,rgba(0,0,0,0),rgba(0,0,0,0.78))]" />
-
-        <div className="hidden sm:block">
-          <FloatingParticles />
+        <div className="bgfx">
+          <div className="grid" />
+          <div className="grain" />
+          <div className="vignette" />
+          <div className="hidden sm:block">
+            <FloatingParticles />
+          </div>
         </div>
       </div>
 
@@ -574,7 +604,7 @@ export default function EliteHouseLandingPage() {
 
               <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl">
                 Elite Access.
-                <span className="block bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent leading-tight pb-1">
+                <span className="block bg-gradient-to-r from-[#FFF1A8] via-[#F6E27A] to-[#D4AF37] bg-clip-text text-transparent leading-tight pb-1">
                   For Viewers Who Expect More.
                 </span>
               </h1>
@@ -597,7 +627,7 @@ export default function EliteHouseLandingPage() {
                 </a>
               </div>
 
-              {/* Trust pill (replaces member count) */}
+              {/* Trust pill */}
               <div className="mt-5 inline-flex flex-wrap items-center gap-3 rounded-full border border-white/10 bg-black/40 px-5 py-2 text-sm text-white/75 backdrop-blur">
                 <span className="font-semibold text-white/90">Activated in minutes</span>
                 <span className="h-4 w-px bg-white/15" />
@@ -625,9 +655,7 @@ export default function EliteHouseLandingPage() {
                 <EpgMock />
 
                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <div className="text-xs font-semibold text-[#F6E27A]">
-                    24-hour trial
-                  </div>
+                  <div className="text-xs font-semibold text-[#F6E27A]">24-hour trial</div>
                   <div className="mt-1 text-sm text-white/80">
                     Tap below to open Telegram — we’ll confirm access and share setup steps.
                   </div>
@@ -642,9 +670,7 @@ export default function EliteHouseLandingPage() {
                       <TelegramIcon className="shrink-0" />
                       <span>Open Telegram →</span>
                     </a>
-                    <div className="text-xs text-white/55">
-                      Replies usually within minutes
-                    </div>
+                    <div className="text-xs text-white/55">Replies usually within minutes</div>
                   </div>
                 </div>
               </div>
@@ -669,9 +695,7 @@ export default function EliteHouseLandingPage() {
                 <p className="text-white/70 leading-relaxed text-sm mb-3">
                   Global live access presented cleanly — easy to browse, easy to trust.
                 </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  Consistent, dependable playback.
-                </div>
+                <div className="text-[#F6E27A] text-sm font-medium">Consistent, dependable playback.</div>
               </div>
             </Reveal>
 
@@ -681,9 +705,7 @@ export default function EliteHouseLandingPage() {
                 <p className="text-white/70 leading-relaxed text-sm mb-3">
                   A deep on-demand catalogue that loads smoothly and stays organised.
                 </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  Browse confidently. Press play.
-                </div>
+                <div className="text-[#F6E27A] text-sm font-medium">Browse confidently. Press play.</div>
               </div>
             </Reveal>
 
@@ -693,17 +715,13 @@ export default function EliteHouseLandingPage() {
                 <p className="text-white/70 leading-relaxed text-sm mb-3">
                   Fast Telegram assistance for setup, upgrades and troubleshooting.
                 </p>
-                <div className="text-[#F6E27A] text-sm font-medium">
-                  Private, quick, and personal.
-                </div>
+                <div className="text-[#F6E27A] text-sm font-medium">Private, quick, and personal.</div>
               </div>
             </Reveal>
           </div>
 
           <Reveal delay={320} className="mt-8 text-center">
-            <div className="text-white/70 mb-4 text-sm tracking-wide">
-              Start with a private 24-hour trial.
-            </div>
+            <div className="text-white/70 mb-4 text-sm tracking-wide">Start with a private 24-hour trial.</div>
             <ShimmerButton href={TELEGRAM_LINK} variant="gold" attention>
               Start Trial on Telegram
             </ShimmerButton>
@@ -720,13 +738,14 @@ export default function EliteHouseLandingPage() {
 
               <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight">
                 <span className="text-white">One plan.</span>{" "}
-                <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#FFF1A8] via-[#F6E27A] to-[#D4AF37] bg-clip-text text-transparent">
                   Full access.
                 </span>
               </h2>
 
               <p className="mt-4 text-sm sm:text-base leading-relaxed text-white/70">
-                Choose your billing schedule. Everything is included — live access, private library, and Telegram support.
+                Choose your billing schedule. Everything is included — live access, private library, and Telegram
+                support.
               </p>
             </div>
           </Reveal>
@@ -751,19 +770,13 @@ export default function EliteHouseLandingPage() {
                       Elite Access Membership
                     </div>
 
-                    <div className="mt-5 text-xs tracking-widest uppercase text-white/55">
-                      Billing
-                    </div>
+                    <div className="mt-5 text-xs tracking-widest uppercase text-white/55">Billing</div>
                     <div className="mt-2 text-sm font-semibold text-white/85">
-                      {billing === "sixmonth"
-                        ? "6 Months"
-                        : billing === "annual"
-                        ? "12 Months"
-                        : "1 Month"}
+                      {billing === "sixmonth" ? "6 Months" : billing === "annual" ? "12 Months" : "1 Month"}
                     </div>
 
                     <div className="mt-5 text-6xl sm:text-7xl font-semibold tracking-tight">
-                      <span className="bg-gradient-to-r from-[#F6E27A] via-[#D4AF37] to-[#B8860B] bg-clip-text text-transparent">
+                      <span className="bg-gradient-to-r from-[#FFF1A8] via-[#F6E27A] to-[#D4AF37] bg-clip-text text-transparent">
                         {pricing.price}
                       </span>
                     </div>
@@ -799,9 +812,7 @@ export default function EliteHouseLandingPage() {
                       <ShimmerButton href={TELEGRAM_LINK} className="w-full" variant="gold" attention>
                         Start Trial on Telegram
                       </ShimmerButton>
-                      <div className="mt-3 text-[11px] text-white/55">
-                        Private access is confirmed individually on Telegram.
-                      </div>
+                      <div className="mt-3 text-[11px] text-white/55">Private access is confirmed individually on Telegram.</div>
                     </div>
 
                     {/* Sub-trust row */}
@@ -844,10 +855,7 @@ export default function EliteHouseLandingPage() {
                 a: "Support is handled directly through Telegram, so replies are typically quick and personal.",
               },
             ].map((item) => (
-              <div
-                key={item.q}
-                className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur"
-              >
+              <div key={item.q} className="rounded-3xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur">
                 <div className="text-base font-semibold text-white">{item.q}</div>
                 <div className="mt-2 text-sm leading-relaxed text-white/70">{item.a}</div>
               </div>
