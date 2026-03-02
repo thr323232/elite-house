@@ -5,14 +5,15 @@ import Image from "next/image";
 
 /**
  * Elite House — Minimal Luxury Landing Page (Telegram-first)
- * - Premium, subtly moving background (slow gradients + grain + vignette)
- * - Removes member-count claims
- * - Removes “copy/paste trial message” everywhere (buttons just open Telegram)
- * - Pricing section is centered + spotlighted + more eye-catching
- * - “Elite Access, Made Simple.” section condensed + tightened
+ * Updates:
+ * - New pricing:
+ *   - 1 month: £12.99
+ *   - 6 months: £49.99 (Save £27.95 vs monthly)
+ *   - 12 months: £79.99 (Save £75.89 vs monthly)
+ * - Background upgraded: richer glow stack + subtle “aurora” sweep + refined grain + vignette
  *
  * Usage (Next.js App Router):
- * - Put this file at: app/page.tsx  (or wherever you render your landing page)
+ * - Put this file at: app/page.tsx
  * - Ensure /public/logo.png exists
  */
 
@@ -65,9 +66,9 @@ function PricingToggle({
   onChange: (v: string) => void;
 }) {
   const options = [
-    { id: "monthly", label: "Monthly" },
+    { id: "monthly", label: "1 Month" },
     { id: "sixmonth", label: "6 Months" },
-    { id: "annual", label: "1 Year", badge: "Best Value" },
+    { id: "annual", label: "12 Months", badge: "Best Value" },
   ];
 
   return (
@@ -427,11 +428,26 @@ export default function EliteHouseLandingPage() {
   const [billing, setBilling] = useState("sixmonth");
 
   const pricing = useMemo(() => {
+    // Monthly reference for savings math
+    const monthly = 12.99;
+
+    // Savings vs paying monthly for the same duration:
+    // 6 months: (12.99 * 6) - 49.99 = 27.95
+    // 12 months: (12.99 * 12) - 79.99 = 75.89
     const base: Record<string, { price: string; note: string; savings: string | null }> = {
-      monthly: { price: "£14.99", note: "per month", savings: null },
-      sixmonth: { price: "£60", note: "every 6 months", savings: "Save £29.94" },
-      annual: { price: "£100", note: "per year", savings: "Save £79.88" },
+      monthly: { price: "£12.99", note: "per month", savings: null },
+      sixmonth: {
+        price: "£49.99",
+        note: "every 6 months",
+        savings: `Save £${(monthly * 6 - 49.99).toFixed(2)}`,
+      },
+      annual: {
+        price: "£79.99",
+        note: "per year",
+        savings: `Save £${(monthly * 12 - 79.99).toFixed(2)}`,
+      },
     };
+
     return base[billing];
   }, [billing]);
 
@@ -439,8 +455,13 @@ export default function EliteHouseLandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-black via-[#07070A] to-[#000000] text-white">
       <style>{`
         @keyframes gradientMove {
-          0%, 100% { transform: translate3d(0,0,0) scale(1); filter: saturate(1.05); }
-          50% { transform: translate3d(-2.2%, -3%, 0) scale(1.06); filter: saturate(1.15); }
+          0%, 100% { transform: translate3d(0,0,0) scale(1); filter: saturate(1.08); }
+          50% { transform: translate3d(-2.6%, -3.4%, 0) scale(1.07); filter: saturate(1.18); }
+        }
+        @keyframes auroraSweep {
+          0% { transform: translateX(-18%) translateY(6%) rotate(-8deg); opacity: 0.35; }
+          50% { transform: translateX(12%) translateY(-4%) rotate(8deg); opacity: 0.55; }
+          100% { transform: translateX(-18%) translateY(6%) rotate(-8deg); opacity: 0.35; }
         }
         @keyframes shimmer {
           0% { transform: translateX(-35%) rotate(12deg); opacity: 0.12; }
@@ -468,7 +489,7 @@ export default function EliteHouseLandingPage() {
         }
         @keyframes borderBreath {
           0%, 100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.18), 0 0 18px rgba(212,175,55,0.10); }
-          50% { box-shadow: 0 0 0 1px rgba(212,175,55,0.40), 0 0 36px rgba(212,175,55,0.22); }
+          50% { box-shadow: 0 0 0 1px rgba(212,175,55,0.42), 0 0 44px rgba(212,175,55,0.20); }
         }
         @keyframes ctaPulse {
           0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55,0.22); }
@@ -496,20 +517,34 @@ export default function EliteHouseLandingPage() {
         }
       `}</style>
 
-      {/* Premium background */}
+      {/* Premium background (upgraded) */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute inset-0 animate-[gradientMove_16s_ease-in-out_infinite] bg-[radial-gradient(circle_at_22%_18%,rgba(212,175,55,0.20),transparent_55%),radial-gradient(circle_at_78%_28%,rgba(80,120,255,0.12),transparent_60%),radial-gradient(circle_at_50%_86%,rgba(170,90,255,0.10),transparent_65%)]" />
+        {/* Deep moving glow */}
+        <div className="absolute inset-0 animate-[gradientMove_18s_ease-in-out_infinite] bg-[radial-gradient(circle_at_22%_18%,rgba(212,175,55,0.22),transparent_55%),radial-gradient(circle_at_78%_28%,rgba(80,120,255,0.14),transparent_60%),radial-gradient(circle_at_50%_86%,rgba(170,90,255,0.12),transparent_65%)]" />
+
+        {/* Aurora sweep layer */}
+        <div className="absolute -inset-x-24 -inset-y-24 blur-2xl opacity-50 animate-[auroraSweep_14s_ease-in-out_infinite]"
+          style={{
+            background:
+              "conic-gradient(from 180deg at 50% 50%, rgba(246,226,122,0.10), rgba(80,120,255,0.10), rgba(170,90,255,0.10), rgba(212,175,55,0.12), rgba(246,226,122,0.10))",
+          }}
+        />
+
+        {/* Dark base */}
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#07070A] to-black" />
+
+        {/* Luxury spotlights */}
         <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(212,175,55,0.16),rgba(0,0,0,0)_62%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(55%_40%_at_12%_45%,rgba(184,134,11,0.12),rgba(0,0,0,0)_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(55%_40%_at_88%_48%,rgba(246,226,122,0.08),rgba(0,0,0,0)_72%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(55%_40%_at_88%_48%,rgba(246,226,122,0.09),rgba(0,0,0,0)_72%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(55%_42%_at_50%_60%,rgba(80,120,255,0.08),rgba(0,0,0,0)_70%)]" />
 
-        {/* Subtle grid, lower opacity */}
-        <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:64px_64px]" />
+        {/* Subtle grid */}
+        <div className="absolute inset-0 opacity-[0.10] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:64px_64px]" />
 
         {/* Grain + vignette */}
-        <div className="absolute inset-0 grain opacity-[0.20]" />
-        <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_30%,rgba(0,0,0,0),rgba(0,0,0,0.75))]" />
+        <div className="absolute inset-0 grain opacity-[0.22]" />
+        <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_30%,rgba(0,0,0,0),rgba(0,0,0,0.78))]" />
 
         <div className="hidden sm:block">
           <FloatingParticles />
@@ -617,7 +652,7 @@ export default function EliteHouseLandingPage() {
           </div>
         </section>
 
-        {/* FEATURES (condensed + tighter) */}
+        {/* FEATURES */}
         <section id="features" className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
           <Reveal>
             <SectionTitle
@@ -675,7 +710,7 @@ export default function EliteHouseLandingPage() {
           </Reveal>
         </section>
 
-        {/* PRICING (spotlighted + centered + eye-catching) */}
+        {/* PRICING */}
         <section id="pricing" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
@@ -723,8 +758,8 @@ export default function EliteHouseLandingPage() {
                       {billing === "sixmonth"
                         ? "6 Months"
                         : billing === "annual"
-                        ? "1 Year"
-                        : "Monthly"}
+                        ? "12 Months"
+                        : "1 Month"}
                     </div>
 
                     <div className="mt-5 text-6xl sm:text-7xl font-semibold tracking-tight">
